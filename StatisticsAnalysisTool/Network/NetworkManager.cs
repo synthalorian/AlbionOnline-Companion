@@ -1,6 +1,8 @@
 using Serilog;
 using StatisticsAnalysisTool.Abstractions;
+using StatisticsAnalysisTool.Network.Handlers;
 using StatisticsAnalysisTool.Network.PacketProviders;
+using StatisticsAnalysisTool.ViewModels;
 using System;
 using System.Threading.Tasks;
 
@@ -16,12 +18,40 @@ public class NetworkManager : IDisposable
     private PacketProvider? _packetProvider;
     private bool _isRunning;
 
+    // Event handlers
+    private DamageMeterEventHandler? _damageMeterHandler;
+    private DungeonTrackerEventHandler? _dungeonTrackerHandler;
+    private LootLoggerEventHandler? _lootLoggerHandler;
+    private DashboardEventHandler? _dashboardHandler;
+
     public bool IsRunning => _isRunning;
     public event EventHandler<string>? StatusChanged;
 
     public NetworkManager()
     {
         _receiverBuilder = ReceiverBuilder.Create();
+    }
+
+    /// <summary>
+    /// Register ViewModels to receive game events.
+    /// </summary>
+    public void RegisterViewModels(
+        DashboardViewModel dashboard,
+        DamageMeterViewModel damageMeter,
+        DungeonTrackerViewModel dungeonTracker,
+        LootLoggerViewModel lootLogger)
+    {
+        _dashboardHandler = new DashboardEventHandler(dashboard);
+        _damageMeterHandler = new DamageMeterEventHandler(damageMeter);
+        _dungeonTrackerHandler = new DungeonTrackerEventHandler(dungeonTracker);
+        _lootLoggerHandler = new LootLoggerEventHandler(lootLogger);
+
+        _receiverBuilder.AddEventHandler(_dashboardHandler);
+        _receiverBuilder.AddEventHandler(_damageMeterHandler);
+        _receiverBuilder.AddEventHandler(_dungeonTrackerHandler);
+        _receiverBuilder.AddEventHandler(_lootLoggerHandler);
+
+        Log.Information("ViewModels registered with NetworkManager");
     }
 
     public void AddHandler<TPacket>(PacketHandler<TPacket> handler)
