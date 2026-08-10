@@ -68,6 +68,24 @@ public partial class SettingsViewModel : ViewModelBase
     private bool _minimizeToTray;
 
     [ObservableProperty]
+    private double _windowOpacity = 1.0;
+
+    [ObservableProperty]
+    private double _fontSizeScale = 1.0;
+
+    [ObservableProperty]
+    private bool _compactMode;
+
+    [ObservableProperty]
+    private bool _alwaysOnTop;
+
+    [ObservableProperty]
+    private string _opacityDisplay = "100%";
+
+    [ObservableProperty]
+    private string _fontSizeDisplay = "100%";
+
+    [ObservableProperty]
     private string _statusMessage = string.Empty;
 
     public SettingsViewModel()
@@ -130,6 +148,12 @@ public partial class SettingsViewModel : ViewModelBase
         EnableSounds = s.PlaySounds;
         AutoStartTracking = s.AutoStartTracking;
         AlbionDataPath = s.GameLogPath;
+        WindowOpacity = s.WindowOpacity;
+        FontSizeScale = s.FontSizeScale;
+        CompactMode = s.CompactMode;
+        AlwaysOnTop = s.AlwaysOnTop;
+        OpacityDisplay = $"{s.WindowOpacity:P0}";
+        FontSizeDisplay = $"{s.FontSizeScale:P0}";
     }
 
     partial void OnSelectedThemeNameChanged(string value)
@@ -177,6 +201,10 @@ public partial class SettingsViewModel : ViewModelBase
         s.PlaySounds = EnableSounds;
         s.AutoStartTracking = AutoStartTracking;
         s.GameLogPath = AlbionDataPath;
+        s.WindowOpacity = WindowOpacity;
+        s.FontSizeScale = FontSizeScale;
+        s.CompactMode = CompactMode;
+        s.AlwaysOnTop = AlwaysOnTop;
 
         _settingsService.Save();
         StatusMessage = "Settings saved!";
@@ -223,6 +251,55 @@ public partial class SettingsViewModel : ViewModelBase
     {
         StatusMessage = "Cache cleared";
         Log.Information("Cache cleared");
+    }
+
+    partial void OnWindowOpacityChanged(double value)
+    {
+        OpacityDisplay = $"{value:P0}";
+        ApplyWindowSettings();
+    }
+
+    partial void OnFontSizeScaleChanged(double value)
+    {
+        FontSizeDisplay = $"{value:P0}";
+        ApplyFontScale();
+    }
+
+    partial void OnAlwaysOnTopChanged(bool value)
+    {
+        ApplyWindowSettings();
+    }
+
+    partial void OnCompactModeChanged(bool value)
+    {
+        ApplyFontScale();
+    }
+
+    private void ApplyWindowSettings()
+    {
+        if (Avalonia.Application.Current?.ApplicationLifetime is 
+            Avalonia.Controls.ApplicationLifetimes.IClassicDesktopStyleApplicationLifetime desktop)
+        {
+            if (desktop.MainWindow != null)
+            {
+                desktop.MainWindow.Opacity = WindowOpacity;
+                desktop.MainWindow.Topmost = AlwaysOnTop;
+            }
+        }
+    }
+
+    private void ApplyFontScale()
+    {
+        if (Avalonia.Application.Current?.ApplicationLifetime is
+            Avalonia.Controls.ApplicationLifetimes.IClassicDesktopStyleApplicationLifetime desktop)
+        {
+            if (desktop.MainWindow != null)
+            {
+                // Apply font scale via a root-level style
+                var scale = CompactMode ? FontSizeScale * 0.85 : FontSizeScale;
+                desktop.MainWindow.FontSize = 14 * scale;
+            }
+        }
     }
 
     [RelayCommand]

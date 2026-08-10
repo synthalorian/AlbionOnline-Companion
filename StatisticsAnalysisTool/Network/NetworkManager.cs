@@ -27,6 +27,8 @@ public class NetworkManager : IDisposable
     private DashboardSilverHandler? _dashboardSilverHandler;
     private DashboardReSpecHandler? _dashboardReSpecHandler;
     private DashboardMightFavorHandler? _dashboardMightFavorHandler;
+    private KillDeathEventHandler? _killDeathHandler;
+    private PlayerNameEventHandler? _playerNameHandler;
 
     public bool IsRunning => _isRunning;
     public event EventHandler<string>? StatusChanged;
@@ -67,6 +69,12 @@ public class NetworkManager : IDisposable
         _receiverBuilder.AddEventHandler(_dashboardSilverHandler);
         _receiverBuilder.AddEventHandler(_dashboardReSpecHandler);
         _receiverBuilder.AddEventHandler(_dashboardMightFavorHandler);
+
+        // Register kill/death and player name handlers
+        _killDeathHandler = new KillDeathEventHandler(dashboard);
+        _playerNameHandler = new PlayerNameEventHandler();
+        _receiverBuilder.AddEventHandler(_killDeathHandler);
+        _receiverBuilder.AddEventHandler(_playerNameHandler);
 
         // Set static refs
         DamageMeterEventHandler.SetViewModelRef(damageMeter);

@@ -1,9 +1,20 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
     <TargetFramework>net10.0</TargetFramework>
     <Nullable>enable</Nullable>
     <ApplicationManifest>app.manifest</ApplicationManifest>
+    <!-- Cross-platform: Linux, Windows, macOS -->
+    <RuntimeIdentifiers>linux-x64;win-x64;osx-x64;osx-arm64</RuntimeIdentifiers>
+    <SelfContained>false</SelfContained>
+    <!-- App metadata -->
+    <AssemblyName>AlbionCompanion</AssemblyName>
+    <RootNamespace>StatisticsAnalysisTool</RootNamespace>
+    <Product>Albion Online Companion</Product>
+    <Description>Cross-platform Albion Online statistics, tracking, and companion tool</Description>
+    <Version>0.1.0</Version>
+    <Authors>synthalorian</Authors>
+    <RepositoryUrl>https://github.com/synthalorian/AlbionOnline-StatisticsTool-Linux</RepositoryUrl>
   </PropertyGroup>
 
   <ItemGroup>

@@ -1,87 +1,133 @@
-# Statistics Analysis Tool - Linux
+# ⚔️ Albion Online Companion
 
-A Linux-native port of the [Albion Online Statistics Analysis Tool](https://github.com/Triky313/AlbionOnline-StatisticsAnalysis) — rebuilt with [Avalonia UI](https://avaloniaui.net/) for cross-platform compatibility.
+A **cross-platform** companion app for [Albion Online](https://albiononline.com/) — built with [Avalonia UI](https://avaloniaui.net/) for **Linux, Windows, and macOS**.
+
+Inspired by [Triky313's AlbionOnline-StatisticsAnalysis](https://github.com/Triky313/AlbionOnline-StatisticsAnalysis) (Windows-only WPF), rebuilt from scratch as a true cross-platform companion.
 
 ## Features
 
-- **Damage Meter** — Real-time DPS/HPS tracking with party breakdown
-- **Dungeon Tracker** — Entry timers, chest tracking, fame per hour
-- **Loot Logger** — Complete loot history with filtering and search
-- **Crafting Calculator** — Profit analysis for crafting recipes
-- **Map History** — Zone visit tracking
-- **Player Info** — Player search and statistics
-- **Guild Management** — Guild member tracking
+### 📊 Dashboard
+- Real-time fame, silver, might, favor tracking
+- Per-hour rates with session statistics
+- Kill/death tracking
+- Activity charts
 
-## Requirements
+### ⚔️ Damage Meter
+- Real-time DPS/HPS tracking
+- Party damage breakdown with rankings
+- Damage snapshots for comparison
+- Sort by damage, DPS, healing, HPS
 
-- **Linux** (any modern distribution)
-- **.NET 10.0 Runtime** or later
-- **Root/CAP_NET_RAW** for packet capture (or run with `sudo`)
+### 🏰 Dungeon Tracker
+- Dungeon entry/exit detection
+- Close timer countdown
+- Fame and silver per dungeon
+- Session and daily statistics
+
+### 💰 Loot Logger
+- Real-time loot tracking
+- Estimated market values
+- Loot value per hour
+- Loot comparator
+
+### 🔨 Crafting Calculator
+- Real-time market prices (Albion Online Data Project API)
+- Profit calculation per craft
+- Resource cost breakdown
+- City-specific pricing
+
+### 🎨 13 Themes
+- **Synthwave Collection:** Synthwave '84, Neon Nights, Outrun, Vaporwave
+- **Albion Collection:** Caerleon, Lymhurst, Fort Sterling, Bridgewatch, Martlock, Thetford, Royal
+- **Classic:** Dark (Mocha), Light
+- Live theme switching with color preview
+
+### 🔍 Player Info
+- Player search and statistics
+- Equipment inspection
+
+## Platforms
+
+| Platform | Status | Binary |
+|----------|--------|--------|
+| **Linux** (x64) | ✅ Supported | `AlbionCompanion` |
+| **Windows** (x64) | ✅ Supported | `AlbionCompanion.exe` |
+| **macOS** (x64) | ✅ Supported | `AlbionCompanion` |
+| **macOS** (ARM) | ✅ Supported | `AlbionCompanion` |
 
 ## Installation
 
 ### From Source
 
 ```bash
-# Clone the repository
+# Clone
 git clone https://github.com/synthalorian/AlbionOnline-StatisticsTool-Linux.git
 cd AlbionOnline-StatisticsTool-Linux
 
 # Build
 dotnet build -c Release
 
-# Run (requires root for packet capture)
-sudo dotnet run --project StatisticsAnalysisTool
+# Run
+dotnet run --project StatisticsAnalysisTool
+
+# Or publish for your platform
+dotnet publish StatisticsAnalysisTool -r linux-x64 -c Release    # Linux
+dotnet publish StatisticsAnalysisTool -r win-x64 -c Release      # Windows
+dotnet publish StatisticsAnalysisTool -r osx-arm64 -c Release    # macOS Apple Silicon
 ```
 
-### Pre-built Binary
+### Requirements
+- **.NET 10.0 Runtime** or later
+- **Root/CAP_NET_RAW** for packet capture (Linux)
+- **Administrator** for packet capture (Windows)
 
-Download the latest release from the [Releases](https://github.com/synthalorian/AlbionOnline-StatisticsTool-Linux/releases) page.
+### Packet Capture Permissions
 
+**Linux:**
 ```bash
-chmod +x StatisticsAnalysisTool
-sudo ./StatisticsAnalysisTool
+sudo setcap cap_net_raw+ep $(which dotnet)
+# Or run with sudo
+sudo ./AlbionCompanion
 ```
 
-## Why Linux?
-
-The original tool is built on WPF (Windows Presentation Foundation), which is Windows-only. This port uses Avalonia UI — a cross-platform XAML framework — to bring the same great features to Linux gamers.
+**Windows:**
+Run as Administrator, or install [Npcap](https://npcap.com/).
 
 ## Architecture
 
 ```
-StatisticsAnalysisTool/          # Avalonia UI (Linux-native)
-├── Views/                       # XAML views
-├── ViewModels/                  # MVVM ViewModels
-├── Models/                      # Data models
-├── Network/                     # Linux packet capture (raw sockets)
-└── Common/                      # Converters, helpers
+StatisticsAnalysisTool/              # Avalonia UI (cross-platform)
+├── Views/                           # AXAML views (7 views)
+├── ViewModels/                      # MVVM ViewModels
+├── Themes/                          # 13-theme system
+├── Network/                         # Packet capture + event handlers
+│   ├── Events/                      # Game event classes
+│   ├── Handlers/                    # Event → ViewModel handlers
+│   └── PacketProviders/             # Raw socket capture
+├── Common/                          # Services (settings, items, API)
+└── Models/                          # Data models
 
-StatisticsAnalysisTool.Network/  # Photon protocol parser (shared)
-StatisticsAnalysisTool.PhotonPackageParser/  # Photon package parsing (shared)
-StatisticsAnalysisTool.Protocol18/           # Protocol definitions (shared)
-StatisticsAnalysisTool.Abstractions/         # Interfaces (shared)
-StatisticsAnalysisTool.Diagnostics/          # Debug console (shared)
-StatisticAnalysisTool.Extractor/             # Game data extraction (shared)
+StatisticsAnalysisTool.Network/      # Photon protocol parser
+StatisticsAnalysisTool.PhotonPackageParser/  # Packet parsing
+StatisticsAnalysisTool.Protocol18/           # Protocol definitions
+StatisticsAnalysisTool.Abstractions/         # Interfaces
+StatisticsAnalysisTool.Diagnostics/          # Debug tools
+StatisticAnalysisTool.Extractor/             # Game data extraction
 ```
 
-## Packet Capture
+## Data Sources
 
-This tool uses raw sockets on Linux (no Npcap required). You need either:
-- Run as root: `sudo ./StatisticsAnalysisTool`
-- Or grant CAP_NET_RAW: `sudo setcap cap_net_raw+ep ./StatisticsAnalysisTool`
+- **Packet Capture:** Raw sockets (Linux) / Npcap (Windows) — reads Albion's Photon protocol
+- **Market Prices:** [Albion Online Data Project](https://www.albion-online-data.com/) API
+- **Item Database:** [ao-bin-dumps](https://github.com/ao-data/ao-bin-dumps) JSON
 
 ## Original Project
 
-This is a port of [Triky313's AlbionOnline-StatisticsAnalysis](https://github.com/Triky313/AlbionOnline-StatisticsAnalysis). All credit for the original design, protocol reverse engineering, and game logic goes to the original authors.
+This is a cross-platform port of [Triky313's AlbionOnline-StatisticsAnalysis](https://github.com/Triky313/AlbionOnline-StatisticsAnalysis). All credit for the original design, protocol reverse engineering, and game logic goes to the original authors.
 
 ## License
 
-Same license as the original project. See [LICENSE](LICENSE) for details.
-
-## Contributing
-
-Contributions welcome! Please open an issue or PR on GitHub.
+See [LICENSE](LICENSE) for details.
 
 ---
 
