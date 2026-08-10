@@ -13,10 +13,21 @@ public abstract class PhotonParser : IPhotonReceiver
 
     private readonly Dictionary<int, SegmentedPackage> _pendingSegments = new();
 
+    private static int _packetCount;
+
     public void ReceivePacket(byte[] payload)
     {
+        _packetCount++;
+        if (_packetCount <= 10 || _packetCount % 100 == 0)
+        {
+            var hex = BitConverter.ToString(payload, 0, Math.Min(24, payload.Length));
+            Console.WriteLine("PhotonParser: Packet #{0}: {1} bytes: {2}", _packetCount, payload.Length, hex);
+        }
+
         if (payload.Length < PhotonHeaderLength)
         {
+            if (_packetCount <= 10)
+                Console.WriteLine("PhotonParser: Packet #{0}: TOO SHORT ({1} < {3})", _packetCount, payload.Length, PhotonHeaderLength);
             return;
         }
 
@@ -121,6 +132,9 @@ public abstract class PhotonParser : IPhotonReceiver
         {
             return;
         }
+
+        if (_packetCount <= 20)
+            Console.WriteLine("PhotonParser: Packet #{0}: CommandType={1} at offset {2}", _packetCount, commandType, offset - 1);
         if (!ReadByte(out byte _, source, ref offset))
         {
             return;
@@ -178,6 +192,9 @@ public abstract class PhotonParser : IPhotonReceiver
         commandLength--;
         ReadByte(out byte messageType, source, ref offset);
         commandLength--;
+
+        if (_packetCount <= 20)
+            Console.WriteLine("PhotonParser: Packet #{0}: SendReliable msgType={1} len={1}", _packetCount, messageType, commandLength);
 
         int operationLength = commandLength;
         var payload = new Protocol18Stream(operationLength);

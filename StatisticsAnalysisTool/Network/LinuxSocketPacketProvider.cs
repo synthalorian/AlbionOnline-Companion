@@ -275,11 +275,15 @@ public class LinuxSocketPacketProvider : PacketProvider
         if (payload.Length == 0) return;
 
         _packetsDelivered++;
-        if (_packetsDelivered <= 10 || _packetsDelivered % 100 == 0)
+        if (_packetsDelivered <= 20 || _packetsDelivered % 100 == 0)
         {
-            var hex = BitConverter.ToString(payload.Slice(0, Math.Min(32, payload.Length)).ToArray());
-            Log.Information("LinuxSocket: Packet #{Count} from {IP}, {Len} bytes: {Hex}",
-                _packetsDelivered, sourceIp, payload.Length, hex);
+            var hex = BitConverter.ToString(payload.Slice(0, Math.Min(48, payload.Length)).ToArray());
+            Log.Information("LinuxSocket: Packet #{Count} from {IP}, {Len} bytes:\n  Hex: {Hex}\n  First4: {B0:X2} {B1:X2} {B2:X2} {B3:X2}",
+                _packetsDelivered, sourceIp, payload.Length, hex,
+                payload.Length > 0 ? payload[0] : 0,
+                payload.Length > 1 ? payload[1] : 0,
+                payload.Length > 2 ? payload[2] : 0,
+                payload.Length > 3 ? payload[3] : 0);
         }
 
         try

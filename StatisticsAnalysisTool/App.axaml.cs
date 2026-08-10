@@ -23,6 +23,12 @@ public partial class App : Application
         var settings = SettingsService.Instance.Settings;
         ThemeManager.Apply(settings.Theme);
 
+        // Set saved username for local player detection
+        if (!string.IsNullOrEmpty(settings.PlayerUsername))
+        {
+            Network.EntityTracker.Instance.SetSavedUsername(settings.PlayerUsername);
+        }
+
         if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
         {
             desktop.MainWindow = new MainWindow

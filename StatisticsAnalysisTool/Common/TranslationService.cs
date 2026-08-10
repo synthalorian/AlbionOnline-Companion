@@ -21,6 +21,9 @@ public class TranslationService
     private readonly HttpClient _http;
     private readonly Dictionary<string, string> _cache = new();
     private readonly SemaphoreSlim _cacheLock = new(1, 1);
+    private readonly SemaphoreSlim _rateLimiter = new(1, 1);
+    private DateTime _lastRequestTime = DateTime.MinValue;
+    private readonly TimeSpan _minRequestInterval = TimeSpan.FromMilliseconds(500);
     private string _targetLanguage = "en";
     private string _libreTranslateUrl = "https://libretranslate.com";
     private bool _enabled = true;
@@ -71,6 +74,22 @@ public class TranslationService
 
         try
         {
+            // Rate limiting: wait if we're making requests too fast
+            await _rateLimiter.WaitAsync(ct);
+            try
+            {
+                var elapsed = DateTime.UtcNow - _lastRequestTime;
+                if (elapsed < _minRequestInterval)
+                {
+                    await Task.Delay(_minRequestInterval - elapsed, ct);
+                }
+                _lastRequestTime = DateTime.UtcNow;
+            }
+            finally
+            {
+                _rateLimiter.Release();
+            }
+
             // Detect language first
             var detectedLang = await DetectLanguageAsync(text, ct);
 

@@ -51,8 +51,22 @@ public class EntityTracker
         entity.Equipment = equipment ?? Array.Empty<int>();
         entity.LastSeen = DateTime.UtcNow;
 
-        // NOTE: Do NOT auto-detect local player here.
-        // Local player is set explicitly via SetLocalPlayer() from JoinResponse.
+        // Auto-detect local player by matching saved username
+        if (LocalPlayerId == 0 && !string.IsNullOrEmpty(_savedUsername) &&
+            string.Equals(name, _savedUsername, StringComparison.OrdinalIgnoreCase))
+        {
+            SetLocalPlayer(objectId, name);
+        }
+    }
+
+    private string _savedUsername = string.Empty;
+
+    /// <summary>
+    /// Set the username to match for local player detection.
+    /// </summary>
+    public void SetSavedUsername(string username)
+    {
+        _savedUsername = username;
     }
 
     /// <summary>

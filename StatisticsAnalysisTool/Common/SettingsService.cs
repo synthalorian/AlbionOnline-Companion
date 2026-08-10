@@ -79,6 +79,7 @@ public class AppSettings
 {
     // General
     public string Language { get; set; } = "en-US";
+    public string PlayerUsername { get; set; } = string.Empty;
     public string GameServer { get; set; } = "auto"; // auto, americas, asia, europe
     public string Theme { get; set; } = "Dark";
 

@@ -12,9 +12,17 @@ internal sealed class AlbionParser : PhotonParser
         _handlers.Add(handler);
     }
 
+    private static int _eventCount;
+
     protected override void OnEvent(byte code, Dictionary<byte, object> parameters)
     {
         short eventCode = ParseEventCode(parameters);
+
+        _eventCount++;
+        if (_eventCount <= 50 || _eventCount % 100 == 0)
+        {
+            Console.WriteLine($"AlbionParser: Event #{_eventCount}: code={eventCode} params={parameters.Count}");
+        }
 
         if (eventCode <= -1)
         {
@@ -40,9 +48,17 @@ internal sealed class AlbionParser : PhotonParser
         _ = _handlers.HandleAsync(requestPacket);
     }
 
+    private static int _responseCount;
+
     protected override void OnResponse(byte operationCodeByte, short returnCode, string debugMessage, Dictionary<byte, object> parameters)
     {
         short operationCode = ParseOperationCode(parameters);
+
+        _responseCount++;
+        if (_responseCount <= 50 || _responseCount % 100 == 0)
+        {
+            Console.WriteLine($"AlbionParser: Response #{_responseCount}: opCode={operationCode} returnCode={returnCode} params={parameters.Count}");
+        }
 
         if (operationCode <= -1)
         {
