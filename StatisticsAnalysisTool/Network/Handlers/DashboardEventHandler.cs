@@ -8,36 +8,94 @@ namespace StatisticsAnalysisTool.Network.Handlers;
 
 /// <summary>
 /// Handles stat update events and updates the DashboardViewModel.
+/// Uses FixPoint values from the game protocol.
+/// Separates fame into combat/gathering/crafting categories.
 /// </summary>
-public class DashboardEventHandler : 
-    EventPacketHandler<UpdateFameEvent>,
-    IPacketHandler
+public class DashboardEventHandler : EventPacketHandler<UpdateFameEvent>
 {
     private readonly DashboardViewModel _viewModel;
+    private readonly EntityTracker _entityTracker;
+
+    // Session totals
     private double _sessionFame;
     private double _sessionSilver;
     private double _sessionReSpec;
     private double _sessionMight;
     private double _sessionFavor;
+    private double _combatFame;
+    private double _gatheringFame;
+    private double _craftingFame;
     private DateTime _sessionStart = DateTime.UtcNow;
 
-    public DashboardEventHandler(DashboardViewModel viewModel) 
+    // Last known totals (for delta calculation)
+    private double _lastTotalFame;
+    private double _lastTotalSilver;
+    private bool _hasBaseline;
+
+    public DashboardEventHandler(DashboardViewModel viewModel)
         : base((int)EventCodes.UpdateFame)
     {
         _viewModel = viewModel;
+        _entityTracker = EntityTracker.Instance;
     }
 
     protected override Task OnActionAsync(UpdateFameEvent value)
     {
         try
         {
-            _sessionFame += value.GainedFame;
+            var totalFame = value.TotalPlayerFame.DoubleValue;
+            var gainedFame = value.TotalGainedFame;
 
-            Avalonia.Threading.Dispatcher.UIThread.Post(() =>
+            // Set baseline on first event
+            if (!_hasBaseline && totalFame > 0)
             {
-                _viewModel.TotalGainedFameInSession = FormatNumber(_sessionFame);
-                _viewModel.FamePerHour = CalculatePerHour(_sessionFame) + " /h";
-            });
+                _lastTotalFame = totalFame;
+                _hasBaseline = true;
+
+                Avalonia.Threading.Dispatcher.UIThread.Post(() =>
+                {
+                    _viewModel.TotalFame = FormatNumber(totalFame);
+                    _viewModel.PlayerName = _entityTracker.LocalPlayerName;
+                });
+                return Task.CompletedTask;
+            }
+
+            // Use TotalGainedFame from the event (already calculated correctly)
+            if (gainedFame > 0)
+            {
+                _sessionFame += gainedFame;
+
+                // Categorize fame
+                // If SatchelFame > 0, it's crafting; if ZoneFame > 0, it's combat/gathering
+                if (value.SatchelFame.DoubleValue > 0)
+                {
+                    _craftingFame += gainedFame;
+                }
+                else
+                {
+                    // Default to combat for now — gathering events have different signatures
+                    _combatFame += gainedFame;
+                }
+
+                var hours = Math.Max(0.001, (DateTime.UtcNow - _sessionStart).TotalHours);
+
+                Avalonia.Threading.Dispatcher.UIThread.Post(() =>
+                {
+                    _viewModel.TotalFame = FormatNumber(totalFame);
+                    _viewModel.SessionFame = FormatNumber(_sessionFame);
+                    _viewModel.FamePerHour = FormatNumber(_sessionFame / hours) + " /h";
+                    _viewModel.CombatFame = FormatNumber(_combatFame);
+                    _viewModel.CombatFamePerHour = FormatNumber(_combatFame / hours) + " /h";
+                    _viewModel.GatheringFame = FormatNumber(_gatheringFame);
+                    _viewModel.GatheringFamePerHour = FormatNumber(_gatheringFame / hours) + " /h";
+                    _viewModel.CraftingFame = FormatNumber(_craftingFame);
+                    _viewModel.CraftingFamePerHour = FormatNumber(_craftingFame / hours) + " /h";
+                    _viewModel.PlayerName = _entityTracker.LocalPlayerName;
+                    _viewModel.UpdateSessionDuration();
+                });
+            }
+
+            _lastTotalFame = totalFame;
         }
         catch (Exception ex)
         {
@@ -47,25 +105,39 @@ public class DashboardEventHandler :
         return Task.CompletedTask;
     }
 
-    public void OnSilverGained(double silver)
+    public void OnSilverGained(double gainedSilver)
     {
-        _sessionSilver += silver;
+        if (gainedSilver <= 0) return;
+
+        _sessionSilver += gainedSilver;
+        var hours = Math.Max(0.001, (DateTime.UtcNow - _sessionStart).TotalHours);
 
         Avalonia.Threading.Dispatcher.UIThread.Post(() =>
         {
-            _viewModel.TotalGainedSilverInSession = FormatNumber(_sessionSilver);
-            _viewModel.SilverPerHour = CalculatePerHour(_sessionSilver) + " /h";
+            _viewModel.SessionSilver = FormatNumber(_sessionSilver);
+            _viewModel.SilverPerHour = FormatNumber(_sessionSilver / hours) + " /h";
         });
     }
 
-    public void OnReSpecGained(double respec)
+    public void OnSilverTotalUpdated(double totalSilver)
     {
-        _sessionReSpec += respec;
+        Avalonia.Threading.Dispatcher.UIThread.Post(() =>
+        {
+            _viewModel.TotalSilver = FormatNumber(totalSilver);
+        });
+    }
+
+    public void OnReSpecGained(double gainedReSpec)
+    {
+        if (gainedReSpec <= 0) return;
+
+        _sessionReSpec += gainedReSpec;
+        var hours = Math.Max(0.001, (DateTime.UtcNow - _sessionStart).TotalHours);
 
         Avalonia.Threading.Dispatcher.UIThread.Post(() =>
         {
-            _viewModel.TotalGainedReSpecPointsInSession = FormatNumber(_sessionReSpec);
-            _viewModel.ReSpecPointsPerHour = CalculatePerHour(_sessionReSpec) + " /h";
+            _viewModel.SessionReSpec = FormatNumber(_sessionReSpec);
+            _viewModel.ReSpecPerHour = FormatNumber(_sessionReSpec / hours) + " /h";
         });
     }
 
@@ -73,27 +145,34 @@ public class DashboardEventHandler :
     {
         _sessionMight += might;
         _sessionFavor += favor;
+        var hours = Math.Max(0.001, (DateTime.UtcNow - _sessionStart).TotalHours);
 
         Avalonia.Threading.Dispatcher.UIThread.Post(() =>
         {
-            _viewModel.TotalGainedMightInSession = FormatNumber(_sessionMight);
-            _viewModel.MightPerHour = CalculatePerHour(_sessionMight) + " /h";
-            _viewModel.TotalGainedFavorInSession = FormatNumber(_sessionFavor);
-            _viewModel.FavorPerHour = CalculatePerHour(_sessionFavor) + " /h";
+            _viewModel.SessionMight = FormatNumber(_sessionMight);
+            _viewModel.MightPerHour = FormatNumber(_sessionMight / hours) + " /h";
+            _viewModel.SessionFavor = FormatNumber(_sessionFavor);
+            _viewModel.FavorPerHour = FormatNumber(_sessionFavor / hours) + " /h";
         });
     }
 
-    private string CalculatePerHour(double value)
+    public void AddGatheringFame(double fame)
     {
-        var hours = (DateTime.UtcNow - _sessionStart).TotalHours;
-        if (hours < 0.001) hours = 0.001;
-        return FormatNumber(value / hours);
+        _gatheringFame += fame;
+        var hours = Math.Max(0.001, (DateTime.UtcNow - _sessionStart).TotalHours);
+
+        Avalonia.Threading.Dispatcher.UIThread.Post(() =>
+        {
+            _viewModel.GatheringFame = FormatNumber(_gatheringFame);
+            _viewModel.GatheringFamePerHour = FormatNumber(_gatheringFame / hours) + " /h";
+        });
     }
 
     private static string FormatNumber(double value)
     {
         return value switch
         {
+            >= 1_000_000_000 => $"{value / 1_000_000_000:F2}B",
             >= 1_000_000 => $"{value / 1_000_000:F1}M",
             >= 1_000 => $"{value / 1_000:F1}K",
             _ => $"{value:F0}"
@@ -102,12 +181,9 @@ public class DashboardEventHandler :
 
     public void ResetSession()
     {
-        _sessionFame = 0;
-        _sessionSilver = 0;
-        _sessionReSpec = 0;
-        _sessionMight = 0;
-        _sessionFavor = 0;
+        _sessionFame = _sessionSilver = _sessionReSpec = _sessionMight = _sessionFavor = 0;
+        _combatFame = _gatheringFame = _craftingFame = 0;
         _sessionStart = DateTime.UtcNow;
+        _hasBaseline = false;
     }
-
 }

@@ -4,13 +4,14 @@ using System.Collections.Generic;
 namespace StatisticsAnalysisTool.Network.Events;
 
 /// <summary>
-/// Simplified UpdateReSpecPoints event for Linux port.
+/// UpdateReSpecPoints event — fires when respec points change.
+/// Values are FixPoint (long / 10000).
 /// </summary>
 public class UpdateReSpecPointsEvent
 {
     public long ObjectId { get; }
-    public double GainedReSpec { get; }
-    public double PaidSilver { get; }
+    public FixPoint GainedReSpec { get; }
+    public FixPoint PaidSilver { get; }
 
     public UpdateReSpecPointsEvent(Dictionary<byte, object> parameters)
     {
@@ -18,9 +19,9 @@ public class UpdateReSpecPointsEvent
             ObjectId = objectId.ObjectToLong() ?? 0;
 
         if (parameters.TryGetValue(2, out var gainedReSpec))
-            GainedReSpec = gainedReSpec.ObjectToDouble();
+            GainedReSpec = FixPoint.FromInternalValue(gainedReSpec.ObjectToLong() ?? 0);
 
         if (parameters.TryGetValue(3, out var paidSilver))
-            PaidSilver = paidSilver.ObjectToDouble();
+            PaidSilver = FixPoint.FromInternalValue(paidSilver.ObjectToLong() ?? 0);
     }
 }

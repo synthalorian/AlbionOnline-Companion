@@ -4,9 +4,6 @@ using System.Threading.Tasks;
 
 namespace StatisticsAnalysisTool.Network.Handlers;
 
-/// <summary>
-/// Handles UpdateMoney events for dashboard silver tracking.
-/// </summary>
 public class DashboardSilverHandler : EventPacketHandler<UpdateMoneyEvent>
 {
     private readonly DashboardEventHandler _dashboardHandler;
@@ -19,7 +16,8 @@ public class DashboardSilverHandler : EventPacketHandler<UpdateMoneyEvent>
 
     protected override Task OnActionAsync(UpdateMoneyEvent value)
     {
-        _dashboardHandler.OnSilverGained(value.GainedSilver);
+        _dashboardHandler.OnSilverGained(value.GainedSilver.DoubleValue);
+        _dashboardHandler.OnSilverTotalUpdated(value.CurrentSilver.DoubleValue);
         return Task.CompletedTask;
     }
 }
