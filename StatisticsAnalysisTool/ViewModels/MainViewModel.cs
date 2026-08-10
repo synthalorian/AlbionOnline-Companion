@@ -25,6 +25,15 @@ public partial class MainViewModel : ViewModelBase
     [ObservableProperty]
     private string _selectedTab = "Dashboard";
 
+    [ObservableProperty]
+    private bool _showPrivilegeDialog;
+
+    [ObservableProperty]
+    private string _privilegeStatusText = Network.PrivilegeEscalation.GetStatusMessage();
+
+    [ObservableProperty]
+    private string _privilegeInstructions = Network.PrivilegeEscalation.GetSetupInstructions();
+
     public ObservableCollection<string> Tabs { get; } = new()
     {
         "Dashboard",
@@ -77,6 +86,49 @@ public partial class MainViewModel : ViewModelBase
     }
 
     [RelayCommand]
+    private void DismissPrivilegeDialog()
+    {
+        ShowPrivilegeDialog = false;
+    }
+
+    [RelayCommand]
+    private void RestartWithPkexec()
+    {
+        try
+        {
+            var exePath = Environment.ProcessPath ?? "dotnet";
+            var args = Environment.GetCommandLineArgs();
+            
+            var startInfo = new System.Diagnostics.ProcessStartInfo
+            {
+                FileName = "pkexec",
+                UseShellExecute = false
+            };
+            
+            // Rebuild the command line
+            startInfo.ArgumentList.Add(exePath);
+            for (int i = 1; i < args.Length; i++)
+            {
+                startInfo.ArgumentList.Add(args[i]);
+            }
+
+            System.Diagnostics.Process.Start(startInfo);
+            
+            // Close current instance
+            if (Avalonia.Application.Current?.ApplicationLifetime is
+                Avalonia.Controls.ApplicationLifetimes.IClassicDesktopStyleApplicationLifetime desktop)
+            {
+                desktop.Shutdown();
+            }
+        }
+        catch (Exception ex)
+        {
+            StatusText = $"Failed to escalate: {ex.Message}";
+            Log.Error(ex, "pkexec escalation failed");
+        }
+    }
+
+    [RelayCommand]
     private async Task ToggleTracking()
     {
         if (IsTracking)
@@ -93,6 +145,25 @@ public partial class MainViewModel : ViewModelBase
     {
         try
         {
+            // Check if we have packet capture privileges
+            if (!Network.PrivilegeEscalation.TestRawSocketAccess())
+            {
+                if (Network.PrivilegeEscalation.CanEscalate())
+                {
+                    StatusText = "⚠️ Root required — restart with elevated privileges";
+                    ShowPrivilegeDialog = true;
+                    Log.Warning("Packet capture requires root privileges");
+                    return;
+                }
+                else
+                {
+                    StatusText = "❌ Cannot capture packets — no root access";
+                    ShowPrivilegeDialog = true;
+                    Log.Error("No packet capture privileges and cannot escalate");
+                    return;
+                }
+            }
+
             StatusText = "Starting packet capture...";
             Log.Information("Starting tracking");
 
@@ -110,7 +181,7 @@ public partial class MainViewModel : ViewModelBase
             await Task.Run(() => _networkManager.Start());
 
             IsTracking = true;
-            StatusText = "Tracking active - capturing packets";
+            StatusText = "Tracking active — capturing packets";
             Log.Information("Tracking started successfully");
         }
         catch (Exception ex)
