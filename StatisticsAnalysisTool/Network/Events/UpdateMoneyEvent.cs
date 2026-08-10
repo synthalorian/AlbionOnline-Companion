@@ -4,13 +4,14 @@ using System.Collections.Generic;
 namespace StatisticsAnalysisTool.Network.Events;
 
 /// <summary>
-/// Simplified UpdateMoney event for Linux port.
+/// UpdateMoney event — fires when silver changes.
+/// Values are FixPoint (long / 10000).
 /// </summary>
 public class UpdateMoneyEvent
 {
     public long ObjectId { get; }
-    public double CurrentSilver { get; }
-    public double GainedSilver { get; }
+    public FixPoint CurrentSilver { get; }
+    public FixPoint GainedSilver { get; }
 
     public UpdateMoneyEvent(Dictionary<byte, object> parameters)
     {
@@ -18,9 +19,9 @@ public class UpdateMoneyEvent
             ObjectId = objectId.ObjectToLong() ?? 0;
 
         if (parameters.TryGetValue(1, out var currentSilver))
-            CurrentSilver = currentSilver.ObjectToDouble();
+            CurrentSilver = FixPoint.FromInternalValue(currentSilver.ObjectToLong() ?? 0);
 
         if (parameters.TryGetValue(2, out var gainedSilver))
-            GainedSilver = gainedSilver.ObjectToDouble();
+            GainedSilver = FixPoint.FromInternalValue(gainedSilver.ObjectToLong() ?? 0);
     }
 }

@@ -89,6 +89,7 @@ public partial class MainViewModel : ViewModelBase
     private void DismissPrivilegeDialog()
     {
         ShowPrivilegeDialog = false;
+        StatusText = "Ready (packet capture unavailable)";
     }
 
     [RelayCommand]
@@ -96,30 +97,59 @@ public partial class MainViewModel : ViewModelBase
     {
         try
         {
-            var exePath = Environment.ProcessPath ?? "dotnet";
-            var args = Environment.GetCommandLineArgs();
-            
+            // Find the app DLL or binary
+            var appDir = AppContext.BaseDirectory;
+            var dllPath = System.IO.Path.Combine(appDir, "AlbionOnlineCompanion.dll");
+            var binPath = System.IO.Path.Combine(appDir, "AlbionOnlineCompanion");
+
+            string exePath;
+            string args;
+
+            if (System.IO.File.Exists(binPath))
+            {
+                // Self-contained binary
+                exePath = binPath;
+                args = "";
+            }
+            else if (System.IO.File.Exists(dllPath))
+            {
+                // Framework-dependent: use dotnet
+                exePath = "dotnet";
+                args = $"\"{dllPath}\"";
+            }
+            else
+            {
+                // Dev mode: use dotnet run
+                exePath = "dotnet";
+                args = "run -c Release";
+                appDir = System.IO.Directory.GetCurrentDirectory();
+            }
+
+            Log.Information("Escalating via pkexec: {Exe} {Args} (cwd: {Dir})", exePath, args, appDir);
+
             var startInfo = new System.Diagnostics.ProcessStartInfo
             {
                 FileName = "pkexec",
-                UseShellExecute = false
+                UseShellExecute = false,
+                WorkingDirectory = appDir
             };
-            
-            // Rebuild the command line
+
+            startInfo.ArgumentList.Add("--disable-internal-agent");
+            startInfo.ArgumentList.Add("env");
+            startInfo.ArgumentList.Add($"WAYLAND_DISPLAY={Environment.GetEnvironmentVariable("WAYLAND_DISPLAY") ?? "wayland-0"}");
+            startInfo.ArgumentList.Add($"XDG_RUNTIME_DIR={Environment.GetEnvironmentVariable("XDG_RUNTIME_DIR") ?? "/run/user/1000"}");
+            startInfo.ArgumentList.Add($"DISPLAY={Environment.GetEnvironmentVariable("DISPLAY") ?? ":0"}");
             startInfo.ArgumentList.Add(exePath);
-            for (int i = 1; i < args.Length; i++)
+            if (!string.IsNullOrEmpty(args))
             {
-                startInfo.ArgumentList.Add(args[i]);
+                foreach (var arg in args.Split(' ', StringSplitOptions.RemoveEmptyEntries))
+                {
+                    startInfo.ArgumentList.Add(arg.Trim('"'));
+                }
             }
 
             System.Diagnostics.Process.Start(startInfo);
-            
-            // Close current instance
-            if (Avalonia.Application.Current?.ApplicationLifetime is
-                Avalonia.Controls.ApplicationLifetimes.IClassicDesktopStyleApplicationLifetime desktop)
-            {
-                desktop.Shutdown();
-            }
+            StatusText = "Elevated instance starting...";
         }
         catch (Exception ex)
         {

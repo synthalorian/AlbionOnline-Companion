@@ -1,227 +1,168 @@
 <UserControl xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:vm="using:StatisticsAnalysisTool.ViewModels"
-             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="600"
              x:Class="StatisticsAnalysisTool.Views.DashboardView"
              x:DataType="vm:DashboardViewModel">
 
     <ScrollViewer>
-        <StackPanel Margin="16" Spacing="16">
+        <StackPanel Margin="16" Spacing="12">
 
-            <!-- Stats Summary Cards -->
-            <Grid ColumnDefinitions="*,*,*,*,*" RowDefinitions="Auto">
-                <!-- Fame -->
-                <Border Grid.Column="0" Background="{DynamicResource ThemeSurface}" CornerRadius="8" Padding="16" Margin="0,0,8,0">
-                    <StackPanel Spacing="8">
-                        <TextBlock Text="FAME" Foreground="{DynamicResource ThemeAccentSecondary}" FontSize="12" FontWeight="Bold"/>
-                        <TextBlock Text="{Binding TotalGainedFameInSession}" Foreground="{DynamicResource ThemeForeground}" FontSize="24" FontWeight="Bold"/>
-                        <TextBlock Text="{Binding FamePerHour}" Foreground="{DynamicResource ThemeForegroundDim}" FontSize="14"/>
+            <!-- Player Info Bar -->
+            <Border Background="{DynamicResource ThemeSurface}" CornerRadius="8" Padding="16">
+                <Grid ColumnDefinitions="Auto,*,Auto,Auto,Auto">
+                    <TextBlock Grid.Column="0" Text="⚔️" FontSize="28" VerticalAlignment="Center" Margin="0,0,12,0"/>
+                    <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                        <TextBlock Text="{Binding PlayerName}" FontSize="20" FontWeight="Bold" 
+                                   Foreground="{DynamicResource ThemeAccent}"/>
+                        <TextBlock Text="{Binding GuildName}" FontSize="12" Classes="dim"/>
+                    </StackPanel>
+                    <StackPanel Grid.Column="2" VerticalAlignment="Center" Margin="16,0,0,0">
+                        <TextBlock Text="ZONE" FontSize="10" Classes="dim"/>
+                        <TextBlock Text="{Binding CurrentZone}" FontSize="14" FontWeight="Bold"/>
+                    </StackPanel>
+                    <StackPanel Grid.Column="3" VerticalAlignment="Center" Margin="16,0,0,0">
+                        <TextBlock Text="SESSION" FontSize="10" Classes="dim"/>
+                        <TextBlock Text="{Binding SessionDuration}" FontSize="14" FontWeight="Bold" 
+                                   Foreground="{DynamicResource ThemeInfo}"/>
+                    </StackPanel>
+                    <Button Grid.Column="4" Content="Reset" Command="{Binding ResetTrackingCounterCommand}"
+                            Padding="12,6" Margin="16,0,0,0" VerticalAlignment="Center"/>
+                </Grid>
+            </Border>
+
+            <!-- Total Stats Row -->
+            <Grid ColumnDefinitions="*,*,*" Margin="0,0,0,4">
+                <Border Grid.Column="0" Background="{DynamicResource ThemeSurface}" CornerRadius="8" Padding="12" Margin="0,0,4,0">
+                    <StackPanel>
+                        <TextBlock Text="TOTAL FAME" FontSize="10" Classes="dim"/>
+                        <TextBlock Text="{Binding TotalFame}" FontSize="20" FontWeight="Bold" 
+                                   Foreground="{DynamicResource ThemeAccent}"/>
                     </StackPanel>
                 </Border>
-
-                <!-- Silver -->
-                <Border Grid.Column="1" Background="{DynamicResource ThemeSurface}" CornerRadius="8" Padding="16" Margin="4,0">
-                    <StackPanel Spacing="8">
-                        <TextBlock Text="SILVER" Foreground="{DynamicResource ThemeWarning}" FontSize="12" FontWeight="Bold"/>
-                        <TextBlock Text="{Binding TotalGainedSilverInSession}" Foreground="{DynamicResource ThemeForeground}" FontSize="24" FontWeight="Bold"/>
-                        <TextBlock Text="{Binding SilverPerHour}" Foreground="{DynamicResource ThemeForegroundDim}" FontSize="14"/>
+                <Border Grid.Column="1" Background="{DynamicResource ThemeSurface}" CornerRadius="8" Padding="12" Margin="4,0">
+                    <StackPanel>
+                        <TextBlock Text="TOTAL SILVER" FontSize="10" Classes="dim"/>
+                        <TextBlock Text="{Binding TotalSilver}" FontSize="20" FontWeight="Bold" 
+                                   Foreground="{DynamicResource ThemeWarning}"/>
                     </StackPanel>
                 </Border>
-
-                <!-- ReSpec -->
-                <Border Grid.Column="2" Background="{DynamicResource ThemeSurface}" CornerRadius="8" Padding="16" Margin="4,0">
-                    <StackPanel Spacing="8">
-                        <TextBlock Text="RESPEC" Foreground="{DynamicResource ThemeAccent}" FontSize="12" FontWeight="Bold"/>
-                        <TextBlock Text="{Binding TotalGainedReSpecPointsInSession}" Foreground="{DynamicResource ThemeForeground}" FontSize="24" FontWeight="Bold"/>
-                        <TextBlock Text="{Binding ReSpecPointsPerHour}" Foreground="{DynamicResource ThemeForegroundDim}" FontSize="14"/>
-                    </StackPanel>
-                </Border>
-
-                <!-- Might -->
-                <Border Grid.Column="3" Background="{DynamicResource ThemeSurface}" CornerRadius="8" Padding="16" Margin="4,0">
-                    <StackPanel Spacing="8">
-                        <TextBlock Text="MIGHT" Foreground="{DynamicResource ThemeError}" FontSize="12" FontWeight="Bold"/>
-                        <TextBlock Text="{Binding TotalGainedMightInSession}" Foreground="{DynamicResource ThemeForeground}" FontSize="24" FontWeight="Bold"/>
-                        <TextBlock Text="{Binding MightPerHour}" Foreground="{DynamicResource ThemeForegroundDim}" FontSize="14"/>
-                    </StackPanel>
-                </Border>
-
-                <!-- Favor -->
-                <Border Grid.Column="4" Background="{DynamicResource ThemeSurface}" CornerRadius="8" Padding="16" Margin="8,0,0,0">
-                    <StackPanel Spacing="8">
-                        <TextBlock Text="FAVOR" Foreground="{DynamicResource ThemeSuccess}" FontSize="12" FontWeight="Bold"/>
-                        <TextBlock Text="{Binding TotalGainedFavorInSession}" Foreground="{DynamicResource ThemeForeground}" FontSize="24" FontWeight="Bold"/>
-                        <TextBlock Text="{Binding FavorPerHour}" Foreground="{DynamicResource ThemeForegroundDim}" FontSize="14"/>
+                <Border Grid.Column="2" Background="{DynamicResource ThemeSurface}" CornerRadius="8" Padding="12" Margin="4,0,0,0">
+                    <StackPanel>
+                        <TextBlock Text="TOTAL RESPEC" FontSize="10" Classes="dim"/>
+                        <TextBlock Text="{Binding TotalReSpecPoints}" FontSize="20" FontWeight="Bold" 
+                                   Foreground="{DynamicResource ThemeAccentSecondary}"/>
                     </StackPanel>
                 </Border>
             </Grid>
 
-            <!-- Controls Row -->
-            <Grid ColumnDefinitions="*,Auto">
-                <StackPanel Orientation="Horizontal" Spacing="12">
-                    <Button Content="Reset Tracking Counter" 
-                            Command="{Binding ResetTrackingCounterCommand}"
-                            Background="{DynamicResource ThemeError}" 
-                            Foreground="{DynamicResource ThemeBackground}"
-                            FontWeight="Bold"
-                            Padding="16,8"/>
-                    <CheckBox Content="Map Change Reset" 
-                              IsChecked="{Binding IsTrackingResetByMapChangeActive}"
-                              Foreground="{DynamicResource ThemeForeground}"
-                              VerticalAlignment="Center"/>
+            <!-- Session Fame Section -->
+            <Border Background="{DynamicResource ThemeSurface}" CornerRadius="8" Padding="16">
+                <StackPanel Spacing="12">
+                    <TextBlock Text="📈 SESSION FAME" FontSize="14" FontWeight="Bold" 
+                               Foreground="{DynamicResource ThemeAccent}"/>
+                    
+                    <Grid ColumnDefinitions="*,*,*">
+                        <StackPanel Grid.Column="0">
+                            <TextBlock Text="Gained" FontSize="11" Classes="dim"/>
+                            <TextBlock Text="{Binding SessionFame}" FontSize="24" FontWeight="Bold" 
+                                       Foreground="{DynamicResource ThemeAccent}"/>
+                        </StackPanel>
+                        <StackPanel Grid.Column="1">
+                            <TextBlock Text="Per Hour" FontSize="11" Classes="dim"/>
+                            <TextBlock Text="{Binding FamePerHour}" FontSize="24" FontWeight="Bold" 
+                                       Foreground="{DynamicResource ThemeSuccess}"/>
+                        </StackPanel>
+                        <StackPanel Grid.Column="2">
+                            <TextBlock Text="Silver/hr" FontSize="11" Classes="dim"/>
+                            <TextBlock Text="{Binding SilverPerHour}" FontSize="24" FontWeight="Bold" 
+                                       Foreground="{DynamicResource ThemeWarning}"/>
+                        </StackPanel>
+                    </Grid>
                 </StackPanel>
+            </Border>
+
+            <!-- Fame Breakdown -->
+            <Grid ColumnDefinitions="*,*,*">
+                <Border Grid.Column="0" Background="{DynamicResource ThemeSurface}" CornerRadius="8" Padding="12" Margin="0,0,4,0">
+                    <StackPanel>
+                        <TextBlock Text="⚔️ COMBAT FAME" FontSize="11" FontWeight="Bold" 
+                                   Foreground="{DynamicResource ThemeError}"/>
+                        <TextBlock Text="{Binding CombatFame}" FontSize="20" FontWeight="Bold"/>
+                        <TextBlock Text="{Binding CombatFamePerHour}" FontSize="12" Classes="dim"/>
+                    </StackPanel>
+                </Border>
+                <Border Grid.Column="1" Background="{DynamicResource ThemeSurface}" CornerRadius="8" Padding="12" Margin="4,0">
+                    <StackPanel>
+                        <TextBlock Text="⛏️ GATHERING FAME" FontSize="11" FontWeight="Bold" 
+                                   Foreground="{DynamicResource ThemeSuccess}"/>
+                        <TextBlock Text="{Binding GatheringFame}" FontSize="20" FontWeight="Bold"/>
+                        <TextBlock Text="{Binding GatheringFamePerHour}" FontSize="12" Classes="dim"/>
+                    </StackPanel>
+                </Border>
+                <Border Grid.Column="2" Background="{DynamicResource ThemeSurface}" CornerRadius="8" Padding="12" Margin="4,0,0,0">
+                    <StackPanel>
+                        <TextBlock Text="🔨 CRAFTING FAME" FontSize="11" FontWeight="Bold" 
+                                   Foreground="{DynamicResource ThemeOrange}"/>
+                        <TextBlock Text="{Binding CraftingFame}" FontSize="20" FontWeight="Bold"/>
+                        <TextBlock Text="{Binding CraftingFamePerHour}" FontSize="12" Classes="dim"/>
+                    </StackPanel>
+                </Border>
             </Grid>
 
-            <!-- Kill/Death Stats Section -->
-            <Border Background="{DynamicResource ThemeSurface}" CornerRadius="8" Padding="16">
-                <StackPanel Spacing="12">
-                    <Button Background="Transparent" 
-                            BorderThickness="0" 
-                            Padding="0"
-                            Command="{Binding ToggleKillDeathStatsCommand}">
-                        <StackPanel Orientation="Horizontal" Spacing="8">
-                            <TextBlock Text="{Binding KillsDeathsText}" 
-                                       Foreground="{DynamicResource ThemeAccentSecondary}" 
-                                       FontSize="16" 
-                                       FontWeight="Bold"/>
-                            <TextBlock Text="{Binding KillDeathStatsVisible}" 
-                                       Foreground="{DynamicResource ThemeForegroundDim}" 
-                                       FontSize="12"/>
-                        </StackPanel>
-                    </Button>
-                    <Border IsVisible="{Binding KillDeathStatsVisible}" 
-                            Background="{DynamicResource ThemeBackground}" 
-                            CornerRadius="4" 
-                            Padding="12">
-                        <StackPanel>
-                            <Grid ColumnDefinitions="*,*,*" RowDefinitions="Auto,Auto">
-                                <TextBlock Grid.Row="0" Grid.Column="0" Text="Kills:" Foreground="{DynamicResource ThemeForeground}"/>
-                                <TextBlock Grid.Row="0" Grid.Column="1" Text="0" Foreground="{DynamicResource ThemeSuccess}" HorizontalAlignment="Right"/>
-                                <TextBlock Grid.Row="0" Grid.Column="2" Text="Deaths:" Foreground="{DynamicResource ThemeForeground}" Margin="16,0,0,0"/>
-                                <TextBlock Grid.Row="1" Grid.Column="0" Text="0" Foreground="{DynamicResource ThemeError}" HorizontalAlignment="Right" Grid.ColumnSpan="2"/>
-                                <TextBlock Grid.Row="1" Grid.Column="2" Text="K/D Ratio:" Foreground="{DynamicResource ThemeForeground}" Margin="16,0,0,0"/>
-                                <TextBlock Grid.Row="1" Grid.Column="3" Text="0.0" Foreground="{DynamicResource ThemeForeground}" HorizontalAlignment="Right"/>
-                            </Grid>
-                        </StackPanel>
-                    </Border>
-                </StackPanel>
-            </Border>
+            <!-- Secondary Stats -->
+            <Grid ColumnDefinitions="*,*,*,*">
+                <Border Grid.Column="0" Background="{DynamicResource ThemeSurface}" CornerRadius="8" Padding="12" Margin="0,0,4,0">
+                    <StackPanel>
+                        <TextBlock Text="SILVER" FontSize="10" Classes="dim"/>
+                        <TextBlock Text="{Binding SessionSilver}" FontSize="18" FontWeight="Bold" 
+                                   Foreground="{DynamicResource ThemeWarning}"/>
+                    </StackPanel>
+                </Border>
+                <Border Grid.Column="1" Background="{DynamicResource ThemeSurface}" CornerRadius="8" Padding="12" Margin="4,0">
+                    <StackPanel>
+                        <TextBlock Text="RESPEC" FontSize="10" Classes="dim"/>
+                        <TextBlock Text="{Binding SessionReSpec}" FontSize="18" FontWeight="Bold" 
+                                   Foreground="{DynamicResource ThemeAccentSecondary}"/>
+                        <TextBlock Text="{Binding ReSpecPerHour}" FontSize="11" Classes="dim"/>
+                    </StackPanel>
+                </Border>
+                <Border Grid.Column="2" Background="{DynamicResource ThemeSurface}" CornerRadius="8" Padding="12" Margin="4,0">
+                    <StackPanel>
+                        <TextBlock Text="MIGHT" FontSize="10" Classes="dim"/>
+                        <TextBlock Text="{Binding SessionMight}" FontSize="18" FontWeight="Bold" 
+                                   Foreground="{DynamicResource ThemeSuccess}"/>
+                        <TextBlock Text="{Binding MightPerHour}" FontSize="11" Classes="dim"/>
+                    </StackPanel>
+                </Border>
+                <Border Grid.Column="3" Background="{DynamicResource ThemeSurface}" CornerRadius="8" Padding="12" Margin="4,0,0,0">
+                    <StackPanel>
+                        <TextBlock Text="FAVOR" FontSize="10" Classes="dim"/>
+                        <TextBlock Text="{Binding SessionFavor}" FontSize="18" FontWeight="Bold" 
+                                   Foreground="{DynamicResource ThemeError}"/>
+                        <TextBlock Text="{Binding FavorPerHour}" FontSize="11" Classes="dim"/>
+                    </StackPanel>
+                </Border>
+            </Grid>
 
-            <!-- Looted Chests Section -->
-            <Border Background="{DynamicResource ThemeSurface}" CornerRadius="8" Padding="16">
-                <StackPanel Spacing="12">
-                    <Button Background="Transparent" 
-                            BorderThickness="0" 
-                            Padding="0"
-                            Command="{Binding ToggleLootedChestsStatsCommand}">
-                        <StackPanel Orientation="Horizontal" Spacing="8">
-                            <TextBlock Text="{Binding LootedChestsText}" 
-                                       Foreground="{DynamicResource ThemeAccentSecondary}" 
-                                       FontSize="16" 
-                                       FontWeight="Bold"/>
-                        </StackPanel>
-                    </Button>
-                    <Border IsVisible="{Binding LootedChestsStatsVisible}" 
-                            Background="{DynamicResource ThemeBackground}" 
-                            CornerRadius="4" 
-                            Padding="12">
-                        <TextBlock Text="No chests looted this session" 
-                                   Foreground="{DynamicResource ThemeForegroundDim}" 
-                                   HorizontalAlignment="Center"/>
-                    </Border>
-                </StackPanel>
-            </Border>
-
-            <!-- ReSpec Section -->
-            <Border Background="{DynamicResource ThemeSurface}" CornerRadius="8" Padding="16">
-                <StackPanel Spacing="12">
-                    <Button Background="Transparent" 
-                            BorderThickness="0" 
-                            Padding="0"
-                            Command="{Binding ToggleReSpecStatsCommand}">
-                        <StackPanel Orientation="Horizontal" Spacing="8">
-                            <TextBlock Text="{Binding ReSpecText}" 
-                                       Foreground="{DynamicResource ThemeAccentSecondary}" 
-                                       FontSize="16" 
-                                       FontWeight="Bold"/>
-                        </StackPanel>
-                    </Button>
-                    <Border IsVisible="{Binding ReSpecStatsVisible}" 
-                            Background="{DynamicResource ThemeBackground}" 
-                            CornerRadius="4" 
-                            Padding="12">
-                        <TextBlock Text="No ReSpec points gained this session" 
-                                   Foreground="{DynamicResource ThemeForegroundDim}" 
-                                   HorizontalAlignment="Center"/>
-                    </Border>
-                </StackPanel>
-            </Border>
-
-            <!-- Repair Costs Section -->
-            <Border Background="{DynamicResource ThemeSurface}" CornerRadius="8" Padding="16">
-                <StackPanel Spacing="12">
-                    <Button Background="Transparent" 
-                            BorderThickness="0" 
-                            Padding="0"
-                            Command="{Binding ToggleRepairCostsStatsCommand}">
-                        <StackPanel Orientation="Horizontal" Spacing="8">
-                            <TextBlock Text="{Binding RepairCostsText}" 
-                                       Foreground="{DynamicResource ThemeAccentSecondary}" 
-                                       FontSize="16" 
-                                       FontWeight="Bold"/>
-                        </StackPanel>
-                    </Button>
-                    <Border IsVisible="{Binding RepairCostsStatsVisible}" 
-                            Background="{DynamicResource ThemeBackground}" 
-                            CornerRadius="4" 
-                            Padding="12">
-                        <TextBlock Text="No repair costs this session" 
-                                   Foreground="{DynamicResource ThemeForegroundDim}" 
-                                   HorizontalAlignment="Center"/>
-                    </Border>
-                </StackPanel>
-            </Border>
-
-            <!-- Activity Chart Section -->
-            <Border Background="{DynamicResource ThemeSurface}" CornerRadius="8" Padding="16">
-                <StackPanel Spacing="12">
-                    <Button Background="Transparent" 
-                            BorderThickness="0" 
-                            Padding="0"
-                            Command="{Binding ToggleActivityChartCommand}">
-                        <StackPanel Orientation="Horizontal" Spacing="8">
-                            <TextBlock Text="{Binding ActivityChartText}" 
-                                       Foreground="{DynamicResource ThemeAccentSecondary}" 
-                                       FontSize="16" 
-                                       FontWeight="Bold"/>
-                        </StackPanel>
-                    </Button>
-                    <Border IsVisible="{Binding ActivityChartVisible}" 
-                            Background="{DynamicResource ThemeBackground}" 
-                            CornerRadius="4" 
-                            Padding="12"
-                            MinHeight="200">
-                        <StackPanel>
-                            <ComboBox ItemsSource="{Binding DashboardChartRanges}"
-                                      SelectedItem="{Binding SelectedDashboardChartRange}"
-                                      Width="150"
-                                      HorizontalAlignment="Left"
-                                      Margin="0,0,0,12"/>
-                            <Border Background="{DynamicResource ThemeSurface}" 
-                                    CornerRadius="4" 
-                                    MinHeight="150"
-                                    Padding="16">
-                                <TextBlock Text="Activity chart will render here" 
-                                           Foreground="{DynamicResource ThemeForegroundDim}" 
-                                           HorizontalAlignment="Center"
-                                           VerticalAlignment="Center"/>
-                            </Border>
-                        </StackPanel>
-                    </Border>
-                </StackPanel>
-            </Border>
+            <!-- K/D + Chests -->
+            <Grid ColumnDefinitions="*,*">
+                <Border Grid.Column="0" Background="{DynamicResource ThemeSurface}" CornerRadius="8" Padding="12" Margin="0,0,4,0"
+                        IsVisible="{Binding KillDeathStatsVisible}">
+                    <StackPanel>
+                        <TextBlock Text="KILLS / DEATHS" FontSize="10" Classes="dim"/>
+                        <TextBlock Text="{Binding KillsDeathsText}" FontSize="20" FontWeight="Bold"/>
+                        <TextBlock Text="{Binding KdRatio, StringFormat='K/D: {0}'}" FontSize="12" Classes="dim"/>
+                    </StackPanel>
+                </Border>
+                <Border Grid.Column="1" Background="{DynamicResource ThemeSurface}" CornerRadius="8" Padding="12" Margin="4,0,0,0"
+                        IsVisible="{Binding LootedChestsStatsVisible}">
+                    <StackPanel>
+                        <TextBlock Text="LOOTED CHESTS" FontSize="10" Classes="dim"/>
+                        <TextBlock Text="{Binding LootedChestsText}" FontSize="20" FontWeight="Bold" 
+                                   Foreground="{DynamicResource ThemeInfo}"/>
+                    </StackPanel>
+                </Border>
+            </Grid>
 
         </StackPanel>
     </ScrollViewer>
