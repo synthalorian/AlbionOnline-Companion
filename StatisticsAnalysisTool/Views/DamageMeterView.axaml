@@ -1,0 +1,173 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:StatisticsAnalysisTool.ViewModels"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="600"
+             x:Class="StatisticsAnalysisTool.Views.DamageMeterView"
+             x:DataType="vm:DamageMeterViewModel">
+
+    <Grid RowDefinitions="Auto,*">
+        <!-- Header Controls -->
+        <Border Grid.Row="0" Background="#FF313244" Padding="12" BorderBrush="#FF45475A" BorderThickness="0,0,0,1">
+            <Grid ColumnDefinitions="Auto,*,Auto,Auto">
+                <Button Grid.Column="0" 
+                        Content="{Binding DamageMeterActivationToggleIcon}"
+                        Command="{Binding ToggleDamageMeterCommand}"
+                        Background="Transparent"
+                        BorderThickness="0"
+                        FontSize="20"
+                        Padding="8"
+                        Foreground="{Binding DamageMeterActivationToggleColor}"/>
+                
+                <ComboBox Grid.Column="1"
+                          ItemsSource="{Binding SortOptions}"
+                          SelectedItem="{Binding SelectedSortOption}"
+                          Width="150"
+                          HorizontalAlignment="Left"
+                          Margin="12,0"/>
+                
+                <Button Grid.Column="2"
+                        Content="Reset"
+                        Command="{Binding ResetDamageMeterCommand}"
+                        Background="#FFF38BA8"
+                        Foreground="#FF1E1E2E"
+                        FontWeight="Bold"
+                        Padding="16,8"
+                        Margin="0,0,8,0"/>
+                
+                <Button Grid.Column="3"
+                        Content="📷"
+                        Command="{Binding TakeSnapshotCommand}"
+                        Background="Transparent"
+                        BorderThickness="0"
+                        FontSize="16"
+                        Padding="8"/>
+            </Grid>
+        </Border>
+
+        <!-- Main Content -->
+        <TabControl Grid.Row="1" Background="Transparent" BorderThickness="0">
+            <!-- Live Tab -->
+            <TabItem Header="LIVE">
+                <Grid RowDefinitions="Auto,*">
+                    <!-- Settings Panel -->
+                    <Border Grid.Row="0" Background="#FF313244" Padding="12" Margin="0,0,0,8">
+                        <StackPanel Orientation="Horizontal" Spacing="16">
+                            <CheckBox Content="Map Change Reset" 
+                                      IsChecked="{Binding IsDamageMeterResetByMapChangeActive}"
+                                      Foreground="#FFCDD6F4"/>
+                            <CheckBox Content="Reset Before Combat" 
+                                      IsChecked="{Binding IsDamageMeterResetBeforeCombatActive}"
+                                      Foreground="#FFCDD6F4"/>
+                            <CheckBox Content="Snapshot After Map Change" 
+                                      IsChecked="{Binding IsSnapshotAfterMapChangeActive}"
+                                      Foreground="#FFCDD6F4"/>
+                            <CheckBox Content="Copy to Clipboard" 
+                                      IsChecked="{Binding ShortDamageMeterToClipboard}"
+                                      Foreground="#FFCDD6F4"/>
+                            <CheckBox Content="Players Only" 
+                                      IsChecked="{Binding OnlyDamageToPlayersCounts}"
+                                      Foreground="#FFCDD6F4"/>
+                        </StackPanel>
+                    </Border>
+
+                    <!-- Damage Meter List -->
+                    <Border Grid.Row="1" Background="#FF1E1E2E" CornerRadius="4">
+                        <Grid>
+                            <ScrollViewer>
+                                <ItemsControl ItemsSource="{Binding DamageMeterEntries}">
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate>
+                                            <Grid ColumnDefinitions="40,*,120" Margin="8,4">
+                                                <TextBlock Grid.Column="0" 
+                                                           Text="{Binding Rank, StringFormat='{}{0}.'}" 
+                                                           Foreground="#FF6C7086" 
+                                                           FontSize="14" 
+                                                           FontWeight="Bold"/>
+                                                <TextBlock Grid.Column="1" 
+                                                           Text="{Binding PlayerName}" 
+                                                           Foreground="#FFCDD6F4" 
+                                                           FontSize="14"/>
+                                                <TextBlock Grid.Column="2" 
+                                                           Text="{Binding ValueString}" 
+                                                           Foreground="#FFF38BA8" 
+                                                           FontSize="14" 
+                                                           FontWeight="Bold"
+                                                           HorizontalAlignment="Right"/>
+                                            </Grid>
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                </ItemsControl>
+                            </ScrollViewer>
+                            
+                            <!-- Empty State -->
+                            <TextBlock IsVisible="{Binding DamageMeterEntries.Count, Converter={x:Static ObjectConverters.IsNull}}"
+                                       Text="No damage data available. Start tracking to see stats."
+                                       Foreground="#FF6C7086"
+                                       HorizontalAlignment="Center"
+                                       VerticalAlignment="Center"
+                                       Margin="32"/>
+                        </Grid>
+                    </Border>
+                </Grid>
+            </TabItem>
+
+            <!-- Snapshots Tab -->
+            <TabItem Header="SNAPSHOTS">
+                <Grid RowDefinitions="Auto,*">
+                    <Border Grid.Row="0" Background="#FF313244" Padding="12" Margin="0,0,0,8">
+                        <StackPanel Orientation="Horizontal" Spacing="12">
+                            <ComboBox ItemsSource="{Binding DamageMeterSnapshots}"
+                                      SelectedItem="{Binding SelectedSnapshot}"
+                                      Width="200"
+                                      PlaceholderText="Select snapshot"/>
+                            <Button Content="Delete Selected"
+                                    Command="{Binding DeleteSelectedSnapshotCommand}"
+                                    Background="#FFF38BA8"
+                                    Foreground="#FF1E1E2E"
+                                    Padding="12,6"/>
+                            <Button Content="Delete All"
+                                    Command="{Binding DeleteAllSnapshotsCommand}"
+                                    Background="#FFF38BA8"
+                                    Foreground="#FF1E1E2E"
+                                    Padding="12,6"/>
+                            <Button Content="Copy"
+                                    Command="{Binding CopyToClipboardCommand}"
+                                    Background="#FF89B4FA"
+                                    Foreground="#FF1E1E2E"
+                                    Padding="12,6"/>
+                        </StackPanel>
+                    </Border>
+
+                    <Border Grid.Row="1" Background="#FF1E1E2E" CornerRadius="4">
+                        <TextBlock Text="Select a snapshot to view details"
+                                   Foreground="#FF6C7086"
+                                   HorizontalAlignment="Center"
+                                   VerticalAlignment="Center"/>
+                    </Border>
+                </Grid>
+            </TabItem>
+
+            <!-- Top Stats Tab -->
+            <TabItem Header="TOP STATS">
+                <Border Background="#FF1E1E2E" CornerRadius="4" Padding="16">
+                    <TextBlock Text="Top stats will appear here after combat"
+                               Foreground="#FF6C7086"
+                               HorizontalAlignment="Center"
+                               VerticalAlignment="Center"/>
+                </Border>
+            </TabItem>
+
+            <!-- Your Stats Tab -->
+            <TabItem Header="YOUR STATS">
+                <Border Background="#FF1E1E2E" CornerRadius="4" Padding="16">
+                    <TextBlock Text="Your stats will appear here after combat"
+                               Foreground="#FF6C7086"
+                               HorizontalAlignment="Center"
+                               VerticalAlignment="Center"/>
+                </Border>
+            </TabItem>
+        </TabControl>
+    </Grid>
+</UserControl>
