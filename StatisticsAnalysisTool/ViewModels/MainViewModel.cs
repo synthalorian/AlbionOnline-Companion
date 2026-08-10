@@ -1,6 +1,7 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Serilog;
+using StatisticsAnalysisTool.Network;
 using System;
 using System.Collections.ObjectModel;
 using System.Threading.Tasks;
@@ -43,6 +44,8 @@ public partial class MainViewModel : ViewModelBase
     private readonly PlayerInfoViewModel _playerInfoViewModel = new();
     private readonly SettingsViewModel _settingsViewModel = new();
 
+    private NetworkManager? _networkManager;
+
     public MainViewModel()
     {
         Log.Information("MainViewModel initialized");
@@ -84,8 +87,18 @@ public partial class MainViewModel : ViewModelBase
             StatusText = "Starting packet capture...";
             Log.Information("Starting tracking");
 
-            // TODO: Initialize NetworkManager with Linux-compatible packet provider
-            await Task.Delay(1000); // Placeholder
+            _networkManager = new NetworkManager();
+            _networkManager.StatusChanged += (s, msg) =>
+                Avalonia.Threading.Dispatcher.UIThread.Post(() => StatusText = msg);
+
+            // Wire up event handlers to ViewModels
+            _networkManager.RegisterViewModels(
+                _dashboardViewModel,
+                _damageMeterViewModel,
+                _dungeonTrackerViewModel,
+                _lootLoggerViewModel);
+
+            await Task.Run(() => _networkManager.Start());
 
             IsTracking = true;
             StatusText = "Tracking active - capturing packets";
@@ -105,8 +118,12 @@ public partial class MainViewModel : ViewModelBase
             StatusText = "Stopping...";
             Log.Information("Stopping tracking");
 
-            // TODO: Stop NetworkManager
-            await Task.Delay(500); // Placeholder
+            if (_networkManager != null)
+            {
+                await Task.Run(() => _networkManager.Stop());
+                _networkManager.Dispose();
+                _networkManager = null;
+            }
 
             IsTracking = false;
             StatusText = "Ready";
