@@ -2,10 +2,12 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Serilog;
 using StatisticsAnalysisTool.Common;
+using StatisticsAnalysisTool.Themes;
 using System;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace StatisticsAnalysisTool.ViewModels;
@@ -42,10 +44,13 @@ public partial class SettingsViewModel : ViewModelBase
     private string _albionDataPath = string.Empty;
 
     [ObservableProperty]
-    private string _selectedTheme = "Dark";
+    private string _selectedThemeName = string.Empty;
 
     [ObservableProperty]
-    private ObservableCollection<string> _themes = new();
+    private ObservableCollection<string> _themeNames = new();
+
+    [ObservableProperty]
+    private string _selectedThemeDescription = string.Empty;
 
     [ObservableProperty]
     private bool _enableNotifications = true;
@@ -61,9 +66,6 @@ public partial class SettingsViewModel : ViewModelBase
 
     [ObservableProperty]
     private bool _minimizeToTray;
-
-    [ObservableProperty]
-    private bool _startWithWindows;
 
     [ObservableProperty]
     private string _statusMessage = string.Empty;
@@ -85,9 +87,11 @@ public partial class SettingsViewModel : ViewModelBase
         Servers.Add("Europe");
         Servers.Add("Asia");
 
-        Themes.Add("Dark");
-        Themes.Add("Light");
-        Themes.Add("System");
+        // Load themes from catalog
+        foreach (var theme in ThemeCatalog.All)
+        {
+            ThemeNames.Add(theme.FullDisplayName);
+        }
 
         LoadFromSettings();
     }
@@ -115,13 +119,32 @@ public partial class SettingsViewModel : ViewModelBase
             _ => "Americas"
         };
 
-        SelectedTheme = s.Theme;
+        // Set theme from saved name
+        var theme = ThemeCatalog.GetByName(s.Theme);
+        SelectedThemeName = theme.FullDisplayName;
+        SelectedThemeDescription = theme.Description;
+
         IsTrackingResetByMapChangeActive = s.ResetOnMapChange;
         IsDamageMeterTrackingActive = s.DamageMeterEnabled;
         EnableNotifications = s.ShowNotifications;
         EnableSounds = s.PlaySounds;
         AutoStartTracking = s.AutoStartTracking;
         AlbionDataPath = s.GameLogPath;
+    }
+
+    partial void OnSelectedThemeNameChanged(string value)
+    {
+        // Find theme by display name and apply it live
+        var theme = ThemeCatalog.All.FirstOrDefault(t => t.FullDisplayName == value);
+        if (theme != null)
+        {
+            SelectedThemeDescription = theme.Description;
+            ThemeManager.Apply(theme);
+
+            // Save immediately
+            _settingsService.Settings.Theme = theme.Name;
+            _settingsService.Save();
+        }
     }
 
     [RelayCommand]
@@ -148,7 +171,6 @@ public partial class SettingsViewModel : ViewModelBase
             _ => "americas"
         };
 
-        s.Theme = SelectedTheme;
         s.ResetOnMapChange = IsTrackingResetByMapChangeActive;
         s.DamageMeterEnabled = IsDamageMeterTrackingActive;
         s.ShowNotifications = EnableNotifications;
@@ -160,7 +182,6 @@ public partial class SettingsViewModel : ViewModelBase
         StatusMessage = "Settings saved!";
         Log.Information("Settings saved");
 
-        // Clear status after 3 seconds
         Task.Delay(3000).ContinueWith(_ =>
             Avalonia.Threading.Dispatcher.UIThread.Post(() => StatusMessage = string.Empty));
     }
@@ -171,6 +192,7 @@ public partial class SettingsViewModel : ViewModelBase
         _settingsService.Settings = new AppSettings();
         _settingsService.Save();
         LoadFromSettings();
+        ThemeManager.Apply(ThemeCatalog.Default);
         StatusMessage = "Settings reset to defaults";
         Log.Information("Settings reset to defaults");
     }
@@ -206,7 +228,6 @@ public partial class SettingsViewModel : ViewModelBase
     [RelayCommand]
     private void BrowseAlbionDataPath()
     {
-        // Will use StorageProvider when wired to the view
         StatusMessage = "Use file picker dialog";
     }
 }

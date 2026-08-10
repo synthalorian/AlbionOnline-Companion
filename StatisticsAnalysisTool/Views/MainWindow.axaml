@@ -12,11 +12,10 @@
         Title="{Binding Title}"
         Width="1200" Height="800"
         MinWidth="800" MinHeight="600"
-        Background="#FF1E1E2E"
+        Background="{DynamicResource ThemeBackground}"
         WindowStartupLocation="CenterScreen">
 
     <Window.DataTemplates>
-        <!-- View DataTemplates -->
         <DataTemplate DataType="{x:Type vm:DashboardViewModel}">
             <views:DashboardView />
         </DataTemplate>
@@ -44,80 +43,80 @@
         <common:BoolToTrackingTextConverter x:Key="TrackingTextConverter"/>
         <common:BoolToTrackingColorConverter x:Key="TrackingColorConverter"/>
     </Window.Resources>
-    
+
     <Grid RowDefinitions="Auto,*" ColumnDefinitions="250,*">
-        
+
         <!-- Header Bar -->
-        <Border Grid.Row="0" Grid.ColumnSpan="2" 
-                Background="#FF181825" 
-                BorderBrush="#FF313244" 
+        <Border Grid.Row="0" Grid.ColumnSpan="2"
+                Background="{DynamicResource ThemeSurfaceAlt}"
+                BorderBrush="{DynamicResource ThemeBorder}"
                 BorderThickness="0,0,0,1"
                 Padding="16,12">
             <Grid ColumnDefinitions="*,Auto,Auto">
                 <StackPanel Orientation="Horizontal" Spacing="12">
-                    <TextBlock Text="🎮" FontSize="24" VerticalAlignment="Center"/>
-                    <TextBlock Text="{Binding Title}" 
-                               FontSize="18" 
-                               FontWeight="Bold" 
+                    <TextBlock Text="⚔️" FontSize="24" VerticalAlignment="Center"/>
+                    <TextBlock Text="{Binding Title}"
+                               FontSize="18"
+                               FontWeight="Bold"
                                VerticalAlignment="Center"/>
                 </StackPanel>
-                
-                <Button Grid.Column="1" 
+
+                <Button Grid.Column="1"
                         Content="{Binding IsTracking, Converter={StaticResource TrackingTextConverter}}"
                         Command="{Binding ToggleTrackingCommand}"
                         Background="{Binding IsTracking, Converter={StaticResource TrackingColorConverter}}"
-                        Foreground="#FF1E1E2E"
+                        Foreground="{DynamicResource ThemeBackground}"
                         FontWeight="Bold"
                         Padding="20,8"
                         Margin="0,0,12,0"/>
-                
-                <TextBlock Grid.Column="2" 
-                           Text="{Binding StatusText}" 
+
+                <TextBlock Grid.Column="2"
+                           Text="{Binding StatusText}"
                            VerticalAlignment="Center"
-                           Foreground="#FF6C7086"/>
+                           Foreground="{DynamicResource ThemeForegroundDim}"/>
             </Grid>
         </Border>
 
         <!-- Sidebar Navigation -->
-        <Border Grid.Row="1" Grid.Column="0" 
-                Background="#FF181825" 
-                BorderBrush="#FF313244" 
+        <Border Grid.Row="1" Grid.Column="0"
+                Background="{DynamicResource ThemeSurfaceAlt}"
+                BorderBrush="{DynamicResource ThemeBorder}"
                 BorderThickness="0,0,1,0">
-            <ListBox ItemsSource="{Binding Tabs}" 
+            <ListBox ItemsSource="{Binding Tabs}"
                      SelectedItem="{Binding SelectedTab}"
                      Background="Transparent"
                      BorderThickness="0"
                      Padding="8">
                 <ListBox.ItemTemplate>
                     <DataTemplate>
-                        <TextBlock Text="{Binding}" 
-                                   Padding="12,8" 
+                        <TextBlock Text="{Binding}"
+                                   Padding="12,8"
                                    FontSize="14"/>
                     </DataTemplate>
                 </ListBox.ItemTemplate>
                 <ListBox.Styles>
                     <Style Selector="ListBoxItem">
                         <Setter Property="Background" Value="Transparent"/>
-                        <Setter Property="Foreground" Value="#FFCDD6F4"/>
+                        <Setter Property="Foreground" Value="{DynamicResource ThemeForeground}"/>
                         <Setter Property="Padding" Value="0"/>
                         <Setter Property="Margin" Value="0,2"/>
                         <Setter Property="CornerRadius" Value="4"/>
                     </Style>
                     <Style Selector="ListBoxItem:selected">
-                        <Setter Property="Background" Value="#FF313244"/>
+                        <Setter Property="Background" Value="{DynamicResource ThemeSurface}"/>
                     </Style>
                     <Style Selector="ListBoxItem:pointerover">
-                        <Setter Property="Background" Value="#FF45475A"/>
+                        <Setter Property="Background" Value="{DynamicResource ThemeButtonHover}"/>
                     </Style>
                 </ListBox.Styles>
             </ListBox>
         </Border>
 
         <!-- Main Content Area -->
-        <Border Grid.Row="1" Grid.Column="1" 
-                Background="#FF1E1E2E">
+        <Border Grid.Row="1" Grid.Column="1"
+                Background="{DynamicResource ThemeBackground}">
             <ContentControl Content="{Binding CurrentView}"/>
         </Border>
-        
+
     </Grid>
 </Window>
