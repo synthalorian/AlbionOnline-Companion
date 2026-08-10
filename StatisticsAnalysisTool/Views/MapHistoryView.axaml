@@ -1,0 +1,58 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:StatisticsAnalysisTool.ViewModels"
+             x:Class="StatisticsAnalysisTool.Views.MapHistoryView"
+             x:DataType="vm:MapHistoryViewModel">
+
+    <Grid RowDefinitions="Auto,Auto,*" Margin="16">
+
+        <StackPanel Grid.Row="0" Orientation="Horizontal" Spacing="16" Margin="0,0,0,16">
+            <TextBlock Text="🗺️ Map History" FontSize="24" FontWeight="Bold"/>
+            <Button Content="Clear" Command="{Binding ClearHistoryCommand}" Padding="12,6"/>
+        </StackPanel>
+
+        <Grid Grid.Row="1" ColumnDefinitions="*,*,*,*" Margin="0,0,0,16">
+            <Border Grid.Column="0" Background="{DynamicResource ThemeSurface}" CornerRadius="8" Padding="12" Margin="0,0,4,0">
+                <StackPanel>
+                    <TextBlock Text="CURRENT ZONE" FontSize="11" Classes="dim"/>
+                    <TextBlock Text="{Binding CurrentZone}" FontSize="18" FontWeight="Bold" Foreground="{DynamicResource ThemeAccent}"/>
+                </StackPanel>
+            </Border>
+            <Border Grid.Column="1" Background="{DynamicResource ThemeSurface}" CornerRadius="8" Padding="12" Margin="4,0">
+                <StackPanel>
+                    <TextBlock Text="ZONES VISITED" FontSize="11" Classes="dim"/>
+                    <TextBlock Text="{Binding TotalZonesVisited}" FontSize="18" FontWeight="Bold" Foreground="{DynamicResource ThemeAccentSecondary}"/>
+                </StackPanel>
+            </Border>
+            <Border Grid.Column="2" Background="{DynamicResource ThemeSurface}" CornerRadius="8" Padding="12" Margin="4,0">
+                <StackPanel>
+                    <TextBlock Text="TOTAL TIME" FontSize="11" Classes="dim"/>
+                    <TextBlock Text="{Binding TotalTimeExploring}" FontSize="18" FontWeight="Bold" Foreground="{DynamicResource ThemeSuccess}"/>
+                </StackPanel>
+            </Border>
+            <Border Grid.Column="3" Background="{DynamicResource ThemeSurface}" CornerRadius="8" Padding="12" Margin="4,0,0,0">
+                <StackPanel>
+                    <TextBlock Text="MOST VISITED" FontSize="11" Classes="dim"/>
+                    <TextBlock Text="{Binding MostVisitedZone}" FontSize="18" FontWeight="Bold" Foreground="{DynamicResource ThemeWarning}"/>
+                </StackPanel>
+            </Border>
+        </Grid>
+
+        <Border Grid.Row="2" Background="{DynamicResource ThemeSurfaceAlt}" CornerRadius="8" Padding="8">
+            <ScrollViewer>
+                <ItemsControl ItemsSource="{Binding Visits}">
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <Grid ColumnDefinitions="*,150,120,100" Margin="4,2">
+                                <TextBlock Grid.Column="0" Text="{Binding ZoneName}" FontWeight="Bold"/>
+                                <TextBlock Grid.Column="1" Text="{Binding PreviousZone, StringFormat='from: {0}'}" Classes="dim"/>
+                                <TextBlock Grid.Column="2" Text="{Binding TimeInPreviousDisplay}" Foreground="{DynamicResource ThemeInfo}"/>
+                                <TextBlock Grid.Column="3" Text="{Binding EnteredAt, StringFormat='HH:mm'}" Classes="dim"/>
+                            </Grid>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+            </ScrollViewer>
+        </Border>
+    </Grid>
+</UserControl>

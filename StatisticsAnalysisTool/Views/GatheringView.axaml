@@ -1,0 +1,84 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:StatisticsAnalysisTool.ViewModels"
+             x:Class="StatisticsAnalysisTool.Views.GatheringView"
+             x:DataType="vm:GatheringViewModel">
+
+    <Grid RowDefinitions="Auto,Auto,*" Margin="16">
+
+        <!-- Header -->
+        <StackPanel Grid.Row="0" Orientation="Horizontal" Spacing="16" Margin="0,0,0,16">
+            <TextBlock Text="⛏️ Gathering" FontSize="24" FontWeight="Bold"/>
+            <Button Content="Reset" Command="{Binding ResetGatheringCommand}" Padding="12,6"/>
+            <TextBlock Text="{Binding GatheringSessionTime, StringFormat='Session: {0}'}" 
+                       VerticalAlignment="Center" Classes="dim"/>
+        </StackPanel>
+
+        <!-- Resource Cards -->
+        <Grid Grid.Row="1" ColumnDefinitions="*,*,*,*,*" Margin="0,0,0,16">
+            <Border Grid.Column="0" Background="{DynamicResource ThemeSurface}" CornerRadius="8" Padding="12" Margin="0,0,4,0">
+                <StackPanel>
+                    <TextBlock Text="🌿 FIBER" FontSize="11" Classes="dim"/>
+                    <TextBlock Text="{Binding TotalFiber}" FontSize="22" FontWeight="Bold" Foreground="{DynamicResource ThemeSuccess}"/>
+                    <TextBlock Text="{Binding FiberPerHour}" FontSize="12" Classes="dim"/>
+                </StackPanel>
+            </Border>
+            <Border Grid.Column="1" Background="{DynamicResource ThemeSurface}" CornerRadius="8" Padding="12" Margin="4,0">
+                <StackPanel>
+                    <TextBlock Text="🐾 HIDE" FontSize="11" Classes="dim"/>
+                    <TextBlock Text="{Binding TotalHide}" FontSize="22" FontWeight="Bold" Foreground="{DynamicResource ThemeWarning}"/>
+                    <TextBlock Text="{Binding HidePerHour}" FontSize="12" Classes="dim"/>
+                </StackPanel>
+            </Border>
+            <Border Grid.Column="2" Background="{DynamicResource ThemeSurface}" CornerRadius="8" Padding="12" Margin="4,0">
+                <StackPanel>
+                    <TextBlock Text="⛏️ ORE" FontSize="11" Classes="dim"/>
+                    <TextBlock Text="{Binding TotalOre}" FontSize="22" FontWeight="Bold" Foreground="{DynamicResource ThemeAccentSecondary}"/>
+                    <TextBlock Text="{Binding OrePerHour}" FontSize="12" Classes="dim"/>
+                </StackPanel>
+            </Border>
+            <Border Grid.Column="3" Background="{DynamicResource ThemeSurface}" CornerRadius="8" Padding="12" Margin="4,0">
+                <StackPanel>
+                    <TextBlock Text="🪨 STONE" FontSize="11" Classes="dim"/>
+                    <TextBlock Text="{Binding TotalStone}" FontSize="22" FontWeight="Bold" Foreground="{DynamicResource ThemeInfo}"/>
+                    <TextBlock Text="{Binding StonePerHour}" FontSize="12" Classes="dim"/>
+                </StackPanel>
+            </Border>
+            <Border Grid.Column="4" Background="{DynamicResource ThemeSurface}" CornerRadius="8" Padding="12" Margin="4,0,0,0">
+                <StackPanel>
+                    <TextBlock Text="🪵 WOOD" FontSize="11" Classes="dim"/>
+                    <TextBlock Text="{Binding TotalWood}" FontSize="22" FontWeight="Bold" Foreground="{DynamicResource ThemeOrange}"/>
+                    <TextBlock Text="{Binding WoodPerHour}" FontSize="12" Classes="dim"/>
+                </StackPanel>
+            </Border>
+        </Grid>
+
+        <!-- Total + Recent -->
+        <Grid Grid.Row="2" RowDefinitions="Auto,*">
+            <Border Grid.Row="0" Background="{DynamicResource ThemeSurface}" CornerRadius="8" Padding="12" Margin="0,0,0,8">
+                <StackPanel Orientation="Horizontal" Spacing="16">
+                    <TextBlock Text="TOTAL:" FontWeight="Bold"/>
+                    <TextBlock Text="{Binding TotalGathered}" FontSize="20" FontWeight="Bold" Foreground="{DynamicResource ThemeAccent}"/>
+                </StackPanel>
+            </Border>
+
+            <Border Grid.Row="1" Background="{DynamicResource ThemeSurfaceAlt}" CornerRadius="8" Padding="8">
+                <ScrollViewer>
+                    <ItemsControl ItemsSource="{Binding RecentGathering}">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Grid ColumnDefinitions="60,*,60,80,100" Margin="4,2">
+                                    <TextBlock Grid.Column="0" Text="{Binding Tier}" Classes="dim"/>
+                                    <TextBlock Grid.Column="1" Text="{Binding ResourceName}"/>
+                                    <TextBlock Grid.Column="2" Text="{Binding Amount, StringFormat='x{0}'}" Foreground="{DynamicResource ThemeSuccess}"/>
+                                    <TextBlock Grid.Column="3" Text="{Binding ResourceType}" Classes="dim"/>
+                                    <TextBlock Grid.Column="4" Text="{Binding Timestamp, StringFormat='HH:mm:ss'}" Classes="dim"/>
+                                </Grid>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </ScrollViewer>
+            </Border>
+        </Grid>
+    </Grid>
+</UserControl>
