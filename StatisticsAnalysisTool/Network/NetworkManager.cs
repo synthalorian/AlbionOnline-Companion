@@ -29,6 +29,8 @@ public class NetworkManager : IDisposable
     private DashboardMightFavorHandler? _dashboardMightFavorHandler;
     private KillDeathEventHandler? _killDeathHandler;
     private PlayerNameEventHandler? _playerNameHandler;
+    private MobTrackEventHandler? _mobTrackHandler;
+    private LeaveEventHandler? _leaveHandler;
 
     public bool IsRunning => _isRunning;
     public event EventHandler<string>? StatusChanged;
@@ -76,8 +78,13 @@ public class NetworkManager : IDisposable
         _receiverBuilder.AddEventHandler(_killDeathHandler);
         _receiverBuilder.AddEventHandler(_playerNameHandler);
 
+        // Register entity tracking handlers
+        _mobTrackHandler = new MobTrackEventHandler();
+        _leaveHandler = new LeaveEventHandler();
+        _receiverBuilder.AddEventHandler(_mobTrackHandler);
+        _receiverBuilder.AddEventHandler(_leaveHandler);
+
         // Set static refs
-        DamageMeterEventHandler.SetViewModelRef(damageMeter);
 
         Log.Information("ViewModels registered with NetworkManager");
     }

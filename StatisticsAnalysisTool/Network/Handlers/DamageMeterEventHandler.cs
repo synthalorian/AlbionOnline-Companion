@@ -10,29 +10,22 @@ namespace StatisticsAnalysisTool.Network.Handlers;
 
 /// <summary>
 /// Handles damage/healing events and updates the DamageMeterViewModel.
+/// Uses EntityTracker for name resolution and CombatTracker for session management.
 /// </summary>
 public class DamageMeterEventHandler : EventPacketHandler<HealthUpdateEvent>
 {
     private readonly DamageMeterViewModel _viewModel;
-    private readonly Dictionary<long, string> _playerNames = new();
+    private readonly EntityTracker _entityTracker;
+    private readonly CombatTracker _combatTracker;
     private static readonly Dictionary<long, DamageMeterEntry> _entries = new();
-    private static DateTime _combatStart = DateTime.UtcNow;
-    private long _localPlayerId;
+    private static DateTime _sessionStart = DateTime.UtcNow;
 
     public DamageMeterEventHandler(DamageMeterViewModel viewModel)
         : base((int)EventCodes.HealthUpdate)
     {
         _viewModel = viewModel;
-    }
-
-    public void SetLocalPlayerId(long playerId)
-    {
-        _localPlayerId = playerId;
-    }
-
-    public void RegisterPlayerName(long objectId, string name)
-    {
-        _playerNames[objectId] = name;
+        _entityTracker = EntityTracker.Instance;
+        _combatTracker = CombatTracker.Instance;
     }
 
     protected override Task OnActionAsync(HealthUpdateEvent value)
@@ -40,29 +33,34 @@ public class DamageMeterEventHandler : EventPacketHandler<HealthUpdateEvent>
         if (!_viewModel.IsDamageMeterActive)
             return Task.CompletedTask;
 
-        ProcessHealthUpdate(_viewModel, value, _playerNames);
+        // Feed to combat tracker
+        _combatTracker.ProcessHealthUpdate(value);
+
+        // Process for damage meter
+        ProcessHealthUpdate(_viewModel, value, _entityTracker);
         return Task.CompletedTask;
     }
 
     /// <summary>
-    /// Static processing method that can be called from batch handler too.
+    /// Static processing method shared with batch handler.
     /// </summary>
     public static void ProcessHealthUpdate(
         DamageMeterViewModel viewModel,
         HealthUpdateEvent value,
-        Dictionary<long, string>? playerNames = null)
+        EntityTracker? entityTracker = null)
     {
         try
         {
-            // Only track damage caused by players
             if (value.CauserId <= 0 || value.AffectedObjectId <= 0)
                 return;
 
-            // Skip self-damage
             if (value.CauserId == value.AffectedObjectId)
                 return;
 
-            var entry = GetOrCreateEntry(value.CauserId, playerNames);
+            // Update entity health
+            entityTracker?.UpdateHealth(value.AffectedObjectId, value.NewHealthValue);
+
+            var entry = GetOrCreateEntry(value.CauserId, entityTracker);
 
             if (value.IsDamage)
             {
@@ -84,13 +82,11 @@ public class DamageMeterEventHandler : EventPacketHandler<HealthUpdateEvent>
         }
     }
 
-    private static DamageMeterEntry GetOrCreateEntry(long causerId, Dictionary<long, string>? playerNames)
+    private static DamageMeterEntry GetOrCreateEntry(long causerId, EntityTracker? entityTracker)
     {
         if (!_entries.TryGetValue(causerId, out var entry))
         {
-            var name = playerNames?.TryGetValue(causerId, out var n) == true
-                ? n
-                : $"Player_{causerId}";
+            var name = entityTracker?.GetName(causerId) ?? $"Player_{causerId}";
 
             entry = new DamageMeterEntry
             {
@@ -107,7 +103,7 @@ public class DamageMeterEventHandler : EventPacketHandler<HealthUpdateEvent>
 
     private static double CalculateRate(double total)
     {
-        var elapsed = (DateTime.UtcNow - _combatStart).TotalSeconds;
+        var elapsed = (DateTime.UtcNow - _sessionStart).TotalSeconds;
         return elapsed > 0 ? total / elapsed : 0;
     }
 
@@ -155,25 +151,14 @@ public class DamageMeterEventHandler : EventPacketHandler<HealthUpdateEvent>
             viewModel.DamageMeterEntries.Clear();
             foreach (var entry in sorted.Take(20))
             {
-                _viewModelRef?.DamageMeterEntries.Add(entry);
+                viewModel.DamageMeterEntries.Add(entry);
             }
         });
     }
 
-    // Keep a static ref for the static UpdateRankings
-    private static DamageMeterViewModel? _viewModelRef;
-
-    public static void SetViewModelRef(DamageMeterViewModel vm)
-    {
-        _viewModelRef = vm;
-    }
-
-    /// <summary>
-    /// Reset all tracked damage data.
-    /// </summary>
     public static void ResetEntries()
     {
         _entries.Clear();
-        _combatStart = DateTime.UtcNow;
+        _sessionStart = DateTime.UtcNow;
     }
 }
