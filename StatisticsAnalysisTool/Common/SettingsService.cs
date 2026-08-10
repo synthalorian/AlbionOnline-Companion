@@ -14,7 +14,7 @@ public class SettingsService
 {
     private static readonly string ConfigDir = Path.Combine(
         Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
-        "StatisticsAnalysisTool");
+        "AlbionOnlineCompanion");
 
     private static readonly string ConfigPath = Path.Combine(ConfigDir, "settings.json");
 

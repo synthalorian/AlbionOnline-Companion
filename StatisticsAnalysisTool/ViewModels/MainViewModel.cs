@@ -11,7 +11,7 @@ namespace StatisticsAnalysisTool.ViewModels;
 public partial class MainViewModel : ViewModelBase
 {
     [ObservableProperty]
-    private string _title = "Statistics Analysis Tool - Linux";
+    private string _title = "Albion Online Companion";
 
     [ObservableProperty]
     private string _statusText = "Ready";

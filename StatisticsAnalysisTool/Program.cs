@@ -9,7 +9,7 @@ sealed class Program
 {
     public static readonly string AppDataDir = Path.Combine(
         Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
-        "StatisticsAnalysisTool");
+        "AlbionOnlineCompanion");
 
     [STAThread]
     public static void Main(string[] args)

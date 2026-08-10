@@ -50,10 +50,10 @@ Inspired by [Triky313's AlbionOnline-StatisticsAnalysis](https://github.com/Trik
 
 | Platform | Status | Binary |
 |----------|--------|--------|
-| **Linux** (x64) | ✅ Supported | `AlbionCompanion` |
-| **Windows** (x64) | ✅ Supported | `AlbionCompanion.exe` |
-| **macOS** (x64) | ✅ Supported | `AlbionCompanion` |
-| **macOS** (ARM) | ✅ Supported | `AlbionCompanion` |
+| **Linux** (x64) | ✅ Supported | `AlbionOnlineCompanion` |
+| **Windows** (x64) | ✅ Supported | `AlbionOnlineCompanion.exe` |
+| **macOS** (x64) | ✅ Supported | `AlbionOnlineCompanion` |
+| **macOS** (ARM) | ✅ Supported | `AlbionOnlineCompanion` |
 
 ## Installation
 
@@ -87,7 +87,7 @@ dotnet publish StatisticsAnalysisTool -r osx-arm64 -c Release    # macOS Apple S
 ```bash
 sudo setcap cap_net_raw+ep $(which dotnet)
 # Or run with sudo
-sudo ./AlbionCompanion
+sudo ./AlbionOnlineCompanion
 ```
 
 **Windows:**
