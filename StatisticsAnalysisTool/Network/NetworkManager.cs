@@ -20,9 +20,13 @@ public class NetworkManager : IDisposable
 
     // Event handlers
     private DamageMeterEventHandler? _damageMeterHandler;
+    private DamageMeterBatchHandler? _damageMeterBatchHandler;
     private DungeonTrackerEventHandler? _dungeonTrackerHandler;
     private LootLoggerEventHandler? _lootLoggerHandler;
     private DashboardEventHandler? _dashboardHandler;
+    private DashboardSilverHandler? _dashboardSilverHandler;
+    private DashboardReSpecHandler? _dashboardReSpecHandler;
+    private DashboardMightFavorHandler? _dashboardMightFavorHandler;
 
     public bool IsRunning => _isRunning;
     public event EventHandler<string>? StatusChanged;
@@ -46,10 +50,26 @@ public class NetworkManager : IDisposable
         _dungeonTrackerHandler = new DungeonTrackerEventHandler(dungeonTracker);
         _lootLoggerHandler = new LootLoggerEventHandler(lootLogger);
 
+        // Register single-event handlers
         _receiverBuilder.AddEventHandler(_dashboardHandler);
         _receiverBuilder.AddEventHandler(_damageMeterHandler);
         _receiverBuilder.AddEventHandler(_dungeonTrackerHandler);
         _receiverBuilder.AddEventHandler(_lootLoggerHandler);
+
+        // Register batch handlers
+        _damageMeterBatchHandler = new DamageMeterBatchHandler(damageMeter);
+        _receiverBuilder.AddEventHandler(_damageMeterBatchHandler);
+
+        // Register dashboard sub-handlers
+        _dashboardSilverHandler = new DashboardSilverHandler(dashboard, _dashboardHandler);
+        _dashboardReSpecHandler = new DashboardReSpecHandler(dashboard, _dashboardHandler);
+        _dashboardMightFavorHandler = new DashboardMightFavorHandler(dashboard, _dashboardHandler);
+        _receiverBuilder.AddEventHandler(_dashboardSilverHandler);
+        _receiverBuilder.AddEventHandler(_dashboardReSpecHandler);
+        _receiverBuilder.AddEventHandler(_dashboardMightFavorHandler);
+
+        // Set static refs
+        DamageMeterEventHandler.SetViewModelRef(damageMeter);
 
         Log.Information("ViewModels registered with NetworkManager");
     }

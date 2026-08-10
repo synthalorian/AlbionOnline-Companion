@@ -15,10 +15,11 @@ public class DamageMeterEventHandler : EventPacketHandler<HealthUpdateEvent>
 {
     private readonly DamageMeterViewModel _viewModel;
     private readonly Dictionary<long, string> _playerNames = new();
-    private readonly Dictionary<long, DamageMeterEntry> _entries = new();
+    private static readonly Dictionary<long, DamageMeterEntry> _entries = new();
+    private static DateTime _combatStart = DateTime.UtcNow;
     private long _localPlayerId;
 
-    public DamageMeterEventHandler(DamageMeterViewModel viewModel) 
+    public DamageMeterEventHandler(DamageMeterViewModel viewModel)
         : base((int)EventCodes.HealthUpdate)
     {
         _viewModel = viewModel;
@@ -39,47 +40,61 @@ public class DamageMeterEventHandler : EventPacketHandler<HealthUpdateEvent>
         if (!_viewModel.IsDamageMeterActive)
             return Task.CompletedTask;
 
+        ProcessHealthUpdate(_viewModel, value, _playerNames);
+        return Task.CompletedTask;
+    }
+
+    /// <summary>
+    /// Static processing method that can be called from batch handler too.
+    /// </summary>
+    public static void ProcessHealthUpdate(
+        DamageMeterViewModel viewModel,
+        HealthUpdateEvent value,
+        Dictionary<long, string>? playerNames = null)
+    {
         try
         {
             // Only track damage caused by players
             if (value.CauserId <= 0 || value.AffectedObjectId <= 0)
-                return Task.CompletedTask;
+                return;
 
             // Skip self-damage
             if (value.CauserId == value.AffectedObjectId)
-                return Task.CompletedTask;
+                return;
 
-            var entry = GetOrCreateEntry(value.CauserId);
+            var entry = GetOrCreateEntry(value.CauserId, playerNames);
 
             if (value.IsDamage)
             {
                 entry.Damage += value.DamageAmount;
-                entry.Dps = CalculateDps(entry);
+                entry.Dps = CalculateRate(entry.Damage);
             }
             else if (value.IsHealing)
             {
                 entry.Healing += value.HealingAmount;
-                entry.Hps = CalculateHps(entry);
+                entry.Hps = CalculateRate(entry.Healing);
             }
 
-            entry.ValueString = FormatValue(entry);
-            UpdateRankings();
+            entry.ValueString = FormatValue(viewModel.SelectedSortOption, entry);
+            UpdateRankings(viewModel);
         }
         catch (Exception ex)
         {
             Log.Debug(ex, "DamageMeterEventHandler error");
         }
-
-        return Task.CompletedTask;
     }
 
-    private DamageMeterEntry GetOrCreateEntry(long causerId)
+    private static DamageMeterEntry GetOrCreateEntry(long causerId, Dictionary<long, string>? playerNames)
     {
         if (!_entries.TryGetValue(causerId, out var entry))
         {
+            var name = playerNames?.TryGetValue(causerId, out var n) == true
+                ? n
+                : $"Player_{causerId}";
+
             entry = new DamageMeterEntry
             {
-                PlayerName = _playerNames.TryGetValue(causerId, out var name) ? name : $"Player_{causerId}",
+                PlayerName = name,
                 Damage = 0,
                 Dps = 0,
                 Healing = 0,
@@ -90,20 +105,15 @@ public class DamageMeterEventHandler : EventPacketHandler<HealthUpdateEvent>
         return entry;
     }
 
-    private double CalculateDps(DamageMeterEntry entry)
+    private static double CalculateRate(double total)
     {
-        // Simplified DPS calculation - would need time window in real implementation
-        return entry.Damage / Math.Max(1, _viewModel.DamageMeterEntries.Count);
+        var elapsed = (DateTime.UtcNow - _combatStart).TotalSeconds;
+        return elapsed > 0 ? total / elapsed : 0;
     }
 
-    private double CalculateHps(DamageMeterEntry entry)
+    private static string FormatValue(string sortOption, DamageMeterEntry entry)
     {
-        return entry.Healing / Math.Max(1, _viewModel.DamageMeterEntries.Count);
-    }
-
-    private string FormatValue(DamageMeterEntry entry)
-    {
-        return _viewModel.SelectedSortOption switch
+        return sortOption switch
         {
             "Damage" => FormatNumber(entry.Damage),
             "DPS" => FormatNumber(entry.Dps),
@@ -123,9 +133,9 @@ public class DamageMeterEventHandler : EventPacketHandler<HealthUpdateEvent>
         };
     }
 
-    private void UpdateRankings()
+    private static void UpdateRankings(DamageMeterViewModel viewModel)
     {
-        var sorted = _viewModel.SelectedSortOption switch
+        var sorted = viewModel.SelectedSortOption switch
         {
             "Damage" => _entries.Values.OrderByDescending(e => e.Damage),
             "DPS" => _entries.Values.OrderByDescending(e => e.Dps),
@@ -140,14 +150,30 @@ public class DamageMeterEventHandler : EventPacketHandler<HealthUpdateEvent>
             entry.Rank = rank++;
         }
 
-        // Update the observable collection on UI thread
         Avalonia.Threading.Dispatcher.UIThread.Post(() =>
         {
-            _viewModel.DamageMeterEntries.Clear();
-            foreach (var entry in sorted.Take(20)) // Top 20
+            viewModel.DamageMeterEntries.Clear();
+            foreach (var entry in sorted.Take(20))
             {
-                _viewModel.DamageMeterEntries.Add(entry);
+                _viewModelRef?.DamageMeterEntries.Add(entry);
             }
         });
+    }
+
+    // Keep a static ref for the static UpdateRankings
+    private static DamageMeterViewModel? _viewModelRef;
+
+    public static void SetViewModelRef(DamageMeterViewModel vm)
+    {
+        _viewModelRef = vm;
+    }
+
+    /// <summary>
+    /// Reset all tracked damage data.
+    /// </summary>
+    public static void ResetEntries()
+    {
+        _entries.Clear();
+        _combatStart = DateTime.UtcNow;
     }
 }
