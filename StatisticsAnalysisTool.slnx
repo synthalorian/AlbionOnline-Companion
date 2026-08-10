@@ -1,0 +1,9 @@
+<Solution>
+  <Project Path="StatisticAnalysisTool.Extractor/StatisticAnalysisTool.Extractor.csproj" />
+  <Project Path="StatisticsAnalysisTool.Abstractions/StatisticsAnalysisTool.Abstractions.csproj" />
+  <Project Path="StatisticsAnalysisTool.Diagnostics/StatisticsAnalysisTool.Diagnostics.csproj" />
+  <Project Path="StatisticsAnalysisTool.Network/StatisticsAnalysisTool.Network.csproj" />
+  <Project Path="StatisticsAnalysisTool.PhotonPackageParser/StatisticsAnalysisTool.PhotonPackageParser.csproj" />
+  <Project Path="StatisticsAnalysisTool.Protocol18/StatisticsAnalysisTool.Protocol18.csproj" />
+  <Project Path="StatisticsAnalysisTool/StatisticsAnalysisTool.csproj" />
+</Solution>

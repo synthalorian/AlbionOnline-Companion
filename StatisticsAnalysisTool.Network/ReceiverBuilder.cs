@@ -1,0 +1,38 @@
+﻿using StatisticsAnalysisTool.Abstractions;
+
+namespace StatisticsAnalysisTool.Network;
+
+public sealed class ReceiverBuilder
+{
+    private readonly AlbionParser _parser = new();
+
+    public static ReceiverBuilder Create()
+    {
+        return new ReceiverBuilder();
+    }
+
+    public void AddHandler<TPacket>(PacketHandler<TPacket> handler)
+    {
+        _parser.AddHandler(handler);
+    }
+
+    public void AddEventHandler<TEvent>(EventPacketHandler<TEvent> handler)
+    {
+        AddHandler(handler);
+    }
+
+    public void AddRequestHandler<TOperation>(RequestPacketHandler<TOperation> handler)
+    {
+        AddHandler(handler);
+    }
+
+    public void AddResponseHandler<TOperation>(ResponsePacketHandler<TOperation> handler)
+    {
+        AddHandler(handler);
+    }
+
+    public IPhotonReceiver Build()
+    {
+        return _parser;
+    }
+}

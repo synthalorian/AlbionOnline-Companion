@@ -1,0 +1,84 @@
+<Application xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             x:Class="StatisticsAnalysisTool.App"
+             xmlns:local="using:StatisticsAnalysisTool"
+             RequestedThemeVariant="Dark">
+
+    <Application.DataTemplates>
+        <local:ViewLocator />
+    </Application.DataTemplates>
+
+    <Application.Styles>
+        <FluentTheme DensityStyle="Compact" />
+        <StyleInclude Source="avares://Avalonia.Controls.DataGrid/Themes/Fluent.xaml"/>
+        
+        <!-- Custom Dark Theme Overrides -->
+        <Style Selector="Window">
+            <Setter Property="Background" Value="#FF1E1E2E" />
+            <Setter Property="Foreground" Value="#FFCDD6F4" />
+        </Style>
+        
+        <Style Selector="TextBlock">
+            <Setter Property="Foreground" Value="#FFCDD6F4" />
+        </Style>
+        
+        <Style Selector="Button">
+            <Setter Property="Background" Value="#FF313244" />
+            <Setter Property="Foreground" Value="#FFCDD6F4" />
+            <Setter Property="BorderBrush" Value="#FF45475A" />
+            <Setter Property="Padding" Value="12,6" />
+            <Setter Property="CornerRadius" Value="4" />
+        </Style>
+        
+        <Style Selector="Button:pointerover">
+            <Setter Property="Background" Value="#FF45475A" />
+        </Style>
+        
+        <Style Selector="TextBox">
+            <Setter Property="Background" Value="#FF313244" />
+            <Setter Property="Foreground" Value="#FFCDD6F4" />
+            <Setter Property="BorderBrush" Value="#FF45475A" />
+            <Setter Property="CaretBrush" Value="#FFF5C2E7" />
+        </Style>
+        
+        <Style Selector="ComboBox">
+            <Setter Property="Background" Value="#FF313244" />
+            <Setter Property="Foreground" Value="#FFCDD6F4" />
+        </Style>
+        
+        <Style Selector="ListBox">
+            <Setter Property="Background" Value="#FF181825" />
+            <Setter Property="Foreground" Value="#FFCDD6F4" />
+        </Style>
+        
+        <Style Selector="DataGrid">
+            <Setter Property="Background" Value="#FF181825" />
+            <Setter Property="Foreground" Value="#FFCDD6F4" />
+        </Style>
+        
+        <Style Selector="TabControl">
+            <Setter Property="Background" Value="#FF1E1E2E" />
+        </Style>
+        
+        <Style Selector="TabItem">
+            <Setter Property="Foreground" Value="#FFCDD6F4" />
+        </Style>
+        
+        <!-- Accent Colors -->
+        <Style Selector="TextBlock.accent">
+            <Setter Property="Foreground" Value="#FFF5C2E7" />
+        </Style>
+        
+        <Style Selector="TextBlock.success">
+            <Setter Property="Foreground" Value="#FFA6E3A1" />
+        </Style>
+        
+        <Style Selector="TextBlock.warning">
+            <Setter Property="Foreground" Value="#FFF9E2AF" />
+        </Style>
+        
+        <Style Selector="TextBlock.error">
+            <Setter Property="Foreground" Value="#FFF38BA8" />
+        </Style>
+    </Application.Styles>
+</Application>
