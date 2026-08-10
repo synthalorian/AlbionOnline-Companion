@@ -57,7 +57,7 @@
                 <StackPanel Spacing="16">
                     <TextBlock Text="GENERAL" Foreground="{DynamicResource ThemeAccentSecondary}" FontSize="14" FontWeight="Bold"/>
 
-                    <Grid ColumnDefinitions="200,*" RowDefinitions="Auto,Auto">
+                    <Grid ColumnDefinitions="200,*" RowDefinitions="Auto,Auto,Auto">
                         <TextBlock Grid.Row="0" Grid.Column="0" Text="Language:" VerticalAlignment="Center"/>
                         <ComboBox Grid.Row="0" Grid.Column="1"
                                   ItemsSource="{Binding Languages}"
@@ -71,6 +71,13 @@
                                   SelectedItem="{Binding SelectedServer}"
                                   Width="200"
                                   HorizontalAlignment="Left"/>
+
+                        <TextBlock Grid.Row="2" Grid.Column="0" Text="Username:" VerticalAlignment="Center"/>
+                        <TextBox Grid.Row="2" Grid.Column="1"
+                                 Text="{Binding PlayerUsername}"
+                                 PlaceholderText="Your Albion username"
+                                 Width="200"
+                                 HorizontalAlignment="Left"/>
                     </Grid>
                 </StackPanel>
             </Border>

@@ -44,6 +44,9 @@ public partial class SettingsViewModel : ViewModelBase
     private string _albionDataPath = string.Empty;
 
     [ObservableProperty]
+    private string _playerUsername = string.Empty;
+
+    [ObservableProperty]
     private string _selectedThemeName = string.Empty;
 
     [ObservableProperty]
@@ -148,6 +151,7 @@ public partial class SettingsViewModel : ViewModelBase
         EnableSounds = s.PlaySounds;
         AutoStartTracking = s.AutoStartTracking;
         AlbionDataPath = s.GameLogPath;
+        PlayerUsername = s.PlayerUsername;
         WindowOpacity = s.WindowOpacity;
         FontSizeScale = s.FontSizeScale;
         CompactMode = s.CompactMode;
@@ -201,6 +205,13 @@ public partial class SettingsViewModel : ViewModelBase
         s.PlaySounds = EnableSounds;
         s.AutoStartTracking = AutoStartTracking;
         s.GameLogPath = AlbionDataPath;
+        s.PlayerUsername = PlayerUsername;
+
+        // Update EntityTracker with new username
+        if (!string.IsNullOrEmpty(PlayerUsername))
+        {
+            Network.EntityTracker.Instance.SetSavedUsername(PlayerUsername);
+        }
         s.WindowOpacity = WindowOpacity;
         s.FontSizeScale = FontSizeScale;
         s.CompactMode = CompactMode;

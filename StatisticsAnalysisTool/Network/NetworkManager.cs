@@ -148,7 +148,7 @@ public class NetworkManager : IDisposable
         try
         {
             var receiver = _receiverBuilder.Build();
-            _packetProvider = new LinuxSocketPacketProvider(receiver);
+            _packetProvider = new LibpcapPacketProvider(receiver);
             _packetProvider.Start();
             _isRunning = true;
 
