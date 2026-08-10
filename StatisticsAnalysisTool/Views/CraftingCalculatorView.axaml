@@ -9,7 +9,7 @@
 
     <Grid RowDefinitions="Auto,*" ColumnDefinitions="300,*">
         <!-- Left Panel - Item Selection -->
-        <Border Grid.Row="0" Grid.Column="0" Grid.RowSpan="2" Background="#FF313244" BorderBrush="#FF45475A" BorderThickness="0,0,1,0">
+        <Border Grid.Row="0" Grid.Column="0" Grid.RowSpan="2" Background="{DynamicResource ThemeSurface}" BorderBrush="{DynamicResource ThemeBorder}" BorderThickness="0,0,1,0">
             <Grid RowDefinitions="Auto,*">
                 <StackPanel Grid.Row="0" Margin="12">
                     <TextBox Text="{Binding SearchText}"
@@ -24,10 +24,10 @@
                     <ItemsControl ItemsSource="{Binding FilteredItems}">
                         <ItemsControl.ItemTemplate>
                             <DataTemplate>
-                                <Border Background="#FF1E1E2E" CornerRadius="4" Padding="12" Margin="12,0,12,8">
+                                <Border Background="{DynamicResource ThemeBackground}" CornerRadius="4" Padding="12" Margin="12,0,12,8">
                                     <StackPanel Spacing="4">
-                                        <TextBlock Text="{Binding Name}" Foreground="#FFCDD6F4" FontSize="14" FontWeight="Bold"/>
-                                        <TextBlock Text="{Binding Tier}" Foreground="#FF6C7086" FontSize="12"/>
+                                        <TextBlock Text="{Binding Name}" Foreground="{DynamicResource ThemeForeground}" FontSize="14" FontWeight="Bold"/>
+                                        <TextBlock Text="{Binding Tier}" Foreground="{DynamicResource ThemeForegroundDim}" FontSize="12"/>
                                     </StackPanel>
                                 </Border>
                             </DataTemplate>
@@ -40,19 +40,19 @@
         <!-- Right Panel - Calculator -->
         <Grid Grid.Row="0" Grid.Column="1" RowDefinitions="Auto,*">
             <!-- Header -->
-            <Border Grid.Row="0" Background="#FF313244" Padding="16" BorderBrush="#FF45475A" BorderThickness="0,0,0,1">
+            <Border Grid.Row="0" Background="{DynamicResource ThemeSurface}" Padding="16" BorderBrush="{DynamicResource ThemeBorder}" BorderThickness="0,0,0,1">
                 <Grid ColumnDefinitions="*,Auto">
                     <TextBlock Grid.Column="0" 
                                Text="{Binding SelectedItem.Name, FallbackValue='Select an item'}" 
-                               Foreground="#FFCDD6F4" 
+                               Foreground="{DynamicResource ThemeForeground}" 
                                FontSize="20" 
                                FontWeight="Bold"
                                VerticalAlignment="Center"/>
                     <Button Grid.Column="1"
                             Content="Calculate"
                             Command="{Binding CalculateProfitCommand}"
-                            Background="#FFA6E3A1"
-                            Foreground="#FF1E1E2E"
+                            Background="{DynamicResource ThemeSuccess}"
+                            Foreground="{DynamicResource ThemeBackground}"
                             FontWeight="Bold"
                             Padding="20,10"
                             IsEnabled="{Binding SelectedItem, Converter={x:Static ObjectConverters.IsNotNull}}"/>
@@ -64,40 +64,40 @@
                 <StackPanel Margin="16" Spacing="16">
 
                     <!-- Crafting Options -->
-                    <Border Background="#FF313244" CornerRadius="8" Padding="16">
+                    <Border Background="{DynamicResource ThemeSurface}" CornerRadius="8" Padding="16">
                         <StackPanel Spacing="12">
-                            <TextBlock Text="CRAFTING OPTIONS" Foreground="#FF89B4FA" FontSize="14" FontWeight="Bold"/>
+                            <TextBlock Text="CRAFTING OPTIONS" Foreground="{DynamicResource ThemeAccentSecondary}" FontSize="14" FontWeight="Bold"/>
                             
                             <Grid ColumnDefinitions="*,*" RowDefinitions="Auto,Auto">
                                 <StackPanel Grid.Row="0" Grid.Column="0" Margin="0,0,8,0">
-                                    <TextBlock Text="Quantity:" Foreground="#FFCDD6F4" Margin="0,0,0,4"/>
+                                    <TextBlock Text="Quantity:" Foreground="{DynamicResource ThemeForeground}" Margin="0,0,0,4"/>
                                     <NumericUpDown Value="{Binding CraftQuantity}" Minimum="1" Maximum="999" Width="120"/>
                                 </StackPanel>
                                 <StackPanel Grid.Row="0" Grid.Column="1" Margin="8,0,0,0">
-                                    <TextBlock Text="City:" Foreground="#FFCDD6F4" Margin="0,0,0,4"/>
+                                    <TextBlock Text="City:" Foreground="{DynamicResource ThemeForeground}" Margin="0,0,0,4"/>
                                     <ComboBox ItemsSource="{Binding Cities}" SelectedItem="{Binding SelectedCity}" Width="150"/>
                                 </StackPanel>
                                 <CheckBox Grid.Row="1" Grid.Column="0" 
                                           Content="Use Focus" 
                                           IsChecked="{Binding UseFocus}"
-                                          Foreground="#FFCDD6F4"
+                                          Foreground="{DynamicResource ThemeForeground}"
                                           Margin="0,8,0,0"/>
                             </Grid>
                         </StackPanel>
                     </Border>
 
                     <!-- Resources -->
-                    <Border Background="#FF313244" CornerRadius="8" Padding="16">
+                    <Border Background="{DynamicResource ThemeSurface}" CornerRadius="8" Padding="16">
                         <StackPanel Spacing="12">
-                            <TextBlock Text="REQUIRED RESOURCES" Foreground="#FF89B4FA" FontSize="14" FontWeight="Bold"/>
+                            <TextBlock Text="REQUIRED RESOURCES" Foreground="{DynamicResource ThemeAccentSecondary}" FontSize="14" FontWeight="Bold"/>
                             <ItemsControl ItemsSource="{Binding RequiredResources}">
                                 <ItemsControl.ItemTemplate>
                                     <DataTemplate>
                                         <Grid ColumnDefinitions="*,Auto,Auto,Auto" Margin="0,4">
-                                            <TextBlock Grid.Column="0" Text="{Binding Name}" Foreground="#FFCDD6F4"/>
-                                            <TextBlock Grid.Column="1" Text="{Binding Quantity}" Foreground="#FFCDD6F4" Margin="16,0"/>
-                                            <TextBlock Grid.Column="2" Text="{Binding UnitPrice}" Foreground="#FF6C7086" Margin="16,0"/>
-                                            <TextBlock Grid.Column="3" Text="{Binding TotalPrice}" Foreground="#FFF9E2AF" FontWeight="Bold"/>
+                                            <TextBlock Grid.Column="0" Text="{Binding Name}" Foreground="{DynamicResource ThemeForeground}"/>
+                                            <TextBlock Grid.Column="1" Text="{Binding Quantity}" Foreground="{DynamicResource ThemeForeground}" Margin="16,0"/>
+                                            <TextBlock Grid.Column="2" Text="{Binding UnitPrice}" Foreground="{DynamicResource ThemeForegroundDim}" Margin="16,0"/>
+                                            <TextBlock Grid.Column="3" Text="{Binding TotalPrice}" Foreground="{DynamicResource ThemeWarning}" FontWeight="Bold"/>
                                         </Grid>
                                     </DataTemplate>
                                 </ItemsControl.ItemTemplate>
@@ -106,40 +106,40 @@
                     </Border>
 
                     <!-- Cost Summary -->
-                    <Border Background="#FF313244" CornerRadius="8" Padding="16">
+                    <Border Background="{DynamicResource ThemeSurface}" CornerRadius="8" Padding="16">
                         <StackPanel Spacing="12">
-                            <TextBlock Text="COST SUMMARY" Foreground="#FF89B4FA" FontSize="14" FontWeight="Bold"/>
+                            <TextBlock Text="COST SUMMARY" Foreground="{DynamicResource ThemeAccentSecondary}" FontSize="14" FontWeight="Bold"/>
                             
                             <Grid ColumnDefinitions="*,Auto" RowDefinitions="Auto,Auto,Auto,Auto">
-                                <TextBlock Grid.Row="0" Grid.Column="0" Text="Resource Cost:" Foreground="#FFCDD6F4"/>
-                                <TextBlock Grid.Row="0" Grid.Column="1" Text="{Binding TotalResourceCost}" Foreground="#FFCDD6F4" HorizontalAlignment="Right"/>
+                                <TextBlock Grid.Row="0" Grid.Column="0" Text="Resource Cost:" Foreground="{DynamicResource ThemeForeground}"/>
+                                <TextBlock Grid.Row="0" Grid.Column="1" Text="{Binding TotalResourceCost}" Foreground="{DynamicResource ThemeForeground}" HorizontalAlignment="Right"/>
                                 
-                                <TextBlock Grid.Row="1" Grid.Column="0" Text="Crafting Fee:" Foreground="#FFCDD6F4"/>
-                                <TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding TotalCraftingFee}" Foreground="#FFCDD6F4" HorizontalAlignment="Right"/>
+                                <TextBlock Grid.Row="1" Grid.Column="0" Text="Crafting Fee:" Foreground="{DynamicResource ThemeForeground}"/>
+                                <TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding TotalCraftingFee}" Foreground="{DynamicResource ThemeForeground}" HorizontalAlignment="Right"/>
                                 
-                                <TextBlock Grid.Row="2" Grid.Column="0" Text="Total Cost:" Foreground="#FFCDD6F4" FontWeight="Bold"/>
-                                <TextBlock Grid.Row="2" Grid.Column="1" Text="{Binding TotalCost}" Foreground="#FFCDD6F4" FontWeight="Bold" HorizontalAlignment="Right"/>
+                                <TextBlock Grid.Row="2" Grid.Column="0" Text="Total Cost:" Foreground="{DynamicResource ThemeForeground}" FontWeight="Bold"/>
+                                <TextBlock Grid.Row="2" Grid.Column="1" Text="{Binding TotalCost}" Foreground="{DynamicResource ThemeForeground}" FontWeight="Bold" HorizontalAlignment="Right"/>
                                 
-                                <TextBlock Grid.Row="3" Grid.Column="0" Text="Resource Return:" Foreground="#FFA6E3A1"/>
-                                <TextBlock Grid.Row="3" Grid.Column="1" Text="{Binding ResourceReturnRate}" Foreground="#FFA6E3A1" HorizontalAlignment="Right"/>
+                                <TextBlock Grid.Row="3" Grid.Column="0" Text="Resource Return:" Foreground="{DynamicResource ThemeSuccess}"/>
+                                <TextBlock Grid.Row="3" Grid.Column="1" Text="{Binding ResourceReturnRate}" Foreground="{DynamicResource ThemeSuccess}" HorizontalAlignment="Right"/>
                             </Grid>
                         </StackPanel>
                     </Border>
 
                     <!-- Profit -->
-                    <Border Background="#FF313244" CornerRadius="8" Padding="16">
+                    <Border Background="{DynamicResource ThemeSurface}" CornerRadius="8" Padding="16">
                         <StackPanel Spacing="12">
-                            <TextBlock Text="PROFIT ESTIMATE" Foreground="#FF89B4FA" FontSize="14" FontWeight="Bold"/>
+                            <TextBlock Text="PROFIT ESTIMATE" Foreground="{DynamicResource ThemeAccentSecondary}" FontSize="14" FontWeight="Bold"/>
                             
                             <Grid ColumnDefinitions="*,Auto" RowDefinitions="Auto,Auto,Auto">
-                                <TextBlock Grid.Row="0" Grid.Column="0" Text="Estimated Sell Price:" Foreground="#FFCDD6F4"/>
-                                <TextBlock Grid.Row="0" Grid.Column="1" Text="{Binding EstimatedSellPrice}" Foreground="#FFCDD6F4" HorizontalAlignment="Right"/>
+                                <TextBlock Grid.Row="0" Grid.Column="0" Text="Estimated Sell Price:" Foreground="{DynamicResource ThemeForeground}"/>
+                                <TextBlock Grid.Row="0" Grid.Column="1" Text="{Binding EstimatedSellPrice}" Foreground="{DynamicResource ThemeForeground}" HorizontalAlignment="Right"/>
                                 
-                                <TextBlock Grid.Row="1" Grid.Column="0" Text="Profit:" Foreground="#FFA6E3A1" FontWeight="Bold" FontSize="16"/>
-                                <TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding Profit}" Foreground="#FFA6E3A1" FontWeight="Bold" FontSize="16" HorizontalAlignment="Right"/>
+                                <TextBlock Grid.Row="1" Grid.Column="0" Text="Profit:" Foreground="{DynamicResource ThemeSuccess}" FontWeight="Bold" FontSize="16"/>
+                                <TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding Profit}" Foreground="{DynamicResource ThemeSuccess}" FontWeight="Bold" FontSize="16" HorizontalAlignment="Right"/>
                                 
-                                <TextBlock Grid.Row="2" Grid.Column="0" Text="Profit Margin:" Foreground="#FFA6E3A1"/>
-                                <TextBlock Grid.Row="2" Grid.Column="1" Text="{Binding ProfitMargin}" Foreground="#FFA6E3A1" HorizontalAlignment="Right"/>
+                                <TextBlock Grid.Row="2" Grid.Column="0" Text="Profit Margin:" Foreground="{DynamicResource ThemeSuccess}"/>
+                                <TextBlock Grid.Row="2" Grid.Column="1" Text="{Binding ProfitMargin}" Foreground="{DynamicResource ThemeSuccess}" HorizontalAlignment="Right"/>
                             </Grid>
                         </StackPanel>
                     </Border>

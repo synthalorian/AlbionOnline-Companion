@@ -9,7 +9,7 @@
 
     <Grid RowDefinitions="Auto,*">
         <!-- Search Header -->
-        <Border Grid.Row="0" Background="#FF313244" Padding="16" BorderBrush="#FF45475A" BorderThickness="0,0,0,1">
+        <Border Grid.Row="0" Background="{DynamicResource ThemeSurface}" Padding="16" BorderBrush="{DynamicResource ThemeBorder}" BorderThickness="0,0,0,1">
             <Grid ColumnDefinitions="*,Auto,Auto">
                 <TextBox Grid.Column="0" 
                          Text="{Binding SearchText}"
@@ -19,8 +19,8 @@
                 <Button Grid.Column="1"
                         Content="Search"
                         Command="{Binding SearchPlayerCommand}"
-                        Background="#FF89B4FA"
-                        Foreground="#FF1E1E2E"
+                        Background="{DynamicResource ThemeAccentSecondary}"
+                        Foreground="{DynamicResource ThemeBackground}"
                         FontWeight="Bold"
                         Padding="20,10"
                         Margin="12,0,0,0"/>
@@ -33,9 +33,9 @@
         </Border>
 
         <!-- Status -->
-        <Border Grid.Row="1" Background="#FF1E1E2E" Padding="8" IsVisible="{Binding !IsPlayerFound}">
+        <Border Grid.Row="1" Background="{DynamicResource ThemeBackground}" Padding="8" IsVisible="{Binding !IsPlayerFound}">
             <TextBlock Text="{Binding StatusText}" 
-                       Foreground="#FF6C7086" 
+                       Foreground="{DynamicResource ThemeForegroundDim}" 
                        HorizontalAlignment="Center"
                        VerticalAlignment="Center"/>
         </Border>
@@ -45,20 +45,20 @@
             <StackPanel Margin="16" Spacing="16">
 
                 <!-- Player Header -->
-                <Border Background="#FF313244" CornerRadius="8" Padding="20">
+                <Border Background="{DynamicResource ThemeSurface}" CornerRadius="8" Padding="20">
                     <StackPanel Spacing="12">
                         <TextBlock Text="{Binding PlayerName}" 
-                                   Foreground="#FFCDD6F4" 
+                                   Foreground="{DynamicResource ThemeForeground}" 
                                    FontSize="28" 
                                    FontWeight="Bold"/>
                         <StackPanel Orientation="Horizontal" Spacing="16">
                             <StackPanel>
-                                <TextBlock Text="GUILD" Foreground="#FF6C7086" FontSize="11"/>
-                                <TextBlock Text="{Binding GuildName}" Foreground="#FF89B4FA" FontSize="14" FontWeight="Bold"/>
+                                <TextBlock Text="GUILD" Foreground="{DynamicResource ThemeForegroundDim}" FontSize="11"/>
+                                <TextBlock Text="{Binding GuildName}" Foreground="{DynamicResource ThemeAccentSecondary}" FontSize="14" FontWeight="Bold"/>
                             </StackPanel>
                             <StackPanel>
-                                <TextBlock Text="ALLIANCE" Foreground="#FF6C7086" FontSize="11"/>
-                                <TextBlock Text="{Binding AllianceName}" Foreground="#FFF5C2E7" FontSize="14" FontWeight="Bold"/>
+                                <TextBlock Text="ALLIANCE" Foreground="{DynamicResource ThemeForegroundDim}" FontSize="11"/>
+                                <TextBlock Text="{Binding AllianceName}" Foreground="{DynamicResource ThemeAccent}" FontSize="14" FontWeight="Bold"/>
                             </StackPanel>
                         </StackPanel>
                     </StackPanel>
@@ -66,56 +66,56 @@
 
                 <!-- Fame Stats -->
                 <Grid ColumnDefinitions="*,*,*" RowDefinitions="Auto,Auto">
-                    <Border Grid.Row="0" Grid.Column="0" Background="#FF313244" CornerRadius="8" Padding="16" Margin="0,0,8,8">
+                    <Border Grid.Row="0" Grid.Column="0" Background="{DynamicResource ThemeSurface}" CornerRadius="8" Padding="16" Margin="0,0,8,8">
                         <StackPanel Spacing="4">
-                            <TextBlock Text="KILL FAME" Foreground="#FFF38BA8" FontSize="11" FontWeight="Bold"/>
-                            <TextBlock Text="{Binding KillFame}" Foreground="#FFCDD6F4" FontSize="20" FontWeight="Bold"/>
+                            <TextBlock Text="KILL FAME" Foreground="{DynamicResource ThemeError}" FontSize="11" FontWeight="Bold"/>
+                            <TextBlock Text="{Binding KillFame}" Foreground="{DynamicResource ThemeForeground}" FontSize="20" FontWeight="Bold"/>
                         </StackPanel>
                     </Border>
-                    <Border Grid.Row="0" Grid.Column="1" Background="#FF313244" CornerRadius="8" Padding="16" Margin="4,0,4,8">
+                    <Border Grid.Row="0" Grid.Column="1" Background="{DynamicResource ThemeSurface}" CornerRadius="8" Padding="16" Margin="4,0,4,8">
                         <StackPanel Spacing="4">
-                            <TextBlock Text="DEATH FAME" Foreground="#FFF38BA8" FontSize="11" FontWeight="Bold"/>
-                            <TextBlock Text="{Binding DeathFame}" Foreground="#FFCDD6F4" FontSize="20" FontWeight="Bold"/>
+                            <TextBlock Text="DEATH FAME" Foreground="{DynamicResource ThemeError}" FontSize="11" FontWeight="Bold"/>
+                            <TextBlock Text="{Binding DeathFame}" Foreground="{DynamicResource ThemeForeground}" FontSize="20" FontWeight="Bold"/>
                         </StackPanel>
                     </Border>
-                    <Border Grid.Row="0" Grid.Column="2" Background="#FF313244" CornerRadius="8" Padding="16" Margin="8,0,0,8">
+                    <Border Grid.Row="0" Grid.Column="2" Background="{DynamicResource ThemeSurface}" CornerRadius="8" Padding="16" Margin="8,0,0,8">
                         <StackPanel Spacing="4">
-                            <TextBlock Text="K/D RATIO" Foreground="#FFF38BA8" FontSize="11" FontWeight="Bold"/>
-                            <TextBlock Text="{Binding FameRatio}" Foreground="#FFCDD6F4" FontSize="20" FontWeight="Bold"/>
+                            <TextBlock Text="K/D RATIO" Foreground="{DynamicResource ThemeError}" FontSize="11" FontWeight="Bold"/>
+                            <TextBlock Text="{Binding FameRatio}" Foreground="{DynamicResource ThemeForeground}" FontSize="20" FontWeight="Bold"/>
                         </StackPanel>
                     </Border>
-                    <Border Grid.Row="1" Grid.Column="0" Background="#FF313244" CornerRadius="8" Padding="16" Margin="0,8,8,0">
+                    <Border Grid.Row="1" Grid.Column="0" Background="{DynamicResource ThemeSurface}" CornerRadius="8" Padding="16" Margin="0,8,8,0">
                         <StackPanel Spacing="4">
-                            <TextBlock Text="GATHERING FAME" Foreground="#FFA6E3A1" FontSize="11" FontWeight="Bold"/>
-                            <TextBlock Text="{Binding GatheringFame}" Foreground="#FFCDD6F4" FontSize="20" FontWeight="Bold"/>
+                            <TextBlock Text="GATHERING FAME" Foreground="{DynamicResource ThemeSuccess}" FontSize="11" FontWeight="Bold"/>
+                            <TextBlock Text="{Binding GatheringFame}" Foreground="{DynamicResource ThemeForeground}" FontSize="20" FontWeight="Bold"/>
                         </StackPanel>
                     </Border>
-                    <Border Grid.Row="1" Grid.Column="1" Background="#FF313244" CornerRadius="8" Padding="16" Margin="4,8,4,0">
+                    <Border Grid.Row="1" Grid.Column="1" Background="{DynamicResource ThemeSurface}" CornerRadius="8" Padding="16" Margin="4,8,4,0">
                         <StackPanel Spacing="4">
-                            <TextBlock Text="CRAFTING FAME" Foreground="#FFF9E2AF" FontSize="11" FontWeight="Bold"/>
-                            <TextBlock Text="{Binding CraftingFame}" Foreground="#FFCDD6F4" FontSize="20" FontWeight="Bold"/>
+                            <TextBlock Text="CRAFTING FAME" Foreground="{DynamicResource ThemeWarning}" FontSize="11" FontWeight="Bold"/>
+                            <TextBlock Text="{Binding CraftingFame}" Foreground="{DynamicResource ThemeForeground}" FontSize="20" FontWeight="Bold"/>
                         </StackPanel>
                     </Border>
-                    <Border Grid.Row="1" Grid.Column="2" Background="#FF313244" CornerRadius="8" Padding="16" Margin="8,8,0,0">
+                    <Border Grid.Row="1" Grid.Column="2" Background="{DynamicResource ThemeSurface}" CornerRadius="8" Padding="16" Margin="8,8,0,0">
                         <StackPanel Spacing="4">
-                            <TextBlock Text="TOTAL FAME" Foreground="#FF89B4FA" FontSize="11" FontWeight="Bold"/>
-                            <TextBlock Text="{Binding TotalFame}" Foreground="#FFCDD6F4" FontSize="20" FontWeight="Bold"/>
+                            <TextBlock Text="TOTAL FAME" Foreground="{DynamicResource ThemeAccentSecondary}" FontSize="11" FontWeight="Bold"/>
+                            <TextBlock Text="{Binding TotalFame}" Foreground="{DynamicResource ThemeForeground}" FontSize="20" FontWeight="Bold"/>
                         </StackPanel>
                     </Border>
                 </Grid>
 
                 <!-- Equipment -->
-                <Border Background="#FF313244" CornerRadius="8" Padding="16">
+                <Border Background="{DynamicResource ThemeSurface}" CornerRadius="8" Padding="16">
                     <StackPanel Spacing="12">
-                        <TextBlock Text="EQUIPMENT" Foreground="#FF89B4FA" FontSize="14" FontWeight="Bold"/>
+                        <TextBlock Text="EQUIPMENT" Foreground="{DynamicResource ThemeAccentSecondary}" FontSize="14" FontWeight="Bold"/>
                         <ItemsControl ItemsSource="{Binding Equipment}">
                             <ItemsControl.ItemTemplate>
                                 <DataTemplate>
-                                    <Border Background="#FF1E1E2E" CornerRadius="4" Padding="12" Margin="0,0,0,8">
+                                    <Border Background="{DynamicResource ThemeBackground}" CornerRadius="4" Padding="12" Margin="0,0,0,8">
                                         <Grid ColumnDefinitions="*,Auto,Auto">
-                                            <TextBlock Grid.Column="0" Text="{Binding Slot}" Foreground="#FF6C7086" FontSize="12"/>
-                                            <TextBlock Grid.Column="1" Text="{Binding ItemName}" Foreground="#FFCDD6F4" FontSize="14" Margin="12,0"/>
-                                            <TextBlock Grid.Column="2" Text="{Binding Tier}" Foreground="#FF89B4FA" FontSize="12" FontWeight="Bold"/>
+                                            <TextBlock Grid.Column="0" Text="{Binding Slot}" Foreground="{DynamicResource ThemeForegroundDim}" FontSize="12"/>
+                                            <TextBlock Grid.Column="1" Text="{Binding ItemName}" Foreground="{DynamicResource ThemeForeground}" FontSize="14" Margin="12,0"/>
+                                            <TextBlock Grid.Column="2" Text="{Binding Tier}" Foreground="{DynamicResource ThemeAccentSecondary}" FontSize="12" FontWeight="Bold"/>
                                         </Grid>
                                     </Border>
                                 </DataTemplate>
