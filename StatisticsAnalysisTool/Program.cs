@@ -14,11 +14,9 @@ sealed class Program
     [STAThread]
     public static void Main(string[] args)
     {
-        // Ensure app data directory exists
         Directory.CreateDirectory(AppDataDir);
         Directory.CreateDirectory(Path.Combine(AppDataDir, "logs"));
 
-        // Initialize Serilog
         Log.Logger = new LoggerConfiguration()
             .MinimumLevel.Debug()
             .WriteTo.Console()
@@ -28,7 +26,7 @@ sealed class Program
                 retainedFileCountLimit: 7)
             .CreateLogger();
 
-        Log.Information("Statistics Analysis Tool (Linux) starting...");
+        Log.Information("Albion Online Companion starting...");
 
         try
         {
@@ -46,11 +44,37 @@ sealed class Program
     }
 
     public static AppBuilder BuildAvaloniaApp()
-        => AppBuilder.Configure<App>()
-            .UsePlatformDetect()
+    {
+        var builder = AppBuilder.Configure<App>();
+
+        // On Linux, prefer Wayland if available, fall back to X11
+        if (OperatingSystem.IsLinux())
+        {
+            var waylandDisplay = Environment.GetEnvironmentVariable("WAYLAND_DISPLAY");
+            if (!string.IsNullOrEmpty(waylandDisplay))
+            {
+                builder = builder.UseWayland();
+                Log.Information("Using Wayland platform");
+            }
+            else
+            {
+                builder = builder.UseX11();
+                Log.Information("Using X11 platform");
+            }
+        }
+        else
+        {
+            builder = builder.UsePlatformDetect();
+        }
+
 #if DEBUG
-            .WithDeveloperTools()
+        builder = builder.WithDeveloperTools();
 #endif
+
+        return builder
+            .UseSkia()
+            .UseHarfBuzz()
             .WithInterFont()
             .LogToTrace();
+    }
 }
