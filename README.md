@@ -61,8 +61,8 @@ Inspired by [Triky313's AlbionOnline-StatisticsAnalysis](https://github.com/Trik
 
 ```bash
 # Clone
-git clone https://github.com/synthalorian/AlbionOnline-StatisticsTool-Linux.git
-cd AlbionOnline-StatisticsTool-Linux
+git clone https://github.com/synthalorian/AlbionOnline-Companion.git
+cd AlbionOnline-Companion
 
 # Build
 dotnet build -c Release
