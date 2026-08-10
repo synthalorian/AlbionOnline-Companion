@@ -1,0 +1,62 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:StatisticsAnalysisTool.ViewModels"
+             x:Class="StatisticsAnalysisTool.Views.KillFeedView"
+             x:DataType="vm:KillFeedViewModel">
+
+    <Grid RowDefinitions="Auto,Auto,*" Margin="16">
+
+        <StackPanel Grid.Row="0" Orientation="Horizontal" Spacing="16" Margin="0,0,0,16">
+            <TextBlock Text="💀 Kill Feed" FontSize="24" FontWeight="Bold"/>
+            <Button Content="Clear" Command="{Binding ClearFeedCommand}" Padding="12,6"/>
+        </StackPanel>
+
+        <Grid Grid.Row="1" ColumnDefinitions="*,*,*,*" Margin="0,0,0,16">
+            <Border Grid.Column="0" Background="{DynamicResource ThemeSurface}" CornerRadius="8" Padding="12" Margin="0,0,4,0">
+                <StackPanel>
+                    <TextBlock Text="KILLS" FontSize="11" Classes="dim"/>
+                    <TextBlock Text="{Binding TotalKills}" FontSize="22" FontWeight="Bold" Foreground="{DynamicResource ThemeSuccess}"/>
+                </StackPanel>
+            </Border>
+            <Border Grid.Column="1" Background="{DynamicResource ThemeSurface}" CornerRadius="8" Padding="12" Margin="4,0">
+                <StackPanel>
+                    <TextBlock Text="DEATHS" FontSize="11" Classes="dim"/>
+                    <TextBlock Text="{Binding TotalDeaths}" FontSize="22" FontWeight="Bold" Foreground="{DynamicResource ThemeError}"/>
+                </StackPanel>
+            </Border>
+            <Border Grid.Column="2" Background="{DynamicResource ThemeSurface}" CornerRadius="8" Padding="12" Margin="4,0">
+                <StackPanel>
+                    <TextBlock Text="K/D RATIO" FontSize="11" Classes="dim"/>
+                    <TextBlock Text="{Binding KdRatio}" FontSize="22" FontWeight="Bold" Foreground="{DynamicResource ThemeAccent}"/>
+                </StackPanel>
+            </Border>
+            <Border Grid.Column="3" Background="{DynamicResource ThemeSurface}" CornerRadius="8" Padding="12" Margin="4,0,0,0">
+                <StackPanel>
+                    <TextBlock Text="KILL FAME" FontSize="11" Classes="dim"/>
+                    <TextBlock Text="{Binding TotalKillFame}" FontSize="22" FontWeight="Bold" Foreground="{DynamicResource ThemeWarning}"/>
+                </StackPanel>
+            </Border>
+        </Grid>
+
+        <Border Grid.Row="2" Background="{DynamicResource ThemeSurfaceAlt}" CornerRadius="8" Padding="8">
+            <ScrollViewer>
+                <ItemsControl ItemsSource="{Binding KillFeed}">
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <Border Background="{DynamicResource ThemeSurfaceAlt}"
+                                    CornerRadius="4" Padding="8" Margin="0,1">
+                                <Grid ColumnDefinitions="*,Auto,*,80,80">
+                                    <TextBlock Grid.Column="0" Text="{Binding KillerName}" FontWeight="Bold" Foreground="{DynamicResource ThemeSuccess}"/>
+                                    <TextBlock Grid.Column="1" Text=" ⚔️ " Margin="8,0"/>
+                                    <TextBlock Grid.Column="2" Text="{Binding VictimName}" FontWeight="Bold" Foreground="{DynamicResource ThemeError}"/>
+                                    <TextBlock Grid.Column="3" Text="{Binding FameDisplay}" Foreground="{DynamicResource ThemeWarning}"/>
+                                    <TextBlock Grid.Column="4" Text="{Binding Timestamp, StringFormat='HH:mm:ss'}" Classes="dim"/>
+                                </Grid>
+                            </Border>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+            </ScrollViewer>
+        </Border>
+    </Grid>
+</UserControl>

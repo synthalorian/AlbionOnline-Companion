@@ -29,8 +29,11 @@ public partial class MainViewModel : ViewModelBase
     {
         "Dashboard",
         "Damage Meter",
+        "Kill Feed",
         "Dungeon Tracker",
         "Loot Logger",
+        "Gathering",
+        "Map History",
         "Crafting Calculator",
         "Player Info",
         "Settings"
@@ -42,6 +45,9 @@ public partial class MainViewModel : ViewModelBase
     private readonly LootLoggerViewModel _lootLoggerViewModel = new();
     private readonly CraftingCalculatorViewModel _craftingCalculatorViewModel = new();
     private readonly PlayerInfoViewModel _playerInfoViewModel = new();
+    private readonly GatheringViewModel _gatheringViewModel = new();
+    private readonly MapHistoryViewModel _mapHistoryViewModel = new();
+    private readonly KillFeedViewModel _killFeedViewModel = new();
     private readonly SettingsViewModel _settingsViewModel = new();
 
     private NetworkManager? _networkManager;
@@ -62,6 +68,9 @@ public partial class MainViewModel : ViewModelBase
             "Loot Logger" => _lootLoggerViewModel,
             "Crafting Calculator" => _craftingCalculatorViewModel,
             "Player Info" => _playerInfoViewModel,
+            "Gathering" => _gatheringViewModel,
+            "Map History" => _mapHistoryViewModel,
+            "Kill Feed" => _killFeedViewModel,
             "Settings" => _settingsViewModel,
             _ => _dashboardViewModel
         };
