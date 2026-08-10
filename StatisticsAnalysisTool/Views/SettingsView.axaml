@@ -1,0 +1,146 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:StatisticsAnalysisTool.ViewModels"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="600"
+             x:Class="StatisticsAnalysisTool.Views.SettingsView"
+             x:DataType="vm:SettingsViewModel">
+
+    <ScrollViewer>
+        <StackPanel Margin="16" Spacing="16">
+
+            <!-- General Settings -->
+            <Border Background="#FF313244" CornerRadius="8" Padding="16">
+                <StackPanel Spacing="16">
+                    <TextBlock Text="GENERAL" Foreground="#FF89B4FA" FontSize="14" FontWeight="Bold"/>
+                    
+                    <Grid ColumnDefinitions="200,*" RowDefinitions="Auto,Auto,Auto">
+                        <TextBlock Grid.Row="0" Grid.Column="0" Text="Language:" Foreground="#FFCDD6F4" VerticalAlignment="Center"/>
+                        <ComboBox Grid.Row="0" Grid.Column="1" 
+                                  ItemsSource="{Binding Languages}"
+                                  SelectedItem="{Binding SelectedLanguage}"
+                                  Width="200"
+                                  HorizontalAlignment="Left"/>
+                        
+                        <TextBlock Grid.Row="1" Grid.Column="0" Text="Server:" Foreground="#FFCDD6F4" VerticalAlignment="Center"/>
+                        <ComboBox Grid.Row="1" Grid.Column="1" 
+                                  ItemsSource="{Binding Servers}"
+                                  SelectedItem="{Binding SelectedServer}"
+                                  Width="200"
+                                  HorizontalAlignment="Left"/>
+                        
+                        <TextBlock Grid.Row="2" Grid.Column="0" Text="Theme:" Foreground="#FFCDD6F4" VerticalAlignment="Center"/>
+                        <ComboBox Grid.Row="2" Grid.Column="1" 
+                                  ItemsSource="{Binding Themes}"
+                                  SelectedItem="{Binding SelectedTheme}"
+                                  Width="200"
+                                  HorizontalAlignment="Left"/>
+                    </Grid>
+                </StackPanel>
+            </Border>
+
+            <!-- Tracking Settings -->
+            <Border Background="#FF313244" CornerRadius="8" Padding="16">
+                <StackPanel Spacing="12">
+                    <TextBlock Text="TRACKING" Foreground="#FF89B4FA" FontSize="14" FontWeight="Bold"/>
+                    
+                    <CheckBox Content="Reset tracking on map change" 
+                              IsChecked="{Binding IsTrackingResetByMapChangeActive}"
+                              Foreground="#FFCDD6F4"/>
+                    <CheckBox Content="Enable damage meter tracking" 
+                              IsChecked="{Binding IsDamageMeterTrackingActive}"
+                              Foreground="#FFCDD6F4"/>
+                    <CheckBox Content="Auto-start tracking when game detected" 
+                              IsChecked="{Binding AutoStartTracking}"
+                              Foreground="#FFCDD6F4"/>
+                    
+                    <Grid ColumnDefinitions="200,*" Margin="0,8,0,0">
+                        <TextBlock Grid.Column="0" Text="Refresh Interval (seconds):" Foreground="#FFCDD6F4" VerticalAlignment="Center"/>
+                        <NumericUpDown Grid.Column="1" 
+                                       Value="{Binding RefreshIntervalSeconds}"
+                                       Minimum="1" 
+                                       Maximum="60"
+                                       Width="100"
+                                       HorizontalAlignment="Left"/>
+                    </Grid>
+                </StackPanel>
+            </Border>
+
+            <!-- UI Settings -->
+            <Border Background="#FF313244" CornerRadius="8" Padding="16">
+                <StackPanel Spacing="12">
+                    <TextBlock Text="USER INTERFACE" Foreground="#FF89B4FA" FontSize="14" FontWeight="Bold"/>
+                    
+                    <CheckBox Content="Navigation menu open by default" 
+                              IsChecked="{Binding IsNavigationMenuOpen}"
+                              Foreground="#FFCDD6F4"/>
+                    <CheckBox Content="Open item window in new window" 
+                              IsChecked="{Binding IsOpenItemWindowInNewWindowChecked}"
+                              Foreground="#FFCDD6F4"/>
+                    <CheckBox Content="Minimize to system tray" 
+                              IsChecked="{Binding MinimizeToTray}"
+                              Foreground="#FFCDD6F4"/>
+                </StackPanel>
+            </Border>
+
+            <!-- Notifications -->
+            <Border Background="#FF313244" CornerRadius="8" Padding="16">
+                <StackPanel Spacing="12">
+                    <TextBlock Text="NOTIFICATIONS" Foreground="#FF89B4FA" FontSize="14" FontWeight="Bold"/>
+                    
+                    <CheckBox Content="Enable notifications" 
+                              IsChecked="{Binding EnableNotifications}"
+                              Foreground="#FFCDD6F4"/>
+                    <CheckBox Content="Enable sounds" 
+                              IsChecked="{Binding EnableSounds}"
+                              Foreground="#FFCDD6F4"/>
+                </StackPanel>
+            </Border>
+
+            <!-- Paths -->
+            <Border Background="#FF313244" CornerRadius="8" Padding="16">
+                <StackPanel Spacing="12">
+                    <TextBlock Text="PATHS" Foreground="#FF89B4FA" FontSize="14" FontWeight="Bold"/>
+                    
+                    <Grid ColumnDefinitions="200,*,Auto">
+                        <TextBlock Grid.Column="0" Text="Albion Data Path:" Foreground="#FFCDD6F4" VerticalAlignment="Center"/>
+                        <TextBox Grid.Column="1" 
+                                 Text="{Binding AlbionDataPath}"
+                                 IsReadOnly="True"
+                                 Margin="8,0"/>
+                        <Button Grid.Column="2" 
+                                Content="Browse..."
+                                Command="{Binding BrowseAlbionDataPathCommand}"
+                                Padding="12,6"/>
+                    </Grid>
+                </StackPanel>
+            </Border>
+
+            <!-- Actions -->
+            <Border Background="#FF313244" CornerRadius="8" Padding="16">
+                <StackPanel Orientation="Horizontal" Spacing="12">
+                    <Button Content="Save Settings"
+                            Command="{Binding SaveSettingsCommand}"
+                            Background="#FFA6E3A1"
+                            Foreground="#FF1E1E2E"
+                            FontWeight="Bold"
+                            Padding="20,10"/>
+                    <Button Content="Reset to Defaults"
+                            Command="{Binding ResetSettingsCommand}"
+                            Background="#FFF38BA8"
+                            Foreground="#FF1E1E2E"
+                            FontWeight="Bold"
+                            Padding="20,10"/>
+                    <Button Content="Open Logs Folder"
+                            Command="{Binding OpenLogsFolderCommand}"
+                            Padding="20,10"/>
+                    <Button Content="Clear Cache"
+                            Command="{Binding ClearCacheCommand}"
+                            Padding="20,10"/>
+                </StackPanel>
+            </Border>
+
+        </StackPanel>
+    </ScrollViewer>
+</UserControl>

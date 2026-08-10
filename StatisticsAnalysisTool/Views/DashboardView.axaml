@@ -1,0 +1,228 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:StatisticsAnalysisTool.ViewModels"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="600"
+             x:Class="StatisticsAnalysisTool.Views.DashboardView"
+             x:DataType="vm:DashboardViewModel">
+
+    <ScrollViewer>
+        <StackPanel Margin="16" Spacing="16">
+
+            <!-- Stats Summary Cards -->
+            <Grid ColumnDefinitions="*,*,*,*,*" RowDefinitions="Auto">
+                <!-- Fame -->
+                <Border Grid.Column="0" Background="#FF313244" CornerRadius="8" Padding="16" Margin="0,0,8,0">
+                    <StackPanel Spacing="8">
+                        <TextBlock Text="FAME" Foreground="#FF89B4FA" FontSize="12" FontWeight="Bold"/>
+                        <TextBlock Text="{Binding TotalGainedFameInSession}" Foreground="#FFCDD6F4" FontSize="24" FontWeight="Bold"/>
+                        <TextBlock Text="{Binding FamePerHour}" Foreground="#FF6C7086" FontSize="14"/>
+                    </StackPanel>
+                </Border>
+
+                <!-- Silver -->
+                <Border Grid.Column="1" Background="#FF313244" CornerRadius="8" Padding="16" Margin="4,0">
+                    <StackPanel Spacing="8">
+                        <TextBlock Text="SILVER" Foreground="#FFF9E2AF" FontSize="12" FontWeight="Bold"/>
+                        <TextBlock Text="{Binding TotalGainedSilverInSession}" Foreground="#FFCDD6F4" FontSize="24" FontWeight="Bold"/>
+                        <TextBlock Text="{Binding SilverPerHour}" Foreground="#FF6C7086" FontSize="14"/>
+                    </StackPanel>
+                </Border>
+
+                <!-- ReSpec -->
+                <Border Grid.Column="2" Background="#FF313244" CornerRadius="8" Padding="16" Margin="4,0">
+                    <StackPanel Spacing="8">
+                        <TextBlock Text="RESPEC" Foreground="#FFF5C2E7" FontSize="12" FontWeight="Bold"/>
+                        <TextBlock Text="{Binding TotalGainedReSpecPointsInSession}" Foreground="#FFCDD6F4" FontSize="24" FontWeight="Bold"/>
+                        <TextBlock Text="{Binding ReSpecPointsPerHour}" Foreground="#FF6C7086" FontSize="14"/>
+                    </StackPanel>
+                </Border>
+
+                <!-- Might -->
+                <Border Grid.Column="3" Background="#FF313244" CornerRadius="8" Padding="16" Margin="4,0">
+                    <StackPanel Spacing="8">
+                        <TextBlock Text="MIGHT" Foreground="#FFF38BA8" FontSize="12" FontWeight="Bold"/>
+                        <TextBlock Text="{Binding TotalGainedMightInSession}" Foreground="#FFCDD6F4" FontSize="24" FontWeight="Bold"/>
+                        <TextBlock Text="{Binding MightPerHour}" Foreground="#FF6C7086" FontSize="14"/>
+                    </StackPanel>
+                </Border>
+
+                <!-- Favor -->
+                <Border Grid.Column="4" Background="#FF313244" CornerRadius="8" Padding="16" Margin="8,0,0,0">
+                    <StackPanel Spacing="8">
+                        <TextBlock Text="FAVOR" Foreground="#FFA6E3A1" FontSize="12" FontWeight="Bold"/>
+                        <TextBlock Text="{Binding TotalGainedFavorInSession}" Foreground="#FFCDD6F4" FontSize="24" FontWeight="Bold"/>
+                        <TextBlock Text="{Binding FavorPerHour}" Foreground="#FF6C7086" FontSize="14"/>
+                    </StackPanel>
+                </Border>
+            </Grid>
+
+            <!-- Controls Row -->
+            <Grid ColumnDefinitions="*,Auto">
+                <StackPanel Orientation="Horizontal" Spacing="12">
+                    <Button Content="Reset Tracking Counter" 
+                            Command="{Binding ResetTrackingCounterCommand}"
+                            Background="#FFF38BA8" 
+                            Foreground="#FF1E1E2E"
+                            FontWeight="Bold"
+                            Padding="16,8"/>
+                    <CheckBox Content="Map Change Reset" 
+                              IsChecked="{Binding IsTrackingResetByMapChangeActive}"
+                              Foreground="#FFCDD6F4"
+                              VerticalAlignment="Center"/>
+                </StackPanel>
+            </Grid>
+
+            <!-- Kill/Death Stats Section -->
+            <Border Background="#FF313244" CornerRadius="8" Padding="16">
+                <StackPanel Spacing="12">
+                    <Button Background="Transparent" 
+                            BorderThickness="0" 
+                            Padding="0"
+                            Command="{Binding ToggleKillDeathStatsCommand}">
+                        <StackPanel Orientation="Horizontal" Spacing="8">
+                            <TextBlock Text="{Binding KillsDeathsText}" 
+                                       Foreground="#FF89B4FA" 
+                                       FontSize="16" 
+                                       FontWeight="Bold"/>
+                            <TextBlock Text="{Binding KillDeathStatsVisible}" 
+                                       Foreground="#FF6C7086" 
+                                       FontSize="12"/>
+                        </StackPanel>
+                    </Button>
+                    <Border IsVisible="{Binding KillDeathStatsVisible}" 
+                            Background="#FF1E1E2E" 
+                            CornerRadius="4" 
+                            Padding="12">
+                        <StackPanel>
+                            <Grid ColumnDefinitions="*,*,*" RowDefinitions="Auto,Auto">
+                                <TextBlock Grid.Row="0" Grid.Column="0" Text="Kills:" Foreground="#FFCDD6F4"/>
+                                <TextBlock Grid.Row="0" Grid.Column="1" Text="0" Foreground="#FFA6E3A1" HorizontalAlignment="Right"/>
+                                <TextBlock Grid.Row="0" Grid.Column="2" Text="Deaths:" Foreground="#FFCDD6F4" Margin="16,0,0,0"/>
+                                <TextBlock Grid.Row="1" Grid.Column="0" Text="0" Foreground="#FFF38BA8" HorizontalAlignment="Right" Grid.ColumnSpan="2"/>
+                                <TextBlock Grid.Row="1" Grid.Column="2" Text="K/D Ratio:" Foreground="#FFCDD6F4" Margin="16,0,0,0"/>
+                                <TextBlock Grid.Row="1" Grid.Column="3" Text="0.0" Foreground="#FFCDD6F4" HorizontalAlignment="Right"/>
+                            </Grid>
+                        </StackPanel>
+                    </Border>
+                </StackPanel>
+            </Border>
+
+            <!-- Looted Chests Section -->
+            <Border Background="#FF313244" CornerRadius="8" Padding="16">
+                <StackPanel Spacing="12">
+                    <Button Background="Transparent" 
+                            BorderThickness="0" 
+                            Padding="0"
+                            Command="{Binding ToggleLootedChestsStatsCommand}">
+                        <StackPanel Orientation="Horizontal" Spacing="8">
+                            <TextBlock Text="{Binding LootedChestsText}" 
+                                       Foreground="#FF89B4FA" 
+                                       FontSize="16" 
+                                       FontWeight="Bold"/>
+                        </StackPanel>
+                    </Button>
+                    <Border IsVisible="{Binding LootedChestsStatsVisible}" 
+                            Background="#FF1E1E2E" 
+                            CornerRadius="4" 
+                            Padding="12">
+                        <TextBlock Text="No chests looted this session" 
+                                   Foreground="#FF6C7086" 
+                                   HorizontalAlignment="Center"/>
+                    </Border>
+                </StackPanel>
+            </Border>
+
+            <!-- ReSpec Section -->
+            <Border Background="#FF313244" CornerRadius="8" Padding="16">
+                <StackPanel Spacing="12">
+                    <Button Background="Transparent" 
+                            BorderThickness="0" 
+                            Padding="0"
+                            Command="{Binding ToggleReSpecStatsCommand}">
+                        <StackPanel Orientation="Horizontal" Spacing="8">
+                            <TextBlock Text="{Binding ReSpecText}" 
+                                       Foreground="#FF89B4FA" 
+                                       FontSize="16" 
+                                       FontWeight="Bold"/>
+                        </StackPanel>
+                    </Button>
+                    <Border IsVisible="{Binding ReSpecStatsVisible}" 
+                            Background="#FF1E1E2E" 
+                            CornerRadius="4" 
+                            Padding="12">
+                        <TextBlock Text="No ReSpec points gained this session" 
+                                   Foreground="#FF6C7086" 
+                                   HorizontalAlignment="Center"/>
+                    </Border>
+                </StackPanel>
+            </Border>
+
+            <!-- Repair Costs Section -->
+            <Border Background="#FF313244" CornerRadius="8" Padding="16">
+                <StackPanel Spacing="12">
+                    <Button Background="Transparent" 
+                            BorderThickness="0" 
+                            Padding="0"
+                            Command="{Binding ToggleRepairCostsStatsCommand}">
+                        <StackPanel Orientation="Horizontal" Spacing="8">
+                            <TextBlock Text="{Binding RepairCostsText}" 
+                                       Foreground="#FF89B4FA" 
+                                       FontSize="16" 
+                                       FontWeight="Bold"/>
+                        </StackPanel>
+                    </Button>
+                    <Border IsVisible="{Binding RepairCostsStatsVisible}" 
+                            Background="#FF1E1E2E" 
+                            CornerRadius="4" 
+                            Padding="12">
+                        <TextBlock Text="No repair costs this session" 
+                                   Foreground="#FF6C7086" 
+                                   HorizontalAlignment="Center"/>
+                    </Border>
+                </StackPanel>
+            </Border>
+
+            <!-- Activity Chart Section -->
+            <Border Background="#FF313244" CornerRadius="8" Padding="16">
+                <StackPanel Spacing="12">
+                    <Button Background="Transparent" 
+                            BorderThickness="0" 
+                            Padding="0"
+                            Command="{Binding ToggleActivityChartCommand}">
+                        <StackPanel Orientation="Horizontal" Spacing="8">
+                            <TextBlock Text="{Binding ActivityChartText}" 
+                                       Foreground="#FF89B4FA" 
+                                       FontSize="16" 
+                                       FontWeight="Bold"/>
+                        </StackPanel>
+                    </Button>
+                    <Border IsVisible="{Binding ActivityChartVisible}" 
+                            Background="#FF1E1E2E" 
+                            CornerRadius="4" 
+                            Padding="12"
+                            MinHeight="200">
+                        <StackPanel>
+                            <ComboBox ItemsSource="{Binding DashboardChartRanges}"
+                                      SelectedItem="{Binding SelectedDashboardChartRange}"
+                                      Width="150"
+                                      HorizontalAlignment="Left"
+                                      Margin="0,0,0,12"/>
+                            <Border Background="#FF313244" 
+                                    CornerRadius="4" 
+                                    MinHeight="150"
+                                    Padding="16">
+                                <TextBlock Text="Activity chart will render here" 
+                                           Foreground="#FF6C7086" 
+                                           HorizontalAlignment="Center"
+                                           VerticalAlignment="Center"/>
+                            </Border>
+                        </StackPanel>
+                    </Border>
+                </StackPanel>
+            </Border>
+
+        </StackPanel>
+    </ScrollViewer>
+</UserControl>

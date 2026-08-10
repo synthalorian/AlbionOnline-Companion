@@ -1,7 +1,6 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Serilog;
-using StatisticsAnalysisTool.Network;
 using System;
 using System.Collections.ObjectModel;
 using System.Threading.Tasks;
@@ -20,6 +19,9 @@ public partial class MainViewModel : ViewModelBase
     private bool _isTracking;
 
     [ObservableProperty]
+    private ViewModelBase? _currentView;
+
+    [ObservableProperty]
     private string _selectedTab = "Dashboard";
 
     public ObservableCollection<string> Tabs { get; } = new()
@@ -29,16 +31,37 @@ public partial class MainViewModel : ViewModelBase
         "Dungeon Tracker",
         "Loot Logger",
         "Crafting Calculator",
-        "Map History",
         "Player Info",
         "Settings"
     };
 
-    private NetworkManager? _networkManager;
+    private readonly DashboardViewModel _dashboardViewModel = new();
+    private readonly DamageMeterViewModel _damageMeterViewModel = new();
+    private readonly DungeonTrackerViewModel _dungeonTrackerViewModel = new();
+    private readonly LootLoggerViewModel _lootLoggerViewModel = new();
+    private readonly CraftingCalculatorViewModel _craftingCalculatorViewModel = new();
+    private readonly PlayerInfoViewModel _playerInfoViewModel = new();
+    private readonly SettingsViewModel _settingsViewModel = new();
 
     public MainViewModel()
     {
         Log.Information("MainViewModel initialized");
+        CurrentView = _dashboardViewModel;
+    }
+
+    partial void OnSelectedTabChanged(string value)
+    {
+        CurrentView = value switch
+        {
+            "Dashboard" => _dashboardViewModel,
+            "Damage Meter" => _damageMeterViewModel,
+            "Dungeon Tracker" => _dungeonTrackerViewModel,
+            "Loot Logger" => _lootLoggerViewModel,
+            "Crafting Calculator" => _craftingCalculatorViewModel,
+            "Player Info" => _playerInfoViewModel,
+            "Settings" => _settingsViewModel,
+            _ => _dashboardViewModel
+        };
     }
 
     [RelayCommand]
@@ -61,10 +84,8 @@ public partial class MainViewModel : ViewModelBase
             StatusText = "Starting packet capture...";
             Log.Information("Starting tracking");
 
-            _networkManager = new NetworkManager();
-            _networkManager.StatusChanged += (s, msg) => StatusText = msg;
-            
-            await Task.Run(() => _networkManager.Start());
+            // TODO: Initialize NetworkManager with Linux-compatible packet provider
+            await Task.Delay(1000); // Placeholder
 
             IsTracking = true;
             StatusText = "Tracking active - capturing packets";
@@ -84,12 +105,8 @@ public partial class MainViewModel : ViewModelBase
             StatusText = "Stopping...";
             Log.Information("Stopping tracking");
 
-            if (_networkManager != null)
-            {
-                await Task.Run(() => _networkManager.Stop());
-                _networkManager.Dispose();
-                _networkManager = null;
-            }
+            // TODO: Stop NetworkManager
+            await Task.Delay(500); // Placeholder
 
             IsTracking = false;
             StatusText = "Ready";

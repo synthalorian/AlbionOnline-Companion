@@ -1,0 +1,118 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:StatisticsAnalysisTool.ViewModels"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="600"
+             x:Class="StatisticsAnalysisTool.Views.DungeonTrackerView"
+             x:DataType="vm:DungeonTrackerViewModel">
+
+    <Grid RowDefinitions="Auto,*,Auto">
+        <!-- Header Controls -->
+        <Border Grid.Row="0" Background="#FF313244" Padding="12" BorderBrush="#FF45475A" BorderThickness="0,0,0,1">
+            <StackPanel Orientation="Horizontal" Spacing="12">
+                <ComboBox ItemsSource="{Binding StatTimeTypes}"
+                          SelectedItem="{Binding SelectedStatTimeType}"
+                          Width="150"/>
+                <ComboBox ItemsSource="{Binding DungeonStatsTypes}"
+                          SelectedItem="{Binding SelectedDungeonStatsType}"
+                          Width="150"/>
+            </StackPanel>
+        </Border>
+
+        <!-- Main Content -->
+        <Grid Grid.Row="1" ColumnDefinitions="*,300">
+            <!-- Dungeon List -->
+            <Border Grid.Column="0" Background="#FF1E1E2E" CornerRadius="4" Margin="0,0,8,0">
+                <Grid>
+                    <ScrollViewer>
+                        <ItemsControl ItemsSource="{Binding Dungeons}">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <Border Background="#FF313244" CornerRadius="4" Padding="12" Margin="0,0,0,8">
+                                        <Grid ColumnDefinitions="*,Auto,Auto,Auto">
+                                            <StackPanel Grid.Column="0" Spacing="4">
+                                                <TextBlock Text="{Binding Name}" Foreground="#FFCDD6F4" FontSize="14" FontWeight="Bold"/>
+                                                <TextBlock Text="{Binding Tier}" Foreground="#FF6C7086" FontSize="12"/>
+                                            </StackPanel>
+                                            <TextBlock Grid.Column="1" Text="{Binding Fame, StringFormat='{}{0} Fame'}" Foreground="#FF89B4FA" FontSize="12" Margin="12,0"/>
+                                            <TextBlock Grid.Column="2" Text="{Binding Silver, StringFormat='{}{0} Silver'}" Foreground="#FFF9E2AF" FontSize="12" Margin="12,0"/>
+                                            <TextBlock Grid.Column="3" Text="{Binding Duration, StringFormat='hh\\:mm'}" Foreground="#FF6C7086" FontSize="12"/>
+                                        </Grid>
+                                    </Border>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </ScrollViewer>
+                    
+                    <!-- Empty State -->
+                    <TextBlock IsVisible="{Binding Dungeons.Count, Converter={x:Static ObjectConverters.IsNull}}"
+                               Text="No dungeons tracked yet"
+                               Foreground="#FF6C7086"
+                               HorizontalAlignment="Center"
+                               VerticalAlignment="Center"
+                               Margin="32"/>
+                </Grid>
+            </Border>
+
+            <!-- Stats Sidebar -->
+            <Border Grid.Column="1" Background="#FF313244" CornerRadius="4" Padding="16">
+                <StackPanel Spacing="16">
+                    <TextBlock Text="STATISTICS" Foreground="#FF89B4FA" FontSize="14" FontWeight="Bold"/>
+                    
+                    <StackPanel Spacing="8">
+                        <Grid ColumnDefinitions="*,Auto">
+                            <TextBlock Grid.Column="0" Text="Total Dungeons:" Foreground="#FFCDD6F4"/>
+                            <TextBlock Grid.Column="1" Text="{Binding TotalDungeons}" Foreground="#FFCDD6F4" FontWeight="Bold"/>
+                        </Grid>
+                        <Grid ColumnDefinitions="*,Auto">
+                            <TextBlock Grid.Column="0" Text="Total Fame:" Foreground="#FFCDD6F4"/>
+                            <TextBlock Grid.Column="1" Text="{Binding TotalFame}" Foreground="#FF89B4FA" FontWeight="Bold"/>
+                        </Grid>
+                        <Grid ColumnDefinitions="*,Auto">
+                            <TextBlock Grid.Column="0" Text="Total Silver:" Foreground="#FFCDD6F4"/>
+                            <TextBlock Grid.Column="1" Text="{Binding TotalSilver}" Foreground="#FFF9E2AF" FontWeight="Bold"/>
+                        </Grid>
+                        <Grid ColumnDefinitions="*,Auto">
+                            <TextBlock Grid.Column="0" Text="Avg Fame/Dungeon:" Foreground="#FFCDD6F4"/>
+                            <TextBlock Grid.Column="1" Text="{Binding AverageFamePerDungeon, StringFormat='{}{0:N0}'}" Foreground="#FFCDD6F4" FontWeight="Bold"/>
+                        </Grid>
+                    </StackPanel>
+
+                    <Border Background="#FF45475A" CornerRadius="4" Padding="12">
+                        <StackPanel Spacing="4">
+                            <TextBlock Text="CLOSE TIMER" Foreground="#FFF38BA8" FontSize="12" FontWeight="Bold"/>
+                            <TextBlock Text="{Binding DungeonCloseTimer}" Foreground="#FFCDD6F4" FontSize="24" FontWeight="Bold" HorizontalAlignment="Center"/>
+                        </StackPanel>
+                    </Border>
+                </StackPanel>
+            </Border>
+        </Grid>
+
+        <!-- Bottom Controls -->
+        <Border Grid.Row="2" Background="#FF313244" Padding="12" BorderBrush="#FF45475A" BorderThickness="0,1,0,0">
+            <StackPanel Orientation="Horizontal" Spacing="12">
+                <Button Content="Delete Selected"
+                        Command="{Binding DeleteSelectedDungeonsCommand}"
+                        Background="#FFF38BA8"
+                        Foreground="#FF1E1E2E"
+                        Padding="16,8"/>
+                <Button Content="Delete Zero Fame"
+                        Command="{Binding DeleteZeroFameDungeonsCommand}"
+                        Background="#FFF38BA8"
+                        Foreground="#FF1E1E2E"
+                        Padding="16,8"/>
+                <Button Content="Reset All"
+                        Command="{Binding ResetDungeonTrackingCommand}"
+                        Background="#FFF38BA8"
+                        Foreground="#FF1E1E2E"
+                        Padding="16,8"/>
+                <Button Content="Reset Today"
+                        Command="{Binding ResetTodaysDungeonsCommand}"
+                        Background="#FFF38BA8"
+                        Foreground="#FF1E1E2E"
+                        Padding="16,8"/>
+            </StackPanel>
+        </Border>
+    </Grid>
+</UserControl>
