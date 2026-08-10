@@ -101,9 +101,42 @@
 
             <!-- UI Settings -->
             <Border Background="{DynamicResource ThemeSurface}" CornerRadius="8" Padding="16">
-                <StackPanel Spacing="12">
+                <StackPanel Spacing="16">
                     <TextBlock Text="USER INTERFACE" Foreground="{DynamicResource ThemeAccentSecondary}" FontSize="14" FontWeight="Bold"/>
 
+                    <!-- Opacity Slider -->
+                    <StackPanel Spacing="4">
+                        <Grid ColumnDefinitions="*,Auto">
+                            <TextBlock Text="Window Opacity" VerticalAlignment="Center"/>
+                            <TextBlock Grid.Column="1" Text="{Binding OpacityDisplay}" 
+                                       Foreground="{DynamicResource ThemeAccent}" FontWeight="Bold"
+                                       VerticalAlignment="Center"/>
+                        </Grid>
+                        <Slider Value="{Binding WindowOpacity}" 
+                                Minimum="0.3" Maximum="1.0" 
+                                TickFrequency="0.05"
+                                IsSnapToTickEnabled="True"/>
+                    </StackPanel>
+
+                    <!-- Font Size Slider -->
+                    <StackPanel Spacing="4">
+                        <Grid ColumnDefinitions="*,Auto">
+                            <TextBlock Text="Font Size Scale" VerticalAlignment="Center"/>
+                            <TextBlock Grid.Column="1" Text="{Binding FontSizeDisplay}" 
+                                       Foreground="{DynamicResource ThemeAccent}" FontWeight="Bold"
+                                       VerticalAlignment="Center"/>
+                        </Grid>
+                        <Slider Value="{Binding FontSizeScale}" 
+                                Minimum="0.7" Maximum="1.5" 
+                                TickFrequency="0.05"
+                                IsSnapToTickEnabled="True"/>
+                    </StackPanel>
+
+                    <!-- Toggles -->
+                    <CheckBox Content="Always on top"
+                              IsChecked="{Binding AlwaysOnTop}"/>
+                    <CheckBox Content="Compact mode (smaller UI)"
+                              IsChecked="{Binding CompactMode}"/>
                     <CheckBox Content="Navigation menu open by default"
                               IsChecked="{Binding IsNavigationMenuOpen}"/>
                     <CheckBox Content="Open item window in new window"

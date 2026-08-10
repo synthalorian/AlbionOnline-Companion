@@ -118,6 +118,9 @@ public class AppSettings
     public double WindowX { get; set; } = -1;
     public double WindowY { get; set; } = -1;
     public string SelectedTab { get; set; } = "Dashboard";
+    public double WindowOpacity { get; set; } = 1.0;
+    public double FontSizeScale { get; set; } = 1.0;
+    public bool CompactMode { get; set; }
 
     // Paths
     public string GameLogPath { get; set; } = string.Empty;
