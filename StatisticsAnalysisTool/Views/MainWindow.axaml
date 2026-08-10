@@ -127,5 +127,63 @@
             <ContentControl Content="{Binding CurrentView}"/>
         </Border>
 
+        <!-- Privilege Escalation Dialog Overlay -->
+        <Panel IsVisible="{Binding ShowPrivilegeDialog}" 
+               Background="#80000000"
+               Grid.RowSpan="2" Grid.ColumnSpan="2"
+               ZIndex="100">
+            <Border Background="{DynamicResource ThemeSurface}" 
+                    CornerRadius="12" 
+                    Padding="24"
+                    Width="480"
+                    HorizontalAlignment="Center"
+                    VerticalAlignment="Center"
+                    BorderBrush="{DynamicResource ThemeAccent}"
+                    BorderThickness="2">
+                <StackPanel Spacing="16">
+                    <TextBlock Text="🔐 Elevated Privileges Required" 
+                               FontSize="20" FontWeight="Bold"
+                               Foreground="{DynamicResource ThemeAccent}"/>
+                    
+                    <TextBlock Text="Packet capture requires root/admin privileges to read network traffic from Albion Online."
+                               TextWrapping="Wrap"
+                               Foreground="{DynamicResource ThemeForeground}"/>
+                    
+                    <TextBlock Text="{Binding PrivilegeStatusText}"
+                               TextWrapping="Wrap"
+                               Foreground="{DynamicResource ThemeWarning}"/>
+                    
+                    <Border Background="{DynamicResource ThemeSurfaceAlt}" 
+                            CornerRadius="4" 
+                            Padding="12">
+                        <TextBlock Text="{Binding PrivilegeInstructions}"
+                                   TextWrapping="Wrap"
+                                   FontFamily="monospace"
+                                   FontSize="12"
+                                   Foreground="{DynamicResource ThemeForegroundDim}"/>
+                    </Border>
+                    
+                    <Grid ColumnDefinitions="*,*,*">
+                        <Button Grid.Column="0" 
+                                Content="🔑 Authenticate (pkexec)"
+                                Command="{Binding RestartWithPkexecCommand}"
+                                Background="{DynamicResource ThemeSuccess}"
+                                Foreground="{DynamicResource ThemeBackground}"
+                                FontWeight="Bold"
+                                Padding="12,8"
+                                Margin="0,0,4,0"/>
+                        <Button Grid.Column="1" 
+                                Content="📋 Copy Command"
+                                Padding="12,8"
+                                Margin="4,0"/>
+                        <Button Grid.Column="2" 
+                                Content="✕ Dismiss"
+                                Command="{Binding DismissPrivilegeDialogCommand}"
+                                Padding="12,8"
+                                Margin="4,0,0,0"/>
+                    </Grid>
+                </StackPanel>
+            </Border>
+        </Panel>
     </Grid>
 </Window>
