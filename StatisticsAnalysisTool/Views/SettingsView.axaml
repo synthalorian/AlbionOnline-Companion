@@ -10,30 +10,65 @@
     <ScrollViewer>
         <StackPanel Margin="16" Spacing="16">
 
+            <!-- Theme Picker (Featured at top) -->
+            <Border Background="{DynamicResource ThemeSurface}" CornerRadius="8" Padding="16">
+                <StackPanel Spacing="12">
+                    <TextBlock Text="🎨 THEME" 
+                               Foreground="{DynamicResource ThemeAccent}" 
+                               FontSize="14" FontWeight="Bold"/>
+
+                    <ComboBox ItemsSource="{Binding ThemeNames}"
+                              SelectedItem="{Binding SelectedThemeName}"
+                              Width="320"
+                              HorizontalAlignment="Left">
+                        <ComboBox.ItemTemplate>
+                            <DataTemplate>
+                                <TextBlock Text="{Binding}" FontSize="14"/>
+                            </DataTemplate>
+                        </ComboBox.ItemTemplate>
+                    </ComboBox>
+
+                    <TextBlock Text="{Binding SelectedThemeDescription}" 
+                               Foreground="{DynamicResource ThemeForegroundDim}"
+                               FontStyle="Italic"
+                               TextWrapping="Wrap"/>
+
+                    <!-- Theme preview swatches -->
+                    <Border Background="{DynamicResource ThemeSurfaceAlt}" 
+                            CornerRadius="4" 
+                            Padding="12"
+                            Margin="0,4,0,0">
+                        <StackPanel Orientation="Horizontal" Spacing="8">
+                            <Border Width="40" Height="40" CornerRadius="4" Background="{DynamicResource ThemeAccent}" ToolTip.Tip="Accent"/>
+                            <Border Width="40" Height="40" CornerRadius="4" Background="{DynamicResource ThemeAccentSecondary}" ToolTip.Tip="Secondary"/>
+                            <Border Width="40" Height="40" CornerRadius="4" Background="{DynamicResource ThemeSuccess}" ToolTip.Tip="Success"/>
+                            <Border Width="40" Height="40" CornerRadius="4" Background="{DynamicResource ThemeWarning}" ToolTip.Tip="Warning"/>
+                            <Border Width="40" Height="40" CornerRadius="4" Background="{DynamicResource ThemeError}" ToolTip.Tip="Error"/>
+                            <Border Width="40" Height="40" CornerRadius="4" Background="{DynamicResource ThemeInfo}" ToolTip.Tip="Info"/>
+                            <Border Width="40" Height="40" CornerRadius="4" Background="{DynamicResource ThemeOrange}" ToolTip.Tip="Orange"/>
+                            <Border Width="40" Height="40" CornerRadius="4" Background="{DynamicResource ThemePurple}" ToolTip.Tip="Purple"/>
+                        </StackPanel>
+                    </Border>
+                </StackPanel>
+            </Border>
+
             <!-- General Settings -->
-            <Border Background="#FF313244" CornerRadius="8" Padding="16">
+            <Border Background="{DynamicResource ThemeSurface}" CornerRadius="8" Padding="16">
                 <StackPanel Spacing="16">
-                    <TextBlock Text="GENERAL" Foreground="#FF89B4FA" FontSize="14" FontWeight="Bold"/>
-                    
-                    <Grid ColumnDefinitions="200,*" RowDefinitions="Auto,Auto,Auto">
-                        <TextBlock Grid.Row="0" Grid.Column="0" Text="Language:" Foreground="#FFCDD6F4" VerticalAlignment="Center"/>
-                        <ComboBox Grid.Row="0" Grid.Column="1" 
+                    <TextBlock Text="GENERAL" Foreground="{DynamicResource ThemeAccentSecondary}" FontSize="14" FontWeight="Bold"/>
+
+                    <Grid ColumnDefinitions="200,*" RowDefinitions="Auto,Auto">
+                        <TextBlock Grid.Row="0" Grid.Column="0" Text="Language:" VerticalAlignment="Center"/>
+                        <ComboBox Grid.Row="0" Grid.Column="1"
                                   ItemsSource="{Binding Languages}"
                                   SelectedItem="{Binding SelectedLanguage}"
                                   Width="200"
                                   HorizontalAlignment="Left"/>
-                        
-                        <TextBlock Grid.Row="1" Grid.Column="0" Text="Server:" Foreground="#FFCDD6F4" VerticalAlignment="Center"/>
-                        <ComboBox Grid.Row="1" Grid.Column="1" 
+
+                        <TextBlock Grid.Row="1" Grid.Column="0" Text="Server:" VerticalAlignment="Center"/>
+                        <ComboBox Grid.Row="1" Grid.Column="1"
                                   ItemsSource="{Binding Servers}"
                                   SelectedItem="{Binding SelectedServer}"
-                                  Width="200"
-                                  HorizontalAlignment="Left"/>
-                        
-                        <TextBlock Grid.Row="2" Grid.Column="0" Text="Theme:" Foreground="#FFCDD6F4" VerticalAlignment="Center"/>
-                        <ComboBox Grid.Row="2" Grid.Column="1" 
-                                  ItemsSource="{Binding Themes}"
-                                  SelectedItem="{Binding SelectedTheme}"
                                   Width="200"
                                   HorizontalAlignment="Left"/>
                     </Grid>
@@ -41,25 +76,22 @@
             </Border>
 
             <!-- Tracking Settings -->
-            <Border Background="#FF313244" CornerRadius="8" Padding="16">
+            <Border Background="{DynamicResource ThemeSurface}" CornerRadius="8" Padding="16">
                 <StackPanel Spacing="12">
-                    <TextBlock Text="TRACKING" Foreground="#FF89B4FA" FontSize="14" FontWeight="Bold"/>
-                    
-                    <CheckBox Content="Reset tracking on map change" 
-                              IsChecked="{Binding IsTrackingResetByMapChangeActive}"
-                              Foreground="#FFCDD6F4"/>
-                    <CheckBox Content="Enable damage meter tracking" 
-                              IsChecked="{Binding IsDamageMeterTrackingActive}"
-                              Foreground="#FFCDD6F4"/>
-                    <CheckBox Content="Auto-start tracking when game detected" 
-                              IsChecked="{Binding AutoStartTracking}"
-                              Foreground="#FFCDD6F4"/>
-                    
+                    <TextBlock Text="TRACKING" Foreground="{DynamicResource ThemeAccentSecondary}" FontSize="14" FontWeight="Bold"/>
+
+                    <CheckBox Content="Reset tracking on map change"
+                              IsChecked="{Binding IsTrackingResetByMapChangeActive}"/>
+                    <CheckBox Content="Enable damage meter tracking"
+                              IsChecked="{Binding IsDamageMeterTrackingActive}"/>
+                    <CheckBox Content="Auto-start tracking when game detected"
+                              IsChecked="{Binding AutoStartTracking}"/>
+
                     <Grid ColumnDefinitions="200,*" Margin="0,8,0,0">
-                        <TextBlock Grid.Column="0" Text="Refresh Interval (seconds):" Foreground="#FFCDD6F4" VerticalAlignment="Center"/>
-                        <NumericUpDown Grid.Column="1" 
+                        <TextBlock Grid.Column="0" Text="Refresh Interval (seconds):" VerticalAlignment="Center"/>
+                        <NumericUpDown Grid.Column="1"
                                        Value="{Binding RefreshIntervalSeconds}"
-                                       Minimum="1" 
+                                       Minimum="1"
                                        Maximum="60"
                                        Width="100"
                                        HorizontalAlignment="Left"/>
@@ -68,48 +100,43 @@
             </Border>
 
             <!-- UI Settings -->
-            <Border Background="#FF313244" CornerRadius="8" Padding="16">
+            <Border Background="{DynamicResource ThemeSurface}" CornerRadius="8" Padding="16">
                 <StackPanel Spacing="12">
-                    <TextBlock Text="USER INTERFACE" Foreground="#FF89B4FA" FontSize="14" FontWeight="Bold"/>
-                    
-                    <CheckBox Content="Navigation menu open by default" 
-                              IsChecked="{Binding IsNavigationMenuOpen}"
-                              Foreground="#FFCDD6F4"/>
-                    <CheckBox Content="Open item window in new window" 
-                              IsChecked="{Binding IsOpenItemWindowInNewWindowChecked}"
-                              Foreground="#FFCDD6F4"/>
-                    <CheckBox Content="Minimize to system tray" 
-                              IsChecked="{Binding MinimizeToTray}"
-                              Foreground="#FFCDD6F4"/>
+                    <TextBlock Text="USER INTERFACE" Foreground="{DynamicResource ThemeAccentSecondary}" FontSize="14" FontWeight="Bold"/>
+
+                    <CheckBox Content="Navigation menu open by default"
+                              IsChecked="{Binding IsNavigationMenuOpen}"/>
+                    <CheckBox Content="Open item window in new window"
+                              IsChecked="{Binding IsOpenItemWindowInNewWindowChecked}"/>
+                    <CheckBox Content="Minimize to system tray"
+                              IsChecked="{Binding MinimizeToTray}"/>
                 </StackPanel>
             </Border>
 
             <!-- Notifications -->
-            <Border Background="#FF313244" CornerRadius="8" Padding="16">
+            <Border Background="{DynamicResource ThemeSurface}" CornerRadius="8" Padding="16">
                 <StackPanel Spacing="12">
-                    <TextBlock Text="NOTIFICATIONS" Foreground="#FF89B4FA" FontSize="14" FontWeight="Bold"/>
-                    
-                    <CheckBox Content="Enable notifications" 
-                              IsChecked="{Binding EnableNotifications}"
-                              Foreground="#FFCDD6F4"/>
-                    <CheckBox Content="Enable sounds" 
-                              IsChecked="{Binding EnableSounds}"
-                              Foreground="#FFCDD6F4"/>
+                    <TextBlock Text="NOTIFICATIONS" Foreground="{DynamicResource ThemeAccentSecondary}" FontSize="14" FontWeight="Bold"/>
+
+                    <CheckBox Content="Enable notifications"
+                              IsChecked="{Binding EnableNotifications}"/>
+                    <CheckBox Content="Enable sounds"
+                              IsChecked="{Binding EnableSounds}"/>
                 </StackPanel>
             </Border>
 
             <!-- Paths -->
-            <Border Background="#FF313244" CornerRadius="8" Padding="16">
+            <Border Background="{DynamicResource ThemeSurface}" CornerRadius="8" Padding="16">
                 <StackPanel Spacing="12">
-                    <TextBlock Text="PATHS" Foreground="#FF89B4FA" FontSize="14" FontWeight="Bold"/>
-                    
+                    <TextBlock Text="PATHS" Foreground="{DynamicResource ThemeAccentSecondary}" FontSize="14" FontWeight="Bold"/>
+
                     <Grid ColumnDefinitions="200,*,Auto">
-                        <TextBlock Grid.Column="0" Text="Albion Data Path:" Foreground="#FFCDD6F4" VerticalAlignment="Center"/>
-                        <TextBox Grid.Column="1" 
+                        <TextBlock Grid.Column="0" Text="Albion Data Path:" VerticalAlignment="Center"/>
+                        <TextBox Grid.Column="1"
                                  Text="{Binding AlbionDataPath}"
                                  IsReadOnly="True"
                                  Margin="8,0"/>
-                        <Button Grid.Column="2" 
+                        <Button Grid.Column="2"
                                 Content="Browse..."
                                 Command="{Binding BrowseAlbionDataPathCommand}"
                                 Padding="12,6"/>
@@ -117,19 +144,25 @@
                 </StackPanel>
             </Border>
 
+            <!-- Status message -->
+            <TextBlock Text="{Binding StatusMessage}" 
+                       Foreground="{DynamicResource ThemeSuccess}" 
+                       FontWeight="Bold"
+                       HorizontalAlignment="Center"/>
+
             <!-- Actions -->
-            <Border Background="#FF313244" CornerRadius="8" Padding="16">
+            <Border Background="{DynamicResource ThemeSurface}" CornerRadius="8" Padding="16">
                 <StackPanel Orientation="Horizontal" Spacing="12">
                     <Button Content="Save Settings"
                             Command="{Binding SaveSettingsCommand}"
-                            Background="#FFA6E3A1"
-                            Foreground="#FF1E1E2E"
+                            Background="{DynamicResource ThemeSuccess}"
+                            Foreground="{DynamicResource ThemeBackground}"
                             FontWeight="Bold"
                             Padding="20,10"/>
                     <Button Content="Reset to Defaults"
                             Command="{Binding ResetSettingsCommand}"
-                            Background="#FFF38BA8"
-                            Foreground="#FF1E1E2E"
+                            Background="{DynamicResource ThemeError}"
+                            Foreground="{DynamicResource ThemeBackground}"
                             FontWeight="Bold"
                             Padding="20,10"/>
                     <Button Content="Open Logs Folder"

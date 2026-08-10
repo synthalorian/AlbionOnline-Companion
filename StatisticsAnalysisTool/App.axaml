@@ -11,74 +11,74 @@
     <Application.Styles>
         <FluentTheme DensityStyle="Compact" />
         <StyleInclude Source="avares://Avalonia.Controls.DataGrid/Themes/Fluent.xaml"/>
-        
-        <!-- Custom Dark Theme Overrides -->
+
+        <!-- Dynamic theme-aware styles -->
         <Style Selector="Window">
-            <Setter Property="Background" Value="#FF1E1E2E" />
-            <Setter Property="Foreground" Value="#FFCDD6F4" />
+            <Setter Property="Background" Value="{DynamicResource ThemeBackground}" />
+            <Setter Property="Foreground" Value="{DynamicResource ThemeForeground}" />
         </Style>
-        
+
         <Style Selector="TextBlock">
-            <Setter Property="Foreground" Value="#FFCDD6F4" />
+            <Setter Property="Foreground" Value="{DynamicResource ThemeForeground}" />
         </Style>
-        
+
         <Style Selector="Button">
-            <Setter Property="Background" Value="#FF313244" />
-            <Setter Property="Foreground" Value="#FFCDD6F4" />
-            <Setter Property="BorderBrush" Value="#FF45475A" />
+            <Setter Property="Background" Value="{DynamicResource ThemeButtonBackground}" />
+            <Setter Property="Foreground" Value="{DynamicResource ThemeButtonForeground}" />
+            <Setter Property="BorderBrush" Value="{DynamicResource ThemeBorder}" />
             <Setter Property="Padding" Value="12,6" />
             <Setter Property="CornerRadius" Value="4" />
         </Style>
-        
+
         <Style Selector="Button:pointerover">
-            <Setter Property="Background" Value="#FF45475A" />
+            <Setter Property="Background" Value="{DynamicResource ThemeButtonHover}" />
         </Style>
-        
+
         <Style Selector="TextBox">
-            <Setter Property="Background" Value="#FF313244" />
-            <Setter Property="Foreground" Value="#FFCDD6F4" />
-            <Setter Property="BorderBrush" Value="#FF45475A" />
-            <Setter Property="CaretBrush" Value="#FFF5C2E7" />
+            <Setter Property="Background" Value="{DynamicResource ThemeInputBackground}" />
+            <Setter Property="Foreground" Value="{DynamicResource ThemeInputForeground}" />
+            <Setter Property="BorderBrush" Value="{DynamicResource ThemeInputBorder}" />
+            <Setter Property="CaretBrush" Value="{DynamicResource ThemeAccent}" />
         </Style>
-        
+
         <Style Selector="ComboBox">
-            <Setter Property="Background" Value="#FF313244" />
-            <Setter Property="Foreground" Value="#FFCDD6F4" />
+            <Setter Property="Background" Value="{DynamicResource ThemeInputBackground}" />
+            <Setter Property="Foreground" Value="{DynamicResource ThemeInputForeground}" />
         </Style>
-        
+
         <Style Selector="ListBox">
-            <Setter Property="Background" Value="#FF181825" />
-            <Setter Property="Foreground" Value="#FFCDD6F4" />
+            <Setter Property="Background" Value="{DynamicResource ThemeSurfaceAlt}" />
+            <Setter Property="Foreground" Value="{DynamicResource ThemeForeground}" />
         </Style>
-        
+
         <Style Selector="DataGrid">
-            <Setter Property="Background" Value="#FF181825" />
-            <Setter Property="Foreground" Value="#FFCDD6F4" />
+            <Setter Property="Background" Value="{DynamicResource ThemeSurfaceAlt}" />
+            <Setter Property="Foreground" Value="{DynamicResource ThemeForeground}" />
         </Style>
-        
+
         <Style Selector="TabControl">
-            <Setter Property="Background" Value="#FF1E1E2E" />
+            <Setter Property="Background" Value="{DynamicResource ThemeBackground}" />
         </Style>
-        
+
         <Style Selector="TabItem">
-            <Setter Property="Foreground" Value="#FFCDD6F4" />
+            <Setter Property="Foreground" Value="{DynamicResource ThemeForeground}" />
         </Style>
-        
-        <!-- Accent Colors -->
+
+        <!-- Semantic text colors -->
         <Style Selector="TextBlock.accent">
-            <Setter Property="Foreground" Value="#FFF5C2E7" />
+            <Setter Property="Foreground" Value="{DynamicResource ThemeAccent}" />
         </Style>
-        
         <Style Selector="TextBlock.success">
-            <Setter Property="Foreground" Value="#FFA6E3A1" />
+            <Setter Property="Foreground" Value="{DynamicResource ThemeSuccess}" />
         </Style>
-        
         <Style Selector="TextBlock.warning">
-            <Setter Property="Foreground" Value="#FFF9E2AF" />
+            <Setter Property="Foreground" Value="{DynamicResource ThemeWarning}" />
         </Style>
-        
         <Style Selector="TextBlock.error">
-            <Setter Property="Foreground" Value="#FFF38BA8" />
+            <Setter Property="Foreground" Value="{DynamicResource ThemeError}" />
+        </Style>
+        <Style Selector="TextBlock.dim">
+            <Setter Property="Foreground" Value="{DynamicResource ThemeForegroundDim}" />
         </Style>
     </Application.Styles>
 </Application>
