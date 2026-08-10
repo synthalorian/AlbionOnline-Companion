@@ -9,7 +9,7 @@
 
     <Grid RowDefinitions="Auto,*">
         <!-- Header Controls -->
-        <Border Grid.Row="0" Background="#FF313244" Padding="12" BorderBrush="#FF45475A" BorderThickness="0,0,0,1">
+        <Border Grid.Row="0" Background="{DynamicResource ThemeSurface}" Padding="12" BorderBrush="{DynamicResource ThemeBorder}" BorderThickness="0,0,0,1">
             <Grid ColumnDefinitions="*,Auto,Auto">
                 <TextBox Grid.Column="0" 
                          Text="{Binding SearchText}"
@@ -25,8 +25,8 @@
                 <Button Grid.Column="2"
                         Content="Reset"
                         Command="{Binding ResetTrackingNotificationsCommand}"
-                        Background="#FFF38BA8"
-                        Foreground="#FF1E1E2E"
+                        Background="{DynamicResource ThemeError}"
+                        Foreground="{DynamicResource ThemeBackground}"
                         FontWeight="Bold"
                         Padding="16,8"/>
             </Grid>
@@ -38,42 +38,42 @@
             <TabItem Header="NOTIFICATIONS">
                 <Grid RowDefinitions="Auto,*">
                     <!-- Filter Bar -->
-                    <Border Grid.Row="0" Background="#FF313244" Padding="12" Margin="0,0,0,8">
+                    <Border Grid.Row="0" Background="{DynamicResource ThemeSurface}" Padding="12" Margin="0,0,0,8">
                         <StackPanel Orientation="Horizontal" Spacing="16">
                             <CheckBox Content="Party Loot Only" 
                                       IsChecked="{Binding IsTrackingPartyLootOnly}"
-                                      Foreground="#FFCDD6F4"/>
+                                      Foreground="{DynamicResource ThemeForeground}"/>
                             <CheckBox Content="Silver" 
                                       IsChecked="{Binding IsTrackingSilver}"
-                                      Foreground="#FFCDD6F4"/>
+                                      Foreground="{DynamicResource ThemeForeground}"/>
                             <CheckBox Content="Fame" 
                                       IsChecked="{Binding IsTrackingFame}"
-                                      Foreground="#FFCDD6F4"/>
+                                      Foreground="{DynamicResource ThemeForeground}"/>
                             <CheckBox Content="Mob Loot" 
                                       IsChecked="{Binding IsTrackingMobLoot}"
-                                      Foreground="#FFCDD6F4"/>
+                                      Foreground="{DynamicResource ThemeForeground}"/>
                             <CheckBox Content="Kills" 
                                       IsChecked="{Binding IsTrackingKill}"
-                                      Foreground="#FFCDD6F4"/>
+                                      Foreground="{DynamicResource ThemeForeground}"/>
                         </StackPanel>
                     </Border>
 
                     <!-- Loot List -->
-                    <Border Grid.Row="1" Background="#FF1E1E2E" CornerRadius="4">
+                    <Border Grid.Row="1" Background="{DynamicResource ThemeBackground}" CornerRadius="4">
                         <Grid>
                             <ScrollViewer>
                                 <ItemsControl ItemsSource="{Binding FilteredLootEntries}">
                                     <ItemsControl.ItemTemplate>
                                         <DataTemplate>
-                                            <Border Background="#FF313244" CornerRadius="4" Padding="12" Margin="0,0,0,4">
+                                            <Border Background="{DynamicResource ThemeSurface}" CornerRadius="4" Padding="12" Margin="0,0,0,4">
                                                 <Grid ColumnDefinitions="*,Auto,Auto,Auto">
                                                     <StackPanel Grid.Column="0" Spacing="4">
-                                                        <TextBlock Text="{Binding ItemName}" Foreground="#FFCDD6F4" FontSize="14" FontWeight="Bold"/>
-                                                        <TextBlock Text="{Binding PlayerName}" Foreground="#FF6C7086" FontSize="12"/>
+                                                        <TextBlock Text="{Binding ItemName}" Foreground="{DynamicResource ThemeForeground}" FontSize="14" FontWeight="Bold"/>
+                                                        <TextBlock Text="{Binding PlayerName}" Foreground="{DynamicResource ThemeForegroundDim}" FontSize="12"/>
                                                     </StackPanel>
-                                                    <TextBlock Grid.Column="1" Text="{Binding Quantity, StringFormat='x{0}'}" Foreground="#FFCDD6F4" FontSize="12" Margin="12,0"/>
-                                                    <TextBlock Grid.Column="2" Text="{Binding EstimatedValue, StringFormat='{}{0:N0}'}" Foreground="#FFF9E2AF" FontSize="12" Margin="12,0"/>
-                                                    <TextBlock Grid.Column="3" Text="{Binding Timestamp, StringFormat='HH:mm'}" Foreground="#FF6C7086" FontSize="12"/>
+                                                    <TextBlock Grid.Column="1" Text="{Binding Quantity, StringFormat='x{0}'}" Foreground="{DynamicResource ThemeForeground}" FontSize="12" Margin="12,0"/>
+                                                    <TextBlock Grid.Column="2" Text="{Binding EstimatedValue, StringFormat='{}{0:N0}'}" Foreground="{DynamicResource ThemeWarning}" FontSize="12" Margin="12,0"/>
+                                                    <TextBlock Grid.Column="3" Text="{Binding Timestamp, StringFormat='HH:mm'}" Foreground="{DynamicResource ThemeForegroundDim}" FontSize="12"/>
                                                 </Grid>
                                             </Border>
                                         </DataTemplate>
@@ -84,7 +84,7 @@
                             <!-- Empty State -->
                             <TextBlock IsVisible="{Binding FilteredLootEntries.Count, Converter={x:Static ObjectConverters.IsNull}}"
                                        Text="No loot entries yet"
-                                       Foreground="#FF6C7086"
+                                       Foreground="{DynamicResource ThemeForegroundDim}"
                                        HorizontalAlignment="Center"
                                        VerticalAlignment="Center"
                                        Margin="32"/>
@@ -99,24 +99,24 @@
                     <StackPanel Margin="16" Spacing="16">
                         <!-- Summary Cards -->
                         <Grid ColumnDefinitions="*,*" RowDefinitions="Auto,Auto">
-                            <Border Grid.Row="0" Grid.Column="0" Background="#FF313244" CornerRadius="8" Padding="16" Margin="0,0,8,8">
+                            <Border Grid.Row="0" Grid.Column="0" Background="{DynamicResource ThemeSurface}" CornerRadius="8" Padding="16" Margin="0,0,8,8">
                                 <StackPanel Spacing="8">
-                                    <TextBlock Text="TOTAL LOOT VALUE" Foreground="#FFF9E2AF" FontSize="12" FontWeight="Bold"/>
-                                    <TextBlock Text="{Binding TotalLootValue}" Foreground="#FFCDD6F4" FontSize="24" FontWeight="Bold"/>
+                                    <TextBlock Text="TOTAL LOOT VALUE" Foreground="{DynamicResource ThemeWarning}" FontSize="12" FontWeight="Bold"/>
+                                    <TextBlock Text="{Binding TotalLootValue}" Foreground="{DynamicResource ThemeForeground}" FontSize="24" FontWeight="Bold"/>
                                 </StackPanel>
                             </Border>
-                            <Border Grid.Row="0" Grid.Column="1" Background="#FF313244" CornerRadius="8" Padding="16" Margin="8,0,0,8">
+                            <Border Grid.Row="0" Grid.Column="1" Background="{DynamicResource ThemeSurface}" CornerRadius="8" Padding="16" Margin="8,0,0,8">
                                 <StackPanel Spacing="8">
-                                    <TextBlock Text="LOOT VALUE / HOUR" Foreground="#FFF9E2AF" FontSize="12" FontWeight="Bold"/>
-                                    <TextBlock Text="{Binding LootValuePerHour}" Foreground="#FFCDD6F4" FontSize="24" FontWeight="Bold"/>
+                                    <TextBlock Text="LOOT VALUE / HOUR" Foreground="{DynamicResource ThemeWarning}" FontSize="12" FontWeight="Bold"/>
+                                    <TextBlock Text="{Binding LootValuePerHour}" Foreground="{DynamicResource ThemeForeground}" FontSize="24" FontWeight="Bold"/>
                                 </StackPanel>
                             </Border>
                         </Grid>
 
                         <!-- Placeholder for detailed stats -->
-                        <Border Background="#FF313244" CornerRadius="8" Padding="16">
+                        <Border Background="{DynamicResource ThemeSurface}" CornerRadius="8" Padding="16">
                             <TextBlock Text="Detailed loot statistics will appear here"
-                                       Foreground="#FF6C7086"
+                                       Foreground="{DynamicResource ThemeForegroundDim}"
                                        HorizontalAlignment="Center"
                                        VerticalAlignment="Center"/>
                         </Border>
@@ -127,51 +127,51 @@
             <!-- Loot Comparator Tab -->
             <TabItem Header="LOOT COMPARATOR">
                 <Grid RowDefinitions="Auto,*">
-                    <Border Grid.Row="0" Background="#FF313244" Padding="12" Margin="0,0,0,8">
+                    <Border Grid.Row="0" Background="{DynamicResource ThemeSurface}" Padding="12" Margin="0,0,0,8">
                         <StackPanel Orientation="Horizontal" Spacing="12">
                             <Button Content="Load Chest Log" Command="{Binding LoadChestLogTextCommand}" Padding="12,6"/>
                             <Button Content="Upload Files" Command="{Binding UploadChestFilesCommand}" Padding="12,6"/>
                             <Button Content="Add Loot Log" Command="{Binding AddLootLogFilesCommand}" Padding="12,6"/>
                             <Button Content="Compare" Command="{Binding CompareLogsCommand}" 
-                                    Background="#FF89B4FA" Foreground="#FF1E1E2E" FontWeight="Bold" Padding="16,8"/>
+                                    Background="{DynamicResource ThemeAccentSecondary}" Foreground="{DynamicResource ThemeBackground}" FontWeight="Bold" Padding="16,8"/>
                         </StackPanel>
                     </Border>
 
                     <Grid Grid.Row="1" ColumnDefinitions="*,*,*">
                         <!-- Chest Log Input -->
-                        <Border Grid.Column="0" Background="#FF1E1E2E" CornerRadius="4" Padding="12" Margin="0,0,4,0">
+                        <Border Grid.Column="0" Background="{DynamicResource ThemeBackground}" CornerRadius="4" Padding="12" Margin="0,0,4,0">
                             <StackPanel Spacing="8">
-                                <TextBlock Text="CHEST LOG INPUT" Foreground="#FF89B4FA" FontSize="12" FontWeight="Bold"/>
+                                <TextBlock Text="CHEST LOG INPUT" Foreground="{DynamicResource ThemeAccentSecondary}" FontSize="12" FontWeight="Bold"/>
                                 <TextBox Text="{Binding ChestLogText}"
                                          AcceptsReturn="True"
                                          TextWrapping="Wrap"
                                          MinHeight="200"
                                          PlaceholderText="Paste chest log here..."/>
-                                <TextBlock Text="{Binding LootComparatorLogCountSummary}" Foreground="#FF6C7086" FontSize="11"/>
+                                <TextBlock Text="{Binding LootComparatorLogCountSummary}" Foreground="{DynamicResource ThemeForegroundDim}" FontSize="11"/>
                             </StackPanel>
                         </Border>
 
                         <!-- Comparison -->
-                        <Border Grid.Column="1" Background="#FF1E1E2E" CornerRadius="4" Padding="12" Margin="4,0">
+                        <Border Grid.Column="1" Background="{DynamicResource ThemeBackground}" CornerRadius="4" Padding="12" Margin="4,0">
                             <StackPanel Spacing="8">
-                                <TextBlock Text="COMPARISON" Foreground="#FF89B4FA" FontSize="12" FontWeight="Bold"/>
+                                <TextBlock Text="COMPARISON" Foreground="{DynamicResource ThemeAccentSecondary}" FontSize="12" FontWeight="Bold"/>
                                 <ComboBox ItemsSource="{Binding LootComparatorSaves}"
                                           SelectedItem="{Binding SelectedLootComparatorSave}"
                                           PlaceholderText="Select saved comparison"/>
                                 <Button Content="Load" Command="{Binding LoadLootComparatorSaveCommand}" Padding="12,6"/>
                                 <Button Content="Delete" Command="{Binding DeleteLootComparatorSaveCommand}" 
-                                        Background="#FFF38BA8" Foreground="#FF1E1E2E" Padding="12,6"/>
+                                        Background="{DynamicResource ThemeError}" Foreground="{DynamicResource ThemeBackground}" Padding="12,6"/>
                             </StackPanel>
                         </Border>
 
                         <!-- Actions -->
-                        <Border Grid.Column="2" Background="#FF1E1E2E" CornerRadius="4" Padding="12" Margin="4,0,0,0">
+                        <Border Grid.Column="2" Background="{DynamicResource ThemeBackground}" CornerRadius="4" Padding="12" Margin="4,0,0,0">
                             <StackPanel Spacing="8">
-                                <TextBlock Text="ACTIONS" Foreground="#FF89B4FA" FontSize="12" FontWeight="Bold"/>
+                                <TextBlock Text="ACTIONS" Foreground="{DynamicResource ThemeAccentSecondary}" FontSize="12" FontWeight="Bold"/>
                                 <Button Content="Clear Chest Logs" Command="{Binding ClearChestLogsCommand}" 
-                                        Background="#FFF38BA8" Foreground="#FF1E1E2E" Padding="12,6"/>
+                                        Background="{DynamicResource ThemeError}" Foreground="{DynamicResource ThemeBackground}" Padding="12,6"/>
                                 <Button Content="Clear All Logs" Command="{Binding ClearAllLogsCommand}" 
-                                        Background="#FFF38BA8" Foreground="#FF1E1E2E" Padding="12,6"/>
+                                        Background="{DynamicResource ThemeError}" Foreground="{DynamicResource ThemeBackground}" Padding="12,6"/>
                                 <Button Content="Save Comparison" Command="{Binding SaveLootComparatorCommand}" Padding="12,6"/>
                             </StackPanel>
                         </Border>
