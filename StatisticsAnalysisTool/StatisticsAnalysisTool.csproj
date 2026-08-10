@@ -8,7 +8,7 @@
     <RuntimeIdentifiers>linux-x64;win-x64;osx-x64;osx-arm64</RuntimeIdentifiers>
     <SelfContained>false</SelfContained>
     <!-- App metadata -->
-    <AssemblyName>AlbionCompanion</AssemblyName>
+    <AssemblyName>AlbionOnlineCompanion</AssemblyName>
     <RootNamespace>StatisticsAnalysisTool</RootNamespace>
     <Product>Albion Online Companion</Product>
     <Description>Cross-platform Albion Online statistics, tracking, and companion tool</Description>
