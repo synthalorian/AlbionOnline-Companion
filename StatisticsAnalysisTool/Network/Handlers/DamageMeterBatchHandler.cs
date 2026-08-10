@@ -7,17 +7,20 @@ using System.Threading.Tasks;
 namespace StatisticsAnalysisTool.Network.Handlers;
 
 /// <summary>
-/// Handles batch HealthUpdates events (multiple health changes in one packet).
-/// Processes each update individually through the damage meter logic.
+/// Handles batch HealthUpdates events.
 /// </summary>
 public class DamageMeterBatchHandler : EventPacketHandler<HealthUpdatesEvent>
 {
     private readonly DamageMeterViewModel _viewModel;
+    private readonly EntityTracker _entityTracker;
+    private readonly CombatTracker _combatTracker;
 
     public DamageMeterBatchHandler(DamageMeterViewModel viewModel)
         : base((int)EventCodes.HealthUpdates)
     {
         _viewModel = viewModel;
+        _entityTracker = EntityTracker.Instance;
+        _combatTracker = CombatTracker.Instance;
     }
 
     protected override Task OnActionAsync(HealthUpdatesEvent value)
@@ -29,11 +32,12 @@ public class DamageMeterBatchHandler : EventPacketHandler<HealthUpdatesEvent>
         {
             try
             {
-                DamageMeterEventHandler.ProcessHealthUpdate(_viewModel, update);
+                _combatTracker.ProcessHealthUpdate(update);
+                DamageMeterEventHandler.ProcessHealthUpdate(_viewModel, update, _entityTracker);
             }
             catch (Exception ex)
             {
-                Log.Debug(ex, "DamageMeterBatchHandler error processing update");
+                Log.Debug(ex, "DamageMeterBatchHandler error");
             }
         }
 
