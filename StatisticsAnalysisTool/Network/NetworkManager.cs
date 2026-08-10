@@ -1,6 +1,7 @@
 using Serilog;
 using StatisticsAnalysisTool.Abstractions;
 using StatisticsAnalysisTool.Network.Handlers;
+using StatisticsAnalysisTool.Network.Operations.Responses;
 using StatisticsAnalysisTool.Network.PacketProviders;
 using StatisticsAnalysisTool.ViewModels;
 using System;
@@ -31,6 +32,12 @@ public class NetworkManager : IDisposable
     private PlayerNameEventHandler? _playerNameHandler;
     private MobTrackEventHandler? _mobTrackHandler;
     private LeaveEventHandler? _leaveHandler;
+    private JoinResponseHandler? _joinResponseHandler;
+    private ChatMessageEventHandler? _chatMessageHandler;
+    private ChatSayEventHandler? _chatSayHandler;
+    private ChatWhisperEventHandler? _chatWhisperHandler;
+    private JoinedChatChannelEventHandler? _joinedChannelHandler;
+    private LeftChatChannelEventHandler? _leftChannelHandler;
 
     public bool IsRunning => _isRunning;
     public event EventHandler<string>? StatusChanged;
@@ -47,7 +54,8 @@ public class NetworkManager : IDisposable
         DashboardViewModel dashboard,
         DamageMeterViewModel damageMeter,
         DungeonTrackerViewModel dungeonTracker,
-        LootLoggerViewModel lootLogger)
+        LootLoggerViewModel lootLogger,
+        TranslatorViewModel? translator = null)
     {
         _dashboardHandler = new DashboardEventHandler(dashboard);
         _damageMeterHandler = new DamageMeterEventHandler(damageMeter);
@@ -83,6 +91,26 @@ public class NetworkManager : IDisposable
         _leaveHandler = new LeaveEventHandler();
         _receiverBuilder.AddEventHandler(_mobTrackHandler);
         _receiverBuilder.AddEventHandler(_leaveHandler);
+
+        // Register JoinResponse handler (identifies local player)
+        _joinResponseHandler = new JoinResponseHandler(dashboard, _dashboardHandler!);
+        _receiverBuilder.AddResponseHandler(_joinResponseHandler);
+
+        // Register chat/translator handlers
+        if (translator != null)
+        {
+            _chatMessageHandler = new ChatMessageEventHandler(translator);
+            _chatSayHandler = new ChatSayEventHandler(translator);
+            _chatWhisperHandler = new ChatWhisperEventHandler(translator);
+            _receiverBuilder.AddEventHandler(_chatMessageHandler);
+            _receiverBuilder.AddEventHandler(_chatSayHandler);
+            _receiverBuilder.AddEventHandler(_chatWhisperHandler);
+        }
+
+        _joinedChannelHandler = new JoinedChatChannelEventHandler();
+        _leftChannelHandler = new LeftChatChannelEventHandler();
+        _receiverBuilder.AddEventHandler(_joinedChannelHandler);
+        _receiverBuilder.AddEventHandler(_leftChannelHandler);
 
         // Set static refs
 

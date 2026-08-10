@@ -25,6 +25,16 @@ public class EntityTracker
     public string LocalPlayerName { get; private set; } = string.Empty;
 
     /// <summary>
+    /// Explicitly set the local player (from JoinResponse).
+    /// </summary>
+    public void SetLocalPlayer(long objectId, string name)
+    {
+        LocalPlayerId = objectId;
+        LocalPlayerName = name;
+        Log.Information("Local player set: {Name} (ID: {Id})", name, objectId);
+    }
+
+    /// <summary>
     /// Register a new player entity.
     /// </summary>
     public void AddPlayer(long objectId, string name, string guild = "", string alliance = "", int[]? equipment = null)
@@ -41,13 +51,8 @@ public class EntityTracker
         entity.Equipment = equipment ?? Array.Empty<int>();
         entity.LastSeen = DateTime.UtcNow;
 
-        // First player with a name is likely the local player
-        if (LocalPlayerId == 0 && !string.IsNullOrEmpty(name))
-        {
-            LocalPlayerId = objectId;
-            LocalPlayerName = name;
-            Log.Information("Local player detected: {Name} (ID: {Id})", name, objectId);
-        }
+        // NOTE: Do NOT auto-detect local player here.
+        // Local player is set explicitly via SetLocalPlayer() from JoinResponse.
     }
 
     /// <summary>

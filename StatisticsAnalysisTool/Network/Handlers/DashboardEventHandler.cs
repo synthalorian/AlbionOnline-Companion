@@ -31,6 +31,7 @@ public class DashboardEventHandler : EventPacketHandler<UpdateFameEvent>
     private double _lastTotalFame;
     private double _lastTotalSilver;
     private bool _hasBaseline;
+    private bool _hasSilverBaseline;
 
     public DashboardEventHandler(DashboardViewModel viewModel)
         : base((int)EventCodes.UpdateFame)
@@ -177,6 +178,34 @@ public class DashboardEventHandler : EventPacketHandler<UpdateFameEvent>
             >= 1_000 => $"{value / 1_000:F1}K",
             _ => $"{value:F0}"
         };
+    }
+
+    /// <summary>
+    /// Set the silver baseline from JoinResponse.
+    /// </summary>
+    public void SetSilverBaseline(double totalSilver)
+    {
+        _lastTotalSilver = totalSilver;
+        _hasSilverBaseline = true;
+
+        Avalonia.Threading.Dispatcher.UIThread.Post(() =>
+        {
+            _viewModel.TotalSilver = FormatNumber(totalSilver);
+        });
+    }
+
+    /// <summary>
+    /// Set the fame baseline from JoinResponse or first UpdateFame event.
+    /// </summary>
+    public void SetFameBaseline(double totalFame)
+    {
+        _lastTotalFame = totalFame;
+        _hasBaseline = true;
+
+        Avalonia.Threading.Dispatcher.UIThread.Post(() =>
+        {
+            _viewModel.TotalFame = FormatNumber(totalFame);
+        });
     }
 
     public void ResetSession()

@@ -173,6 +173,12 @@ public class LinuxSocketPacketProvider : PacketProvider
 
     private void ProcessIPv4(ReadOnlySpan<byte> frame)
     {
+        _packetsReceived++;
+        if (_packetsReceived <= 5 || _packetsReceived % 500 == 0)
+        {
+            Log.Information("LinuxSocket: ProcessIPv4 #{Count}, {Len} bytes", _packetsReceived, frame.Length);
+        }
+
         if (frame.Length < 20) return;
 
         byte verIhl = frame[0];
@@ -261,9 +267,20 @@ public class LinuxSocketPacketProvider : PacketProvider
         Deliver(payload, sourceIp);
     }
 
+    private static int _packetsReceived;
+    private static int _packetsDelivered;
+
     private void Deliver(ReadOnlySpan<byte> payload, string sourceIp)
     {
         if (payload.Length == 0) return;
+
+        _packetsDelivered++;
+        if (_packetsDelivered <= 10 || _packetsDelivered % 100 == 0)
+        {
+            var hex = BitConverter.ToString(payload.Slice(0, Math.Min(32, payload.Length)).ToArray());
+            Log.Information("LinuxSocket: Packet #{Count} from {IP}, {Len} bytes: {Hex}",
+                _packetsDelivered, sourceIp, payload.Length, hex);
+        }
 
         try
         {
