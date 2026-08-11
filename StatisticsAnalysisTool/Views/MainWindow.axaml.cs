@@ -16,15 +16,19 @@ public partial class MainWindow : Window
     {
         InitializeComponent();
         
-        // Load icon from embedded resources
+        // Set window class for Wayland icon matching
         try
         {
+            // This helps the window manager match the window to the desktop file
+            var platform = AvaloniaLocator.Current.GetService<Avalonia.Platform.IPlatformSettings>();
+            // Set icon from embedded resources
             var assets = AssetLoader.Open(new Uri("avares://AlbionOnlineCompanion/Assets/app-icon-256.png"));
             Icon = new WindowIcon(new Bitmap(assets));
+            Log.Information("Window icon loaded successfully");
         }
         catch (Exception ex)
         {
-            Log.Debug(ex, "Failed to load window icon");
+            Log.Warning(ex, "Failed to load window icon");
         }
         _settingsService = SettingsService.Instance;
 

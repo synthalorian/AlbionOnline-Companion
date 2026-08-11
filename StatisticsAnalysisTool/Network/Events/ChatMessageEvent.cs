@@ -23,5 +23,12 @@ public class ChatMessageEvent
 
         if (parameters.TryGetValue(2, out var message))
             Message = message.ObjectToString();
+
+        // Debug: log all parameter keys for unknown channels
+        if (ChannelId > 0)
+        {
+            Serilog.Log.Debug("ChatMessageEvent: ChannelId={ChannelId}, Params=[{Keys}]",
+                ChannelId, string.Join(",", parameters.Keys));
+        }
     }
 }
