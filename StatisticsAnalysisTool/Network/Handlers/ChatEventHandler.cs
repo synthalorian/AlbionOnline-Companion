@@ -55,8 +55,8 @@ public class ChatMessageEventHandler : EventPacketHandler<ChatMessageEvent>
                 channelName = channelType.ToString();
             }
 
-            Log.Debug("Chat: [{Channel}] {Sender}: {Message}", 
-                channelName, value.SenderName, value.Message);
+            Log.Information("Chat: [{Channel}({ChannelId})] {Sender}: {Message}", 
+                channelName, value.ChannelId, value.SenderName, value.Message);
 
             _viewModel.AddMessage(value.SenderName, value.Message, channelType, channelName);
         }

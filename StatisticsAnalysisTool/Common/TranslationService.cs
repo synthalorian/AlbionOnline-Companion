@@ -105,12 +105,18 @@ public class TranslationService
             var encodedText = Uri.EscapeDataString(text);
             var url = $"https://translate.googleapis.com/translate_a/single?client=gtx&sl={detectedLang}&tl={_targetLanguage}&dt=t&q={encodedText}";
 
+            Log.Debug("Translating: {Text} ({Source}→{Target})", text, detectedLang, _targetLanguage);
+
             var response = await _http.GetAsync(url, ct);
+
+            Log.Debug("Translation response: {Status}", response.StatusCode);
 
             if (response.IsSuccessStatusCode)
             {
                 var json = await response.Content.ReadAsStringAsync(ct);
                 var translated = ParseGoogleTranslateResponse(json);
+
+                Log.Debug("Translation result: {Result}", translated ?? "null");
 
                 if (!string.IsNullOrEmpty(translated))
                 {
