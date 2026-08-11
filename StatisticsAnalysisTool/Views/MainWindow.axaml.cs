@@ -19,8 +19,6 @@ public partial class MainWindow : Window
         // Set window class for Wayland icon matching
         try
         {
-            // This helps the window manager match the window to the desktop file
-            var platform = AvaloniaLocator.Current.GetService<Avalonia.Platform.IPlatformSettings>();
             // Set icon from embedded resources
             var assets = AssetLoader.Open(new Uri("avares://AlbionOnlineCompanion/Assets/app-icon-256.png"));
             Icon = new WindowIcon(new Bitmap(assets));

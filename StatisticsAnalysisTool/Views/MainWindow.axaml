@@ -70,7 +70,8 @@
                     <TextBlock Text="{Binding Title}"
                                FontSize="18"
                                FontWeight="Bold"
-                               VerticalAlignment="Center"/>
+                               VerticalAlignment="Center"
+                               Classes="header"/>
                 </StackPanel>
 
                 <Button Grid.Column="1"
