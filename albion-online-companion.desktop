@@ -1,0 +1,10 @@
+[Desktop Entry]
+Name=Albion Online Companion
+Comment=Cross-platform Albion Online statistics, tracking, and companion tool
+Exec=AlbionOnlineCompanion
+Icon=albion-online-companion
+Terminal=false
+Type=Application
+Categories=Game;Utility;
+Keywords=albion;online;companion;stats;tracker;
+StartupWMClass=AlbionOnlineCompanion
