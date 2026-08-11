@@ -73,6 +73,10 @@ public class ChatMessageEventHandler : EventPacketHandler<ChatMessageEvent>
         return channelId switch
         {
             0 => ChatChannelType.Say,
+            1 => ChatChannelType.Global,
+            2 => ChatChannelType.Trade,
+            18 => ChatChannelType.Recruitment,
+            19 => ChatChannelType.LFG,
             3517 => ChatChannelType.Guild,
             >= 1856 and <= 1868 => ChatChannelType.Faction,
             _ => ChatChannelType.Unknown
