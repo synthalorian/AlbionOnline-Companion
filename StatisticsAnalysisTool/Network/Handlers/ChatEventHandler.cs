@@ -6,18 +6,18 @@ using System.Threading.Tasks;
 namespace StatisticsAnalysisTool.Network.Handlers;
 
 /// <summary>
-/// Handles all chat events and feeds them to the TranslatorViewModel.
+/// Handles all chat events and feeds them to the ChatViewModel.
 /// Supports: ChatMessage (73), ChatSay (74), ChatWhisper (75),
 /// JoinedChatChannel (207), LeftChatChannel (208).
 /// </summary>
 public class ChatMessageEventHandler : EventPacketHandler<ChatMessageEvent>
 {
-    private readonly TranslatorViewModel _viewModel;
+    private readonly ChatViewModel _viewModel;
     private readonly ChatChannelTracker _channelTracker;
     private readonly System.Collections.Generic.HashSet<string> _recentMessages = new();
     private readonly object _dedupeLock = new();
 
-    public ChatMessageEventHandler(TranslatorViewModel viewModel)
+    public ChatMessageEventHandler(ChatViewModel viewModel)
         : base((int)EventCodes.ChatMessage)
     {
         _viewModel = viewModel;
@@ -86,9 +86,9 @@ public class ChatMessageEventHandler : EventPacketHandler<ChatMessageEvent>
 
 public class ChatSayEventHandler : EventPacketHandler<ChatSayEvent>
 {
-    private readonly TranslatorViewModel _viewModel;
+    private readonly ChatViewModel _viewModel;
 
-    public ChatSayEventHandler(TranslatorViewModel viewModel)
+    public ChatSayEventHandler(ChatViewModel viewModel)
         : base((int)EventCodes.ChatSay)
     {
         _viewModel = viewModel;
@@ -111,9 +111,9 @@ public class ChatSayEventHandler : EventPacketHandler<ChatSayEvent>
 
 public class ChatWhisperEventHandler : EventPacketHandler<ChatWhisperEvent>
 {
-    private readonly TranslatorViewModel _viewModel;
+    private readonly ChatViewModel _viewModel;
 
-    public ChatWhisperEventHandler(TranslatorViewModel viewModel)
+    public ChatWhisperEventHandler(ChatViewModel viewModel)
         : base((int)EventCodes.ChatWhisper)
     {
         _viewModel = viewModel;

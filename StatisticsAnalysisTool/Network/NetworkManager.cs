@@ -59,7 +59,7 @@ public class NetworkManager : IDisposable
         DamageMeterViewModel damageMeter,
         DungeonTrackerViewModel dungeonTracker,
         LootLoggerViewModel lootLogger,
-        TranslatorViewModel? translator = null)
+        ChatViewModel? chat = null)
     {
         _dashboardHandler = new DashboardEventHandler(dashboard);
         _damageMeterHandler = new DamageMeterEventHandler(damageMeter);
@@ -100,12 +100,12 @@ public class NetworkManager : IDisposable
         _joinResponseHandler = new JoinResponseHandler(dashboard, _dashboardHandler!);
         _receiverBuilder.AddResponseHandler(_joinResponseHandler);
 
-        // Register chat/translator handlers
-        if (translator != null)
+        // Register chat handlers
+        if (chat != null)
         {
-            _chatMessageHandler = new ChatMessageEventHandler(translator);
-            _chatSayHandler = new ChatSayEventHandler(translator);
-            _chatWhisperHandler = new ChatWhisperEventHandler(translator);
+            _chatMessageHandler = new ChatMessageEventHandler(chat);
+            _chatSayHandler = new ChatSayEventHandler(chat);
+            _chatWhisperHandler = new ChatWhisperEventHandler(chat);
             _receiverBuilder.AddEventHandler(_chatMessageHandler);
             _receiverBuilder.AddEventHandler(_chatSayHandler);
             _receiverBuilder.AddEventHandler(_chatWhisperHandler);

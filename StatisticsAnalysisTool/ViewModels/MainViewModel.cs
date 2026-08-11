@@ -39,7 +39,7 @@ public partial class MainViewModel : ViewModelBase
         "Dashboard",
         "Damage Meter",
         "Kill Feed",
-        "Translator",
+        "Chat",
         "Dungeon Tracker",
         "Loot Logger",
         "Gathering",
@@ -58,20 +58,20 @@ public partial class MainViewModel : ViewModelBase
     private readonly GatheringViewModel _gatheringViewModel = new();
     private readonly MapHistoryViewModel _mapHistoryViewModel = new();
     private readonly KillFeedViewModel _killFeedViewModel = new();
-    private readonly TranslatorViewModel _translatorViewModel = new();
+    private readonly ChatViewModel _chatViewModel = new();
     private readonly SettingsViewModel _settingsViewModel = new();
 
     private NetworkManager? _networkManager;
 
-    public TranslatorViewModel TranslatorVM => _translatorViewModel;
+    public ChatViewModel ChatVM => _chatViewModel;
 
     public MainViewModel()
     {
         Log.Information("MainViewModel initialized");
         CurrentView = _dashboardViewModel;
 
-        // Honor the "Auto-start tracking" setting so the Translator etc.
-        // work immediately without a manual Start Tracking click.
+        // Honor the "Auto-start tracking" setting so packet capture
+        // starts immediately without a manual Start Tracking click.
         if (Common.SettingsService.Instance.Settings.AutoStartTracking)
         {
             Log.Information("Auto-start tracking enabled — starting packet capture");
@@ -92,7 +92,7 @@ public partial class MainViewModel : ViewModelBase
             "Gathering" => _gatheringViewModel,
             "Map History" => _mapHistoryViewModel,
             "Kill Feed" => _killFeedViewModel,
-            "Translator" => _translatorViewModel,
+            "Chat" => _chatViewModel,
             "Settings" => _settingsViewModel,
             _ => _dashboardViewModel
         };
@@ -220,7 +220,7 @@ public partial class MainViewModel : ViewModelBase
                 _damageMeterViewModel,
                 _dungeonTrackerViewModel,
                 _lootLoggerViewModel,
-                _translatorViewModel);
+                _chatViewModel);
 
             await Task.Run(() => _networkManager.Start());
 
