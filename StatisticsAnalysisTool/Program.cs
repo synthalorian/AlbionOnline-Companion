@@ -46,25 +46,17 @@ sealed class Program
 
     public static AppBuilder BuildAvaloniaApp()
     {
-        // Set app ID for Wayland icon matching (matches desktop file)
-        Environment.SetEnvironmentVariable("AVALONIA_APP_ID", "albion-online-companion");
-        
         var builder = AppBuilder.Configure<App>();
 
-        // On Linux, prefer Wayland if available, fall back to X11
+        // On Linux, use X11 (Xwayland): Avalonia's Wayland backend never calls
+        // xdg_toplevel.set_app_id, so KWin can't match our desktop file and the
+        // window gets the default Wayland icon. The X11 backend sets WM_CLASS
+        // (WmClass below), which KWin matches via StartupWMClass → icon works.
         if (OperatingSystem.IsLinux())
         {
-            var waylandDisplay = Environment.GetEnvironmentVariable("WAYLAND_DISPLAY");
-            if (!string.IsNullOrEmpty(waylandDisplay))
-            {
-                builder = builder.UseWayland();
-                Log.Information("Using Wayland platform");
-            }
-            else
-            {
-                builder = builder.UseX11();
-                Log.Information("Using X11 platform");
-            }
+            builder = builder.UseX11()
+                .With(new Avalonia.X11PlatformOptions { WmClass = "AlbionOnlineCompanion" });
+            Log.Information("Using X11 platform (WM_CLASS=AlbionOnlineCompanion for icon matching)");
         }
         else
         {
