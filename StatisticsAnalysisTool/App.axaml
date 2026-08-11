@@ -8,9 +8,26 @@
         <local:ViewLocator />
     </Application.DataTemplates>
 
+    <Application.Resources>
+        <FontFamily x:Key="CinzelFont">avares://AlbionOnlineCompanion/Assets/Fonts/Cinzel.ttf#Cinzel</FontFamily>
+        <FontFamily x:Key="OrbitronFont">avares://AlbionOnlineCompanion/Assets/Fonts/Orbitron.ttf#Orbitron</FontFamily>
+    </Application.Resources>
+
     <Application.Styles>
         <FluentTheme DensityStyle="Compact" />
         <StyleInclude Source="avares://Avalonia.Controls.DataGrid/Themes/Fluent.xaml"/>
+        
+        <!-- Custom font styles -->
+        <Style Selector="TextBlock.header">
+            <Setter Property="FontFamily" Value="{StaticResource CinzelFont}"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+        </Style>
+        <Style Selector="TextBlock.title">
+            <Setter Property="FontFamily" Value="{StaticResource CinzelFont}"/>
+        </Style>
+        <Style Selector="TextBlock.ui">
+            <Setter Property="FontFamily" Value="{StaticResource OrbitronFont}"/>
+        </Style>
 
         <!-- Dynamic theme-aware styles -->
         <Style Selector="Window">

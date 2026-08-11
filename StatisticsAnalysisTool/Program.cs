@@ -51,6 +51,9 @@ sealed class Program
 
     public static AppBuilder BuildAvaloniaApp()
     {
+        // Set app ID for Wayland icon matching (matches desktop file)
+        Environment.SetEnvironmentVariable("AVALONIA_APP_ID", "albion-online-companion");
+        
         var builder = AppBuilder.Configure<App>();
 
         // On Linux, prefer Wayland if available, fall back to X11
