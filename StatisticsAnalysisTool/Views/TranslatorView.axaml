@@ -63,9 +63,9 @@
                                                Classes="dim" FontSize="11" VerticalAlignment="Top"/>
 
                                     <!-- Channel Badge -->
-                                    <Border Grid.Column="1" Background="{DynamicResource ThemeAccentSecondary}" 
-                                            CornerRadius="3" Padding="6,2" Margin="0,0,8,0"
-                                            HorizontalAlignment="Left" VerticalAlignment="Top">
+                                    <Border Grid.Column="1" CornerRadius="3" Padding="6,2" Margin="0,0,8,0"
+                                            HorizontalAlignment="Left" VerticalAlignment="Top"
+                                            Background="{Binding ChannelColor}">
                                         <TextBlock Text="{Binding ChannelName}" FontSize="10" FontWeight="Bold"
                                                    Foreground="{DynamicResource ThemeBackground}"/>
                                     </Border>

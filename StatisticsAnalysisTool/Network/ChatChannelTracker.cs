@@ -7,7 +7,7 @@ namespace StatisticsAnalysisTool.Network;
 
 /// <summary>
 /// Tracks chat channel IDs → channel type mapping.
-/// Populated by JoinedChatChannel events, used by ChatMessage handler.
+/// Uses hardcoded Albion channel IDs + JoinedChatChannel events.
 /// </summary>
 public class ChatChannelTracker
 {
@@ -15,9 +15,50 @@ public class ChatChannelTracker
 
     public static ChatChannelTracker Instance { get; } = new();
 
-    private ChatChannelTracker() { }
+    private ChatChannelTracker()
+    {
+        // Pre-populate known Albion channel IDs
+        InitializeKnownChannels();
+    }
 
     public int ChannelCount => _channels.Count;
+
+    private void InitializeKnownChannels()
+    {
+        // Known Albion Online channel IDs (from albion-network-lib and community research)
+        var knownChannels = new Dictionary<long, (ChatChannelType Type, string Name)>
+        {
+            // Global channels
+            { 0, (ChatChannelType.Say, "Local") },
+            { 1, (ChatChannelType.Global, "Global") },
+            { 2, (ChatChannelType.Trade, "Trade") },
+            { 3, (ChatChannelType.LFG, "LFG") },
+            { 4, (ChatChannelType.Recruitment, "Recruitment") },
+            
+            // Faction channels (city-specific)
+            { 1856, (ChatChannelType.Faction, "Martlock") },
+            { 1857, (ChatChannelType.Faction, "Bridgewatch") },
+            { 1858, (ChatChannelType.Faction, "Lymhurst") },
+            { 1859, (ChatChannelType.Faction, "Fort Sterling") },
+            { 1860, (ChatChannelType.Faction, "Caerleon") },
+            { 1868, (ChatChannelType.Faction, "Thetford") },
+            
+            // Guild channel (dynamic, but common ID)
+            { 3517, (ChatChannelType.Guild, "Guild") },
+        };
+
+        foreach (var kvp in knownChannels)
+        {
+            _channels[kvp.Key] = new ChatChannelInfo
+            {
+                ChannelId = kvp.Key,
+                Type = kvp.Value.Type,
+                Name = kvp.Value.Name
+            };
+        }
+
+        Log.Information("ChatChannelTracker initialized with {Count} known channels", _channels.Count);
+    }
 
     /// <summary>
     /// Register a joined channel.
@@ -34,7 +75,7 @@ public class ChatChannelTracker
         };
 
         _channels[channelId] = info;
-        Log.Debug("Chat channel joined: {Id} → {Type} ({Name}, index:{Index})",
+        Log.Information("Chat channel joined: {Id} → {Type} ({Name}, index:{Index})",
             channelId, channelType, channelName, chatIndex);
     }
 
@@ -54,8 +95,7 @@ public class ChatChannelTracker
         if (_channels.TryGetValue(channelId, out var info))
             return info.Type;
 
-        // Fallback to known channel IDs
-        return MapKnownChannelId(channelId);
+        return ChatChannelType.Unknown;
     }
 
     /// <summary>
@@ -80,6 +120,7 @@ public class ChatChannelTracker
     public void Clear()
     {
         _channels.Clear();
+        InitializeKnownChannels();
     }
 
     private static ChatChannelType MapChatIndex(long chatIndex)
@@ -88,28 +129,12 @@ public class ChatChannelTracker
         {
             27 => ChatChannelType.Say,
             24 => ChatChannelType.Guild,
-            29 => ChatChannelType.Faction,
             25 => ChatChannelType.Alliance,
             26 => ChatChannelType.Party,
             28 => ChatChannelType.Trade,
+            29 => ChatChannelType.Faction,
             30 => ChatChannelType.LFG,
             31 => ChatChannelType.Recruitment,
-            _ => ChatChannelType.Unknown
-        };
-    }
-
-    private static ChatChannelType MapKnownChannelId(long channelId)
-    {
-        return channelId switch
-        {
-            0 => ChatChannelType.Say,
-            3517 => ChatChannelType.Guild,
-            1868 => ChatChannelType.Faction,  // Thetford
-            1856 => ChatChannelType.Faction,  // Martlock
-            1857 => ChatChannelType.Faction,  // Bridgewatch
-            1858 => ChatChannelType.Faction,  // Lymhurst
-            1859 => ChatChannelType.Faction,  // Fort Sterling
-            1860 => ChatChannelType.Faction,  // Caerleon
             _ => ChatChannelType.Unknown
         };
     }
