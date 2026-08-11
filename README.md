@@ -1,5 +1,9 @@
 # ⚔️ Albion Online Companion
 
+<p align="center">
+  <img src="StatisticsAnalysisTool/Assets/app-icon-256.png" alt="Albion Online Companion" width="128" height="128">
+</p>
+
 A **cross-platform** companion app for [Albion Online](https://albiononline.com/) — built with [Avalonia UI](https://avaloniaui.net/) for **Linux, Windows, and macOS**.
 
 Inspired by [Triky313's AlbionOnline-StatisticsAnalysis](https://github.com/Triky313/AlbionOnline-StatisticsAnalysis) (Windows-only WPF), rebuilt from scratch as a true cross-platform companion.
