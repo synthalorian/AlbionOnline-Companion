@@ -14,6 +14,8 @@ public class ChatMessageEventHandler : EventPacketHandler<ChatMessageEvent>
 {
     private readonly TranslatorViewModel _viewModel;
     private readonly ChatChannelTracker _channelTracker;
+    private readonly System.Collections.Generic.HashSet<string> _recentMessages = new();
+    private readonly object _dedupeLock = new();
 
     public ChatMessageEventHandler(TranslatorViewModel viewModel)
         : base((int)EventCodes.ChatMessage)
@@ -26,6 +28,23 @@ public class ChatMessageEventHandler : EventPacketHandler<ChatMessageEvent>
     {
         try
         {
+            // Deduplicate: skip if we just saw this exact message
+            var dedupeKey = $"{value.ChannelId}:{value.SenderName}:{value.Message}";
+            lock (_dedupeLock)
+            {
+                if (_recentMessages.Contains(dedupeKey))
+                    return Task.CompletedTask;
+
+                _recentMessages.Add(dedupeKey);
+
+                // Keep only last 100 messages for deduplication
+                if (_recentMessages.Count > 100)
+                {
+                    _recentMessages.Clear();
+                    _recentMessages.Add(dedupeKey);
+                }
+            }
+
             var channelType = _channelTracker.GetChannelType(value.ChannelId);
             var channelName = _channelTracker.GetChannelName(value.ChannelId);
 
