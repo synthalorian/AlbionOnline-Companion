@@ -1,4 +1,6 @@
 using Avalonia.Controls;
+using Avalonia.Media.Imaging;
+using Avalonia.Platform;
 using Serilog;
 using StatisticsAnalysisTool.Common;
 using System;
@@ -13,6 +15,17 @@ public partial class MainWindow : Window
     public MainWindow()
     {
         InitializeComponent();
+        
+        // Load icon from embedded resources
+        try
+        {
+            var assets = AssetLoader.Open(new Uri("avares://AlbionOnlineCompanion/Assets/app-icon-256.png"));
+            Icon = new WindowIcon(new Bitmap(assets));
+        }
+        catch (Exception ex)
+        {
+            Log.Debug(ex, "Failed to load window icon");
+        }
         _settingsService = SettingsService.Instance;
 
         // Restore window state

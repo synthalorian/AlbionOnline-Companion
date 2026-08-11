@@ -100,9 +100,21 @@ public class TranslationService
                 };
             }
 
+            // MyMemory requires valid language pairs — skip if same language
+            if (string.Equals(detectedLang, _targetLanguage, StringComparison.OrdinalIgnoreCase))
+            {
+                return new TranslationResult
+                {
+                    TranslatedText = text,
+                    DetectedLanguage = detectedLang,
+                    FromCache = false
+                };
+            }
+
             // Translate via MyMemory
             var encodedText = Uri.EscapeDataString(text);
-            var url = $"https://api.mymemory.translated.net/get?q={encodedText}&langpair={detectedLang}|{_targetLanguage}";
+            var langPair = $"{detectedLang}|{_targetLanguage}";
+            var url = $"https://api.mymemory.translated.net/get?q={encodedText}&langpair={Uri.EscapeDataString(langPair)}";
 
             var response = await _http.GetAsync(url, ct);
 
