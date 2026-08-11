@@ -10,7 +10,7 @@
 
     <Application.Resources>
         <FontFamily x:Key="CinzelFont">avares://AlbionOnlineCompanion/Assets/Fonts/Cinzel.ttf#Cinzel</FontFamily>
-        <FontFamily x:Key="OrbitronFont">avares://AlbionOnlineCompanion/Assets/Fonts/Orbitron.ttf#Orbitron</FontFamily>
+        <FontFamily x:Key="EBGaramondFont">avares://AlbionOnlineCompanion/Assets/Fonts/#EB Garamond</FontFamily>
     </Application.Resources>
 
     <Application.Styles>
@@ -26,15 +26,15 @@
             <Setter Property="FontFamily" Value="{StaticResource CinzelFont}"/>
         </Style>
         <Style Selector="TextBlock.ui">
-            <Setter Property="FontFamily" Value="{StaticResource OrbitronFont}"/>
+            <Setter Property="FontFamily" Value="{StaticResource EBGaramondFont}"/>
         </Style>
 
         <!-- Dynamic theme-aware styles -->
         <Style Selector="Window">
             <Setter Property="Background" Value="{DynamicResource ThemeBackground}" />
             <Setter Property="Foreground" Value="{DynamicResource ThemeForeground}" />
-            <!-- Orbitron as the app-wide default; Cinzel overrides on .header/.title -->
-            <Setter Property="FontFamily" Value="{StaticResource OrbitronFont}" />
+            <!-- EB Garamond as the app-wide default; Cinzel overrides on .header/.title -->
+            <Setter Property="FontFamily" Value="{StaticResource EBGaramondFont}" />
         </Style>
 
         <Style Selector="TextBlock">

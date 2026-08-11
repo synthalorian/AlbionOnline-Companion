@@ -26,6 +26,13 @@ public partial class TranslatorViewModel : ViewModelBase
     [ObservableProperty] private int _translatedCount;
     [ObservableProperty] private bool _autoScroll = true;
 
+    // Type-to-translate compose box
+    [ObservableProperty] private string _inputText = string.Empty;
+    [ObservableProperty] private string _inputTranslatedText = string.Empty;
+    [ObservableProperty] private string _selectedInputLanguage = "Spanish";
+    [ObservableProperty] private bool _inputTranslating;
+    [ObservableProperty] private bool _hasInputTranslation;
+
     // Channel visibility toggles
     [ObservableProperty] private bool _showSay = true;
     [ObservableProperty] private bool _showWhisper = true;
@@ -204,6 +211,52 @@ public partial class TranslatorViewModel : ViewModelBase
     {
         TranslationEnabled = !TranslationEnabled;
         StatusText = TranslationEnabled ? "Translation ON" : "Translation OFF";
+    }
+
+    /// <summary>
+    /// Translate whatever the user typed into the compose box,
+    /// into the language they picked (for replying in chat).
+    /// </summary>
+    [RelayCommand]
+    private async Task TranslateInput()
+    {
+        if (string.IsNullOrWhiteSpace(InputText) || InputTranslating)
+            return;
+
+        InputTranslating = true;
+        try
+        {
+            var targetCode = GetLanguageCode(SelectedInputLanguage);
+            var result = await _translationService.TranslateAsync(InputText, targetCode);
+
+            InputTranslatedText = result.Error
+                ? "⚠ Translation failed — try again"
+                : result.TranslatedText;
+            HasInputTranslation = true;
+        }
+        catch (Exception ex)
+        {
+            Log.Debug(ex, "Input translation failed");
+            InputTranslatedText = "⚠ Translation failed — try again";
+        }
+        finally
+        {
+            InputTranslating = false;
+        }
+    }
+
+    [RelayCommand]
+    private async Task CopyInputTranslation()
+    {
+        if (string.IsNullOrEmpty(InputTranslatedText))
+            return;
+
+        var clipboard = Avalonia.Application.Current?.ApplicationLifetime is
+            Avalonia.Controls.ApplicationLifetimes.IClassicDesktopStyleApplicationLifetime desktop
+            ? desktop.MainWindow?.Clipboard : null;
+
+        if (clipboard != null)
+            await Avalonia.Input.Platform.ClipboardExtensions.SetTextAsync(clipboard, InputTranslatedText);
     }
 
     private static string GetLanguageCode(string language)
