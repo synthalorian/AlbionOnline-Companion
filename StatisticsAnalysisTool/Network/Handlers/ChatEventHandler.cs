@@ -29,6 +29,16 @@ public class ChatMessageEventHandler : EventPacketHandler<ChatMessageEvent>
             var channelType = _channelTracker.GetChannelType(value.ChannelId);
             var channelName = _channelTracker.GetChannelName(value.ChannelId);
 
+            // Fallback: if channel is unknown, try to guess from ID
+            if (channelType == ChatChannelType.Unknown)
+            {
+                channelType = GuessChannelType(value.ChannelId);
+                channelName = channelType.ToString();
+            }
+
+            Log.Debug("Chat: [{Channel}] {Sender}: {Message}", 
+                channelName, value.SenderName, value.Message);
+
             _viewModel.AddMessage(value.SenderName, value.Message, channelType, channelName);
         }
         catch (System.Exception ex)
@@ -37,6 +47,17 @@ public class ChatMessageEventHandler : EventPacketHandler<ChatMessageEvent>
         }
 
         return Task.CompletedTask;
+    }
+
+    private static ChatChannelType GuessChannelType(long channelId)
+    {
+        return channelId switch
+        {
+            0 => ChatChannelType.Say,
+            3517 => ChatChannelType.Guild,
+            >= 1856 and <= 1868 => ChatChannelType.Faction,
+            _ => ChatChannelType.Unknown
+        };
     }
 }
 

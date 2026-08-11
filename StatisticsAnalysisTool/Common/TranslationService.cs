@@ -1,9 +1,8 @@
-using System.Linq;
 using Serilog;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Net.Http;
-using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Threading;
@@ -12,9 +11,8 @@ using System.Threading.Tasks;
 namespace StatisticsAnalysisTool.Common;
 
 /// <summary>
-/// Translation service using LibreTranslate (free, open-source).
-/// Falls back to Argos Translate for fully offline use.
-/// No API key required.
+/// Translation service using MyMemory API (free, no API key required).
+/// Falls back gracefully if translation fails.
 /// </summary>
 public class TranslationService
 {
@@ -23,9 +21,8 @@ public class TranslationService
     private readonly SemaphoreSlim _cacheLock = new(1, 1);
     private readonly SemaphoreSlim _rateLimiter = new(1, 1);
     private DateTime _lastRequestTime = DateTime.MinValue;
-    private readonly TimeSpan _minRequestInterval = TimeSpan.FromMilliseconds(500);
+    private readonly TimeSpan _minRequestInterval = TimeSpan.FromMilliseconds(300);
     private string _targetLanguage = "en";
-    private string _libreTranslateUrl = "https://libretranslate.com";
     private bool _enabled = true;
 
     public static TranslationService Instance { get; } = new();
@@ -51,8 +48,7 @@ public class TranslationService
     }
 
     /// <summary>
-    /// Translate text to the target language.
-    /// Uses LibreTranslate public API (free, no key needed).
+    /// Translate text using MyMemory API (free, no key needed).
     /// </summary>
     public async Task<TranslationResult> TranslateAsync(string text, CancellationToken ct = default)
     {
@@ -74,7 +70,7 @@ public class TranslationService
 
         try
         {
-            // Rate limiting: wait if we're making requests too fast
+            // Rate limiting
             await _rateLimiter.WaitAsync(ct);
             try
             {
@@ -90,10 +86,10 @@ public class TranslationService
                 _rateLimiter.Release();
             }
 
-            // Detect language first
-            var detectedLang = await DetectLanguageAsync(text, ct);
+            // Detect language (simple heuristic for now)
+            var detectedLang = DetectLanguageSimple(text);
 
-            // If already in target language, skip translation
+            // If already in target language, skip
             if (detectedLang == _targetLanguage)
             {
                 return new TranslationResult
@@ -104,31 +100,26 @@ public class TranslationService
                 };
             }
 
-            // Translate via LibreTranslate
-            var request = new LibreTranslateRequest
-            {
-                Query = text,
-                Source = detectedLang ?? "auto",
-                Target = _targetLanguage
-            };
+            // Translate via MyMemory
+            var encodedText = Uri.EscapeDataString(text);
+            var url = $"https://api.mymemory.translated.net/get?q={encodedText}&langpair={detectedLang}|{_targetLanguage}";
 
-            var json = JsonSerializer.Serialize(request);
-            var content = new StringContent(json, Encoding.UTF8, "application/json");
-
-            var response = await _http.PostAsync($"{_libreTranslateUrl}/translate", content, ct);
+            var response = await _http.GetAsync(url, ct);
 
             if (response.IsSuccessStatusCode)
             {
-                var responseJson = await response.Content.ReadAsStringAsync(ct);
-                var result = JsonSerializer.Deserialize<LibreTranslateResponse>(responseJson);
+                var json = await response.Content.ReadAsStringAsync(ct);
+                var result = JsonSerializer.Deserialize<MyMemoryResponse>(json);
 
-                if (result?.TranslatedText != null)
+                if (result?.ResponseData?.TranslatedText != null)
                 {
+                    var translated = result.ResponseData.TranslatedText;
+
                     // Cache the result
                     await _cacheLock.WaitAsync(ct);
                     try
                     {
-                        _cache[cacheKey] = result.TranslatedText;
+                        _cache[cacheKey] = translated;
                     }
                     finally
                     {
@@ -137,7 +128,7 @@ public class TranslationService
 
                     return new TranslationResult
                     {
-                        TranslatedText = result.TranslatedText,
+                        TranslatedText = translated,
                         DetectedLanguage = detectedLang,
                         FromCache = false
                     };
@@ -155,72 +146,55 @@ public class TranslationService
     }
 
     /// <summary>
-    /// Detect the language of a text using LibreTranslate.
+    /// Simple language detection based on common patterns.
     /// </summary>
-    public async Task<string?> DetectLanguageAsync(string text, CancellationToken ct = default)
+    private static string DetectLanguageSimple(string text)
     {
-        try
-        {
-            var request = new LibreTranslateDetectRequest { Query = text };
-            var json = JsonSerializer.Serialize(request);
-            var content = new StringContent(json, Encoding.UTF8, "application/json");
+        if (string.IsNullOrWhiteSpace(text)) return "en";
 
-            var response = await _http.PostAsync($"{_libreTranslateUrl}/detect", content, ct);
+        // Spanish indicators
+        if (text.Contains("¿") || text.Contains("¡") || 
+            text.Contains("ñ") || text.Contains("á") || text.Contains("é") ||
+            text.Contains("í") || text.Contains("ó") || text.Contains("ú"))
+            return "es";
 
-            if (response.IsSuccessStatusCode)
-            {
-                var responseJson = await response.Content.ReadAsStringAsync(ct);
-                var results = JsonSerializer.Deserialize<List<LibreTranslateDetectResponse>>(responseJson);
-                return results?.FirstOrDefault()?.Language;
-            }
-        }
-        catch (Exception ex)
-        {
-            Log.Debug(ex, "Language detection error");
-        }
+        // Portuguese indicators
+        if (text.Contains("ã") || text.Contains("õ") || text.Contains("ç"))
+            return "pt";
 
-        return null;
-    }
+        // French indicators
+        if (text.Contains("à") || text.Contains("â") || text.Contains("ê") ||
+            text.Contains("ë") || text.Contains("î") || text.Contains("ô") ||
+            text.Contains("ù") || text.Contains("û"))
+            return "fr";
 
-    /// <summary>
-    /// Get available languages from LibreTranslate.
-    /// </summary>
-    public async Task<List<LanguageInfo>> GetLanguagesAsync(CancellationToken ct = default)
-    {
-        try
-        {
-            var response = await _http.GetAsync($"{_libreTranslateUrl}/languages", ct);
-            if (response.IsSuccessStatusCode)
-            {
-                var json = await response.Content.ReadAsStringAsync(ct);
-                return JsonSerializer.Deserialize<List<LanguageInfo>>(json) ?? GetDefaultLanguages();
-            }
-        }
-        catch (Exception ex)
-        {
-            Log.Debug(ex, "Failed to get languages");
-        }
+        // German indicators
+        if (text.Contains("ä") || text.Contains("ö") || text.Contains("ü") ||
+            text.Contains("ß"))
+            return "de";
 
-        return GetDefaultLanguages();
-    }
+        // Russian indicators
+        if (text.Any(c => c >= 0x0400 && c <= 0x04FF))
+            return "ru";
 
-    private static List<LanguageInfo> GetDefaultLanguages()
-    {
-        return new List<LanguageInfo>
-        {
-            new() { Code = "en", Name = "English" },
-            new() { Code = "es", Name = "Spanish" },
-            new() { Code = "pt", Name = "Portuguese" },
-            new() { Code = "fr", Name = "French" },
-            new() { Code = "de", Name = "German" },
-            new() { Code = "ru", Name = "Russian" },
-            new() { Code = "ko", Name = "Korean" },
-            new() { Code = "zh", Name = "Chinese" },
-            new() { Code = "ja", Name = "Japanese" },
-            new() { Code = "ar", Name = "Arabic" },
-            new() { Code = "tr", Name = "Turkish" },
-            new() { Code = "pl", Name = "Polish" },
-        };
+        // Korean indicators
+        if (text.Any(c => c >= 0xAC00 && c <= 0xD7AF))
+            return "ko";
+
+        // Chinese indicators
+        if (text.Any(c => c >= 0x4E00 && c <= 0x9FFF))
+            return "zh";
+
+        // Japanese indicators
+        if (text.Any(c => (c >= 0x3040 && c <= 0x309F) || (c >= 0x30A0 && c <= 0x30FF)))
+            return "ja";
+
+        // Arabic indicators
+        if (text.Any(c => c >= 0x0600 && c <= 0x06FF))
+            return "ar";
+
+        // Default to English
+        return "en";
     }
 }
 
@@ -232,44 +206,20 @@ public class TranslationResult
     public bool Error { get; set; }
 }
 
-public class LanguageInfo
+internal class MyMemoryResponse
 {
-    [JsonPropertyName("code")]
-    public string Code { get; set; } = string.Empty;
+    [JsonPropertyName("responseData")]
+    public MyMemoryResponseData? ResponseData { get; set; }
 
-    [JsonPropertyName("name")]
-    public string Name { get; set; } = string.Empty;
+    [JsonPropertyName("responseStatus")]
+    public int ResponseStatus { get; set; }
 }
 
-internal class LibreTranslateRequest
-{
-    [JsonPropertyName("q")]
-    public string Query { get; set; } = string.Empty;
-
-    [JsonPropertyName("source")]
-    public string Source { get; set; } = "auto";
-
-    [JsonPropertyName("target")]
-    public string Target { get; set; } = "en";
-}
-
-internal class LibreTranslateResponse
+internal class MyMemoryResponseData
 {
     [JsonPropertyName("translatedText")]
     public string? TranslatedText { get; set; }
-}
 
-internal class LibreTranslateDetectRequest
-{
-    [JsonPropertyName("q")]
-    public string Query { get; set; } = string.Empty;
-}
-
-internal class LibreTranslateDetectResponse
-{
-    [JsonPropertyName("language")]
-    public string? Language { get; set; }
-
-    [JsonPropertyName("confidence")]
-    public float Confidence { get; set; }
+    [JsonPropertyName("match")]
+    public double Match { get; set; }
 }

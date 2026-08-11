@@ -23,6 +23,9 @@ public class PlayerNameEventHandler : EventPacketHandler<NewCharacterEvent>
     {
         try
         {
+            Log.Information("NewCharacter: {Name} (ID:{Id}) Guild:{Guild}", 
+                value.Name, value.ObjectId, value.Guild);
+
             _entityTracker.AddPlayer(
                 value.ObjectId,
                 value.Name,
