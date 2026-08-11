@@ -5,7 +5,7 @@
              x:Class="StatisticsAnalysisTool.Views.TranslatorView"
              x:DataType="vm:TranslatorViewModel">
 
-    <Grid RowDefinitions="Auto,Auto,*" Margin="16">
+    <Grid RowDefinitions="Auto,Auto,*,Auto" Margin="16">
 
         <!-- Header -->
         <StackPanel Grid.Row="0" Orientation="Horizontal" Spacing="12" Margin="0,0,0,12">
@@ -95,6 +95,41 @@
                     </ItemsControl.ItemTemplate>
                 </ItemsControl>
             </ScrollViewer>
+        </Border>
+
+        <!-- Type-to-translate compose box -->
+        <Border Grid.Row="3" Background="{DynamicResource ThemeSurfaceAlt}" CornerRadius="8"
+                Padding="10" Margin="0,12,0,0">
+            <Grid RowDefinitions="Auto,Auto" ColumnDefinitions="*,Auto,Auto">
+                <TextBox Grid.Row="0" Grid.Column="0"
+                         Text="{Binding InputText}"
+                         Watermark="Type a message to translate (e.g. reply to your party)..."
+                         AcceptsReturn="False"/>
+
+                <ComboBox Grid.Row="0" Grid.Column="1"
+                          ItemsSource="{Binding TargetLanguages}"
+                          SelectedItem="{Binding SelectedInputLanguage}"
+                          Width="120" Margin="8,0,0,0"
+                          VerticalAlignment="Stretch"/>
+
+                <Button Grid.Row="0" Grid.Column="2"
+                        Command="{Binding TranslateInputCommand}"
+                        IsEnabled="{Binding !InputTranslating}"
+                        Padding="12,6" Margin="8,0,0,0"
+                        Content="Translate"/>
+
+                <StackPanel Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="3"
+                            Orientation="Horizontal" Spacing="8"
+                            IsVisible="{Binding HasInputTranslation}"
+                            Margin="0,8,0,0">
+                    <TextBlock Text="{Binding InputTranslatedText}"
+                               TextWrapping="Wrap" FontSize="14"
+                               Foreground="{DynamicResource ThemeSuccess}"/>
+                    <Button Command="{Binding CopyInputTranslationCommand}"
+                            Padding="8,2" FontSize="11"
+                            Content="Copy"/>
+                </StackPanel>
+            </Grid>
         </Border>
     </Grid>
 </UserControl>

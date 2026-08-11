@@ -49,15 +49,24 @@ public class TranslationService
     }
 
     /// <summary>
-    /// Translate text using Google Translate free gtx endpoint.
+    /// Translate text using Google Translate free gtx endpoint (auto source detection).
     /// </summary>
-    public async Task<TranslationResult> TranslateAsync(string text, CancellationToken ct = default)
+    public Task<TranslationResult> TranslateAsync(string text, CancellationToken ct = default)
+        => TranslateCoreAsync(text, _targetLanguage, ct);
+
+    /// <summary>
+    /// Translate text to an explicit target language (used by the type-to-translate box).
+    /// </summary>
+    public Task<TranslationResult> TranslateAsync(string text, string targetLanguage, CancellationToken ct = default)
+        => TranslateCoreAsync(text, targetLanguage, ct);
+
+    private async Task<TranslationResult> TranslateCoreAsync(string text, string targetLanguage, CancellationToken ct)
     {
         if (!_enabled || string.IsNullOrWhiteSpace(text))
             return new TranslationResult { TranslatedText = text };
 
         // Check cache
-        var cacheKey = $"{text}:{_targetLanguage}";
+        var cacheKey = $"{text}:{targetLanguage}";
         await _cacheLock.WaitAsync(ct);
         try
         {
@@ -87,25 +96,12 @@ public class TranslationService
                 _rateLimiter.Release();
             }
 
-            // Detect language
-            var detectedLang = DetectLanguageSimple(text);
-
-            // If already in target language, skip
-            if (detectedLang == _targetLanguage)
-            {
-                return new TranslationResult
-                {
-                    TranslatedText = text,
-                    DetectedLanguage = detectedLang,
-                    FromCache = false
-                };
-            }
-
-            // Translate via Google Translate gtx
+            // sl=auto: let Google detect the source language — our local heuristic
+            // missed accent-free Spanish/Portuguese ("busco party soy healer").
             var encodedText = Uri.EscapeDataString(text);
-            var url = $"https://translate.googleapis.com/translate_a/single?client=gtx&sl={detectedLang}&tl={_targetLanguage}&dt=t&q={encodedText}";
+            var url = $"https://translate.googleapis.com/translate_a/single?client=gtx&sl=auto&tl={targetLanguage}&dt=t&q={encodedText}";
 
-            Log.Debug("Translating: {Text} ({Source}→{Target})", text, detectedLang, _targetLanguage);
+            Log.Debug("Translating: {Text} (auto→{Target})", text, targetLanguage);
 
             var response = await _http.GetAsync(url, ct);
 
@@ -114,12 +110,23 @@ public class TranslationService
             if (response.IsSuccessStatusCode)
             {
                 var json = await response.Content.ReadAsStringAsync(ct);
-                var translated = ParseGoogleTranslateResponse(json);
+                var (translated, detectedLang) = ParseGoogleTranslateResponse(json);
 
-                Log.Debug("Translation result: {Result}", translated ?? "null");
+                Log.Debug("Translation result: {Result} (detected: {Lang})", translated ?? "null", detectedLang ?? "?");
 
                 if (!string.IsNullOrEmpty(translated))
                 {
+                    // Google's verdict: already in the target language
+                    if (detectedLang == targetLanguage || translated == text)
+                    {
+                        return new TranslationResult
+                        {
+                            TranslatedText = text,
+                            DetectedLanguage = detectedLang,
+                            FromCache = false
+                        };
+                    }
+
                     // Cache the result
                     await _cacheLock.WaitAsync(ct);
                     try
@@ -152,27 +159,39 @@ public class TranslationService
 
     /// <summary>
     /// Parse Google Translate gtx response.
-    /// Format: [[["translated","original",null,null,1]],null,"en"]
+    /// Format: [[["translated","original",null,null,1]],null,"detected_source_lang"]
     /// </summary>
-    private static string? ParseGoogleTranslateResponse(string json)
+    private static (string? Translated, string? DetectedLanguage) ParseGoogleTranslateResponse(string json)
     {
         try
         {
             using var doc = JsonDocument.Parse(json);
             var root = doc.RootElement;
 
+            string? translated = null;
+            string? detected = null;
+
             if (root.GetArrayLength() > 0)
             {
                 var sentences = root[0];
-                if (sentences.GetArrayLength() > 0)
+                if (sentences.ValueKind == JsonValueKind.Array && sentences.GetArrayLength() > 0)
                 {
-                    var firstSentence = sentences[0];
-                    if (firstSentence.GetArrayLength() > 0)
+                    // Concatenate all sentence segments, not just the first
+                    var sb = new System.Text.StringBuilder();
+                    foreach (var segment in sentences.EnumerateArray())
                     {
-                        return firstSentence[0].GetString();
+                        if (segment.GetArrayLength() > 0)
+                            sb.Append(segment[0].GetString());
                     }
+                    translated = sb.Length > 0 ? sb.ToString() : null;
                 }
+
+                // Detected source language sits at root[2]
+                if (root.GetArrayLength() > 2 && root[2].ValueKind == JsonValueKind.String)
+                    detected = root[2].GetString();
             }
+
+            return (translated, detected);
         }
         catch
         {
@@ -180,63 +199,11 @@ public class TranslationService
             var match = System.Text.RegularExpressions.Regex.Match(json, @"\[\[\[""([^""]+)""");
             if (match.Success)
             {
-                return match.Groups[1].Value;
+                return (match.Groups[1].Value, null);
             }
         }
 
-        return null;
-    }
-
-    /// <summary>
-    /// Simple language detection based on common patterns.
-    /// </summary>
-    private static string DetectLanguageSimple(string text)
-    {
-        if (string.IsNullOrWhiteSpace(text)) return "en";
-
-        // Spanish indicators
-        if (text.Contains("¿") || text.Contains("¡") || 
-            text.Contains("ñ") || text.Contains("á") || text.Contains("é") ||
-            text.Contains("í") || text.Contains("ó") || text.Contains("ú"))
-            return "es";
-
-        // Portuguese indicators
-        if (text.Contains("ã") || text.Contains("õ") || text.Contains("ç"))
-            return "pt";
-
-        // French indicators
-        if (text.Contains("à") || text.Contains("â") || text.Contains("ê") ||
-            text.Contains("ë") || text.Contains("î") || text.Contains("ô") ||
-            text.Contains("ù") || text.Contains("û"))
-            return "fr";
-
-        // German indicators
-        if (text.Contains("ä") || text.Contains("ö") || text.Contains("ü") ||
-            text.Contains("ß"))
-            return "de";
-
-        // Russian indicators
-        if (text.Any(c => c >= 0x0400 && c <= 0x04FF))
-            return "ru";
-
-        // Korean indicators
-        if (text.Any(c => c >= 0xAC00 && c <= 0xD7AF))
-            return "ko";
-
-        // Chinese indicators
-        if (text.Any(c => c >= 0x4E00 && c <= 0x9FFF))
-            return "zh";
-
-        // Japanese indicators
-        if (text.Any(c => (c >= 0x3040 && c <= 0x309F) || (c >= 0x30A0 && c <= 0x30FF)))
-            return "ja";
-
-        // Arabic indicators
-        if (text.Any(c => c >= 0x0600 && c <= 0x06FF))
-            return "ar";
-
-        // Default to English
-        return "en";
+        return (null, null);
     }
 }
 
