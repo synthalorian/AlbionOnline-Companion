@@ -81,7 +81,7 @@ public class AppSettings
     public string Language { get; set; } = "en-US";
     public string PlayerUsername { get; set; } = string.Empty;
     public string GameServer { get; set; } = "auto"; // auto, americas, asia, europe
-    public string Theme { get; set; } = "Dark";
+    public string Theme { get; set; } = "dark";
 
     // Tracking
     public bool AutoStartTracking { get; set; }
