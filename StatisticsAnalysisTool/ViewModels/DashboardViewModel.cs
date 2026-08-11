@@ -41,6 +41,10 @@ public partial class DashboardViewModel : ViewModelBase
     [ObservableProperty] private string _craftingFame = "0";
     [ObservableProperty] private string _craftingFamePerHour = "0 /h";
 
+    // Farming fame (island crops/animals)
+    [ObservableProperty] private string _farmingFame = "0";
+    [ObservableProperty] private string _farmingFamePerHour = "0 /h";
+
     // Kill/Death
     [ObservableProperty] private string _killsDeathsText = "0 / 0";
     [ObservableProperty] private string _kdRatio = "0.00";
@@ -99,6 +103,8 @@ public partial class DashboardViewModel : ViewModelBase
         GatheringFamePerHour = "0 /h";
         CraftingFame = "0";
         CraftingFamePerHour = "0 /h";
+        FarmingFame = "0";
+        FarmingFamePerHour = "0 /h";
         KillsDeathsText = "0 / 0";
         KdRatio = "0.00";
         LootedChestsText = "0";

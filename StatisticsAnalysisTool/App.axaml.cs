@@ -37,11 +37,15 @@ public partial class App : Application
             };
         }
 
-        // Load item database in background
+        // Load item + cluster databases in background
         _ = Task.Run(async () =>
         {
             await ItemDatabase.Instance.LoadAsync();
             Log.Information("Item database ready: {Count} items", ItemDatabase.Instance.ItemCount);
+        });
+        _ = Task.Run(async () =>
+        {
+            await ClusterDatabase.Instance.LoadAsync();
         });
 
         base.OnFrameworkInitializationCompleted();

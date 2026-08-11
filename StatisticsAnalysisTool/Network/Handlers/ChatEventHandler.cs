@@ -77,8 +77,8 @@ public class ChatMessageEventHandler : EventPacketHandler<ChatMessageEvent>
             2 => ChatChannelType.Trade,
             18 => ChatChannelType.Recruitment,
             19 => ChatChannelType.LFG,
+            21 => ChatChannelType.Global,   // verified 2026-08-11: general English chat
             3517 => ChatChannelType.Guild,
-            >= 1856 and <= 1868 => ChatChannelType.Faction,
             _ => ChatChannelType.Unknown
         };
     }

@@ -36,15 +36,10 @@ public class ChatChannelTracker
             // 19 = LFG ("busco party/team"). Old guesses 3/4 were wrong.
             { 18, (ChatChannelType.Recruitment, "Recruitment") },
             { 19, (ChatChannelType.LFG, "LFG") },
-            
-            // Faction channels (city-specific)
-            { 1856, (ChatChannelType.Faction, "Martlock") },
-            { 1857, (ChatChannelType.Faction, "Bridgewatch") },
-            { 1858, (ChatChannelType.Faction, "Lymhurst") },
-            { 1859, (ChatChannelType.Faction, "Fort Sterling") },
-            { 1860, (ChatChannelType.Faction, "Caerleon") },
-            { 1868, (ChatChannelType.Faction, "Thetford") },
-            
+            // Verified 2026-08-11 (second pass):
+            // 21 = general English help/chat ("what is raging storm?", destiny board questions)
+            { 21, (ChatChannelType.Global, "Global") },
+
             // Guild channel (dynamic, but common ID)
             { 3517, (ChatChannelType.Guild, "Guild") },
         };
@@ -64,27 +59,41 @@ public class ChatChannelTracker
 
     /// <summary>
     /// Register a joined channel.
+    /// CRITICAL: ChatMessage events address channels by the RUNTIME channel id,
+    /// which is the JoinedChatChannel event's chatIndex param — NOT the channelId
+    /// param (that one is a small channel-TYPE enum). Keying by channelId meant
+    /// joined channels never matched ChatMessage lookups and everything showed
+    /// as Unknown (verified in live capture 2026-08-11).
     /// </summary>
     public void JoinChannel(long channelId, long chatIndex, string channelName = "")
     {
-        var channelType = MapChatIndex(chatIndex);
+        var channelType = MapChatIndex(channelId);
 
-        // Fallback: if the chatIndex is unrecognized, derive the type from the
+        // Fallback: if the type enum is unrecognized, derive the type from the
         // channel name Albion sends (e.g. "LFG", "Trade", "Faction - Caerleon").
         if (channelType == ChatChannelType.Unknown)
             channelType = MapChannelName(channelName);
 
+        // If we already have a verified static entry for this runtime id, keep
+        // its type unless the join event gives us a better one.
+        if (_channels.TryGetValue(chatIndex, out var existing) &&
+            existing.Type != ChatChannelType.Unknown &&
+            channelType == ChatChannelType.Unknown)
+        {
+            channelType = existing.Type;
+        }
+
         var info = new ChatChannelInfo
         {
-            ChannelId = channelId,
-            ChatIndex = chatIndex,
-            Name = channelName,
+            ChannelId = chatIndex, // runtime id — this is what ChatMessage uses
+            ChatIndex = channelId, // type enum (kept for diagnostics)
+            Name = !string.IsNullOrEmpty(channelName) ? channelName : channelType.ToString(),
             Type = channelType
         };
 
-        _channels[channelId] = info;
-        Log.Information("Chat channel joined: {Id} → {Type} ({Name}, index:{Index})",
-            channelId, channelType, channelName, chatIndex);
+        _channels[chatIndex] = info;
+        Log.Information("Chat channel joined: runtime:{RuntimeId} → {Type} ({Name}, typeEnum:{TypeEnum})",
+            chatIndex, channelType, channelName, channelId);
     }
 
     /// <summary>
@@ -166,18 +175,28 @@ public class ChatChannelTracker
         InitializeKnownChannels();
     }
 
+    /// <summary>
+    /// Map the JoinedChatChannel channelId param — this is a channel-TYPE enum,
+    /// not a runtime id. Verified 2026-08-11 by correlating join events with
+    /// live message content: typeEnum 8 joined runtime id 2 (Trade),
+    /// 2 → 18 (Recruitment), 3 → 19 (LFG). 24/25 have high dynamic runtime ids
+    /// (Guild/Alliance). 26/27 inferred by sequence — pending live verification.
+    /// </summary>
     private static ChatChannelType MapChatIndex(long chatIndex)
     {
         return chatIndex switch
         {
+            2 => ChatChannelType.Recruitment,  // verified: joined runtime 18
+            3 => ChatChannelType.LFG,          // verified: joined runtime 19
+            5 => ChatChannelType.Global,       // verified: joined runtime 21
+            7 => ChatChannelType.Faction,      // inferred (joined runtime 22, unverified)
+            8 => ChatChannelType.Trade,        // verified: joined runtime 2
+            24 => ChatChannelType.Guild,       // verified pattern: high dynamic runtime id
+            25 => ChatChannelType.Alliance,    // verified pattern: high dynamic runtime id
+            26 => ChatChannelType.Party,       // inferred by 24/25 sequence — needs live verify
+            // verified 2026-08-11: zone-local channel; runtime id is DYNAMIC per
+            // cluster (436, 182, 94, 307, 57, 471, 1479 seen across zones)
             27 => ChatChannelType.Say,
-            24 => ChatChannelType.Guild,
-            25 => ChatChannelType.Alliance,
-            26 => ChatChannelType.Party,
-            28 => ChatChannelType.Trade,
-            29 => ChatChannelType.Faction,
-            30 => ChatChannelType.LFG,
-            31 => ChatChannelType.Recruitment,
             _ => ChatChannelType.Unknown
         };
     }

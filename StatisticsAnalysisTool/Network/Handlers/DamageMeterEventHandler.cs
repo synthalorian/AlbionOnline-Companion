@@ -36,9 +36,39 @@ public class DamageMeterEventHandler : EventPacketHandler<HealthUpdateEvent>
         // Feed to combat tracker
         _combatTracker.ProcessHealthUpdate(value);
 
+        // Diagnostic: log first 5 health updates so live repros are verifiable
+        if (_diagCount < 5)
+        {
+            _diagCount++;
+            Log.Information("HealthUpdate: causer={Causer} affected={Affected} change={Change} dmg={Dmg} heal={Heal}",
+                value.CauserId, value.AffectedObjectId, value.HealthChange, value.DamageAmount, value.HealingAmount);
+        }
+
         // Process for damage meter
         ProcessHealthUpdate(_viewModel, value, _entityTracker);
         return Task.CompletedTask;
+    }
+
+    private static int _diagCount;
+
+    // Dedupe: Albion sends each health update twice — once as single
+    // HealthUpdate (event 6) and once inside the HealthUpdates batch (event 7).
+    private static readonly HashSet<string> _recentUpdates = new();
+    private static readonly object _dedupeLock = new();
+
+    private static bool IsDuplicate(HealthUpdateEvent value)
+    {
+        var key = $"{value.CauserId}:{value.AffectedObjectId}:{value.TimeStamp.Value}:{value.HealthChange}";
+        lock (_dedupeLock)
+        {
+            if (!_recentUpdates.Add(key))
+                return true;
+
+            if (_recentUpdates.Count > 500)
+                _recentUpdates.Clear();
+
+            return false;
+        }
     }
 
     /// <summary>
@@ -57,10 +87,23 @@ public class DamageMeterEventHandler : EventPacketHandler<HealthUpdateEvent>
             if (value.CauserId == value.AffectedObjectId)
                 return;
 
+            if (IsDuplicate(value))
+                return;
+
             // Update entity health
             entityTracker?.UpdateHealth(value.AffectedObjectId, value.NewHealthValue);
 
             var entry = GetOrCreateEntry(value.CauserId, entityTracker);
+
+            // Names arrive via NewCharacter, sometimes AFTER the first damage
+            // tick — keep retrying until the placeholder resolves to a real name
+            if (entityTracker != null &&
+                (entry.PlayerName.StartsWith("Unknown_") || entry.PlayerName.StartsWith("Player_")))
+            {
+                var resolved = entityTracker.GetName(value.CauserId);
+                if (!resolved.StartsWith("Unknown_"))
+                    entry.PlayerName = resolved;
+            }
 
             if (value.IsDamage)
             {
@@ -90,6 +133,7 @@ public class DamageMeterEventHandler : EventPacketHandler<HealthUpdateEvent>
 
             entry = new DamageMeterEntry
             {
+                CauserId = causerId,
                 PlayerName = name,
                 Damage = 0,
                 Dps = 0,
@@ -146,12 +190,31 @@ public class DamageMeterEventHandler : EventPacketHandler<HealthUpdateEvent>
             entry.Rank = rank++;
         }
 
+        // YOUR STATS: local player's own entry (LocalPlayerId from JoinResponse)
+        var localId = EntityTracker.Instance.LocalPlayerId;
+        var yourEntry = localId > 0 && _entries.TryGetValue(localId, out var you) ? you : null;
+
         Avalonia.Threading.Dispatcher.UIThread.Post(() =>
         {
             viewModel.DamageMeterEntries.Clear();
             foreach (var entry in sorted.Take(20))
             {
                 viewModel.DamageMeterEntries.Add(entry);
+            }
+
+            if (yourEntry != null)
+            {
+                viewModel.HasYourStats = true;
+                viewModel.YourName = yourEntry.PlayerName;
+                viewModel.YourRank = $"#{yourEntry.Rank} of {_entries.Count}";
+                viewModel.YourDamage = FormatNumber(yourEntry.Damage);
+                viewModel.YourDps = FormatNumber(yourEntry.Dps);
+                viewModel.YourHealing = FormatNumber(yourEntry.Healing);
+                viewModel.YourHps = FormatNumber(yourEntry.Hps);
+            }
+            else
+            {
+                viewModel.HasYourStats = false;
             }
         });
     }
@@ -160,5 +223,17 @@ public class DamageMeterEventHandler : EventPacketHandler<HealthUpdateEvent>
     {
         _entries.Clear();
         _sessionStart = DateTime.UtcNow;
+    }
+
+    /// <summary>
+    /// Recompute every entry's display value for the current sort option and
+    /// re-rank the list. Called when the user changes the sort dropdown.
+    /// </summary>
+    public static void RefreshView(DamageMeterViewModel viewModel)
+    {
+        foreach (var entry in _entries.Values)
+            entry.ValueString = FormatValue(viewModel.SelectedSortOption, entry);
+
+        UpdateRankings(viewModel);
     }
 }

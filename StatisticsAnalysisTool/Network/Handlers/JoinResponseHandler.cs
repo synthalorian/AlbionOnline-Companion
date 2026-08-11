@@ -41,15 +41,18 @@ public class JoinResponseHandler : ResponsePacketHandler<JoinResponse>
             // Set local player in EntityTracker
             _entityTracker.SetLocalPlayer(value.UserObjectId, value.Username);
 
+            // Resolve cluster index ("3003") to display name ("Caerleon")
+            var zoneName = Common.ClusterDatabase.Instance.GetName(value.MapIndex);
+
             // Update cluster/zone
-            _clusterTracker.SetCluster(value.MapIndex, value.MapIndex);
+            _clusterTracker.SetCluster(value.MapIndex, zoneName);
 
             // Update dashboard
             Avalonia.Threading.Dispatcher.UIThread.Post(() =>
             {
                 _dashboard.PlayerName = value.Username;
                 _dashboard.GuildName = value.GuildName;
-                _dashboard.CurrentZone = value.MapIndex;
+                _dashboard.CurrentZone = zoneName;
                 _dashboard.TotalSilver = FormatNumber(value.Silver.DoubleValue);
 
                 if (value.ReSpecPoints.InternalValue > 0)

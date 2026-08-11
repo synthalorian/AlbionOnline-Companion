@@ -56,8 +56,11 @@ public class JoinResponse
             if (parameters.TryGetValue(41, out var reputation))
                 Reputation = reputation.ObjectToDouble();
 
-            if (parameters.TryGetValue(43, out var reSpecObj) && reSpecObj is long[] { Length: > 1 } reSpecArray)
-                ReSpecPoints = FixPoint.FromInternalValue(reSpecArray[1]);
+            // Param 43: respec array [?, totalInternal, ...] — arrives as a typed
+            // array (long[]/int[]/object[] depending on serializer path), so
+            // normalize via Array instead of a single-type pattern match
+            if (parameters.TryGetValue(43, out var reSpecObj) && reSpecObj is Array reSpecArray && reSpecArray.Length > 1)
+                ReSpecPoints = FixPoint.FromInternalValue(reSpecArray.GetValue(1).ObjectToLong() ?? 0);
 
             if (parameters.TryGetValue(58, out var guildName))
                 GuildName = guildName.ObjectToString();
