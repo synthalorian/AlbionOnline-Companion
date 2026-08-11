@@ -82,9 +82,10 @@
                                                    TextWrapping="Wrap" FontSize="13"/>
                                         <StackPanel IsVisible="{Binding IsTranslated}">
                                             <TextBlock Text="{Binding TranslatedText}" 
-                                                       TextWrapping="Wrap" FontSize="13"
+                                                       TextWrapping="Wrap" FontSize="14"
+                                                       FontWeight="SemiBold"
                                                        Foreground="{DynamicResource ThemeSuccess}"
-                                                       FontStyle="Italic" Margin="0,4,0,0"/>
+                                                       Margin="0,4,0,0"/>
                                             <TextBlock Text="{Binding LanguageTag}" 
                                                        FontSize="10" Classes="dim"/>
                                         </StackPanel>
