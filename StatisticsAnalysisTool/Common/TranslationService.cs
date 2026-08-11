@@ -11,8 +11,8 @@ using System.Threading.Tasks;
 namespace StatisticsAnalysisTool.Common;
 
 /// <summary>
-/// Translation service using MyMemory API (free, no API key required).
-/// Falls back gracefully if translation fails.
+/// Translation service using Google Translate free gtx endpoint.
+/// No API key required. Falls back gracefully if translation fails.
 /// </summary>
 public class TranslationService
 {
@@ -21,7 +21,7 @@ public class TranslationService
     private readonly SemaphoreSlim _cacheLock = new(1, 1);
     private readonly SemaphoreSlim _rateLimiter = new(1, 1);
     private DateTime _lastRequestTime = DateTime.MinValue;
-    private readonly TimeSpan _minRequestInterval = TimeSpan.FromMilliseconds(300);
+    private readonly TimeSpan _minRequestInterval = TimeSpan.FromMilliseconds(200);
     private string _targetLanguage = "en";
     private bool _enabled = true;
 
@@ -33,6 +33,7 @@ public class TranslationService
         {
             Timeout = TimeSpan.FromSeconds(10)
         };
+        _http.DefaultRequestHeaders.Add("User-Agent", "Mozilla/5.0 (X11; Linux x86_64) AlbionOnlineCompanion/1.0");
     }
 
     public string TargetLanguage
@@ -48,7 +49,7 @@ public class TranslationService
     }
 
     /// <summary>
-    /// Translate text using MyMemory API (free, no key needed).
+    /// Translate text using Google Translate free gtx endpoint.
     /// </summary>
     public async Task<TranslationResult> TranslateAsync(string text, CancellationToken ct = default)
     {
@@ -86,7 +87,7 @@ public class TranslationService
                 _rateLimiter.Release();
             }
 
-            // Detect language (simple heuristic for now)
+            // Detect language
             var detectedLang = DetectLanguageSimple(text);
 
             // If already in target language, skip
@@ -100,33 +101,19 @@ public class TranslationService
                 };
             }
 
-            // MyMemory requires valid language pairs — skip if same language
-            if (string.Equals(detectedLang, _targetLanguage, StringComparison.OrdinalIgnoreCase))
-            {
-                return new TranslationResult
-                {
-                    TranslatedText = text,
-                    DetectedLanguage = detectedLang,
-                    FromCache = false
-                };
-            }
-
-            // Translate via MyMemory
+            // Translate via Google Translate gtx
             var encodedText = Uri.EscapeDataString(text);
-            var langPair = $"{detectedLang}|{_targetLanguage}";
-            var url = $"https://api.mymemory.translated.net/get?q={encodedText}&langpair={Uri.EscapeDataString(langPair)}";
+            var url = $"https://translate.googleapis.com/translate_a/single?client=gtx&sl={detectedLang}&tl={_targetLanguage}&dt=t&q={encodedText}";
 
             var response = await _http.GetAsync(url, ct);
 
             if (response.IsSuccessStatusCode)
             {
                 var json = await response.Content.ReadAsStringAsync(ct);
-                var result = JsonSerializer.Deserialize<MyMemoryResponse>(json);
+                var translated = ParseGoogleTranslateResponse(json);
 
-                if (result?.ResponseData?.TranslatedText != null)
+                if (!string.IsNullOrEmpty(translated))
                 {
-                    var translated = result.ResponseData.TranslatedText;
-
                     // Cache the result
                     await _cacheLock.WaitAsync(ct);
                     try
@@ -155,6 +142,43 @@ public class TranslationService
             Log.Debug(ex, "Translation error");
             return new TranslationResult { TranslatedText = text, Error = true };
         }
+    }
+
+    /// <summary>
+    /// Parse Google Translate gtx response.
+    /// Format: [[["translated","original",null,null,1]],null,"en"]
+    /// </summary>
+    private static string? ParseGoogleTranslateResponse(string json)
+    {
+        try
+        {
+            using var doc = JsonDocument.Parse(json);
+            var root = doc.RootElement;
+
+            if (root.GetArrayLength() > 0)
+            {
+                var sentences = root[0];
+                if (sentences.GetArrayLength() > 0)
+                {
+                    var firstSentence = sentences[0];
+                    if (firstSentence.GetArrayLength() > 0)
+                    {
+                        return firstSentence[0].GetString();
+                    }
+                }
+            }
+        }
+        catch
+        {
+            // Try simple string extraction as fallback
+            var match = System.Text.RegularExpressions.Regex.Match(json, @"\[\[\[""([^""]+)""");
+            if (match.Success)
+            {
+                return match.Groups[1].Value;
+            }
+        }
+
+        return null;
     }
 
     /// <summary>
@@ -216,22 +240,4 @@ public class TranslationResult
     public string? DetectedLanguage { get; set; }
     public bool FromCache { get; set; }
     public bool Error { get; set; }
-}
-
-internal class MyMemoryResponse
-{
-    [JsonPropertyName("responseData")]
-    public MyMemoryResponseData? ResponseData { get; set; }
-
-    [JsonPropertyName("responseStatus")]
-    public int ResponseStatus { get; set; }
-}
-
-internal class MyMemoryResponseData
-{
-    [JsonPropertyName("translatedText")]
-    public string? TranslatedText { get; set; }
-
-    [JsonPropertyName("match")]
-    public double Match { get; set; }
 }
