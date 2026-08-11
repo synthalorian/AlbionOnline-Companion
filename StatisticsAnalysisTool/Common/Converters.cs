@@ -33,18 +33,3 @@ public class BoolToTrackingColorConverter : IValueConverter
         throw new NotSupportedException();
     }
 }
-
-public class BoolToTranslationTextConverter : IValueConverter
-{
-    public static readonly BoolToTranslationTextConverter Instance = new();
-
-    public object Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
-    {
-        return value is true ? "🌐 Translation ON" : "🌐 Translation OFF";
-    }
-
-    public object ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture)
-    {
-        throw new NotSupportedException();
-    }
-}

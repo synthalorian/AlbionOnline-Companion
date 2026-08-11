@@ -1,37 +1,20 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using Serilog;
-using StatisticsAnalysisTool.Common;
 using StatisticsAnalysisTool.Network;
 using System;
 using System.Collections.ObjectModel;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace StatisticsAnalysisTool.ViewModels;
 
-public partial class TranslatorViewModel : ViewModelBase
+public partial class ChatViewModel : ViewModelBase
 {
-    private readonly TranslationService _translationService = TranslationService.Instance;
-
     [ObservableProperty] private ObservableCollection<ChatMessageEntry> _messages = new();
     [ObservableProperty] private ObservableCollection<ChatMessageEntry> _filteredMessages = new();
-    [ObservableProperty] private bool _translationEnabled = true;
-    [ObservableProperty] private string _selectedTargetLanguage = "English";
-    [ObservableProperty] private ObservableCollection<string> _targetLanguages = new();
     [ObservableProperty] private string _selectedChannelFilter = "All";
     [ObservableProperty] private ObservableCollection<string> _channelFilters = new();
     [ObservableProperty] private string _statusText = "Listening for chat...";
     [ObservableProperty] private int _messageCount;
-    [ObservableProperty] private int _translatedCount;
     [ObservableProperty] private bool _autoScroll = true;
-
-    // Type-to-translate compose box
-    [ObservableProperty] private string _inputText = string.Empty;
-    [ObservableProperty] private string _inputTranslatedText = string.Empty;
-    [ObservableProperty] private string _selectedInputLanguage = "Spanish";
-    [ObservableProperty] private bool _inputTranslating;
-    [ObservableProperty] private bool _hasInputTranslation;
 
     // Channel visibility toggles
     [ObservableProperty] private bool _showSay = true;
@@ -45,22 +28,8 @@ public partial class TranslatorViewModel : ViewModelBase
     [ObservableProperty] private bool _showRecruitment = true;
     [ObservableProperty] private bool _showGlobal = true;
 
-    public TranslatorViewModel()
+    public ChatViewModel()
     {
-        // Language options
-        TargetLanguages.Add("English");
-        TargetLanguages.Add("Spanish");
-        TargetLanguages.Add("Portuguese");
-        TargetLanguages.Add("French");
-        TargetLanguages.Add("German");
-        TargetLanguages.Add("Russian");
-        TargetLanguages.Add("Korean");
-        TargetLanguages.Add("Chinese");
-        TargetLanguages.Add("Japanese");
-        TargetLanguages.Add("Arabic");
-        TargetLanguages.Add("Turkish");
-        TargetLanguages.Add("Polish");
-
         // Channel filter options
         ChannelFilters.Add("All");
         ChannelFilters.Add("Say");
@@ -102,38 +71,6 @@ public partial class TranslatorViewModel : ViewModelBase
 
             ApplyFilter();
         });
-
-        // Translate in background
-        if (TranslationEnabled)
-        {
-            _ = TranslateMessageAsync(entry);
-        }
-    }
-
-    private async Task TranslateMessageAsync(ChatMessageEntry entry)
-    {
-        try
-        {
-            var targetCode = GetLanguageCode(SelectedTargetLanguage);
-            _translationService.TargetLanguage = targetCode;
-
-            var result = await _translationService.TranslateAsync(entry.OriginalText);
-
-            if (!result.Error && result.TranslatedText != entry.OriginalText)
-            {
-                Avalonia.Threading.Dispatcher.UIThread.Post(() =>
-                {
-                    entry.TranslatedText = result.TranslatedText;
-                    entry.DetectedLanguage = result.DetectedLanguage ?? "unknown";
-                    entry.IsTranslated = true;
-                    TranslatedCount++;
-                });
-            }
-        }
-        catch (Exception ex)
-        {
-            Log.Debug(ex, "Translation failed for: {Text}", entry.OriginalText);
-        }
     }
 
     partial void OnSelectedChannelFilterChanged(string value) => ApplyFilter();
@@ -203,79 +140,6 @@ public partial class TranslatorViewModel : ViewModelBase
         Messages.Clear();
         FilteredMessages.Clear();
         MessageCount = 0;
-        TranslatedCount = 0;
-    }
-
-    [RelayCommand]
-    private void ToggleTranslation()
-    {
-        TranslationEnabled = !TranslationEnabled;
-        StatusText = TranslationEnabled ? "Translation ON" : "Translation OFF";
-    }
-
-    /// <summary>
-    /// Translate whatever the user typed into the compose box,
-    /// into the language they picked (for replying in chat).
-    /// </summary>
-    [RelayCommand]
-    private async Task TranslateInput()
-    {
-        if (string.IsNullOrWhiteSpace(InputText) || InputTranslating)
-            return;
-
-        InputTranslating = true;
-        try
-        {
-            var targetCode = GetLanguageCode(SelectedInputLanguage);
-            var result = await _translationService.TranslateAsync(InputText, targetCode);
-
-            InputTranslatedText = result.Error
-                ? "⚠ Translation failed — try again"
-                : result.TranslatedText;
-            HasInputTranslation = true;
-        }
-        catch (Exception ex)
-        {
-            Log.Debug(ex, "Input translation failed");
-            InputTranslatedText = "⚠ Translation failed — try again";
-        }
-        finally
-        {
-            InputTranslating = false;
-        }
-    }
-
-    [RelayCommand]
-    private async Task CopyInputTranslation()
-    {
-        if (string.IsNullOrEmpty(InputTranslatedText))
-            return;
-
-        var clipboard = Avalonia.Application.Current?.ApplicationLifetime is
-            Avalonia.Controls.ApplicationLifetimes.IClassicDesktopStyleApplicationLifetime desktop
-            ? desktop.MainWindow?.Clipboard : null;
-
-        if (clipboard != null)
-            await Avalonia.Input.Platform.ClipboardExtensions.SetTextAsync(clipboard, InputTranslatedText);
-    }
-
-    private static string GetLanguageCode(string language)
-    {
-        return language switch
-        {
-            "Spanish" => "es",
-            "Portuguese" => "pt",
-            "French" => "fr",
-            "German" => "de",
-            "Russian" => "ru",
-            "Korean" => "ko",
-            "Chinese" => "zh",
-            "Japanese" => "ja",
-            "Arabic" => "ar",
-            "Turkish" => "tr",
-            "Polish" => "pl",
-            _ => "en"
-        };
     }
 }
 
@@ -287,30 +151,7 @@ public class ChatMessageEntry : ObservableObject
     public ChatChannelType Channel { get; set; }
     public string ChannelName { get; set; } = string.Empty;
 
-    private string _translatedText = string.Empty;
-    public string TranslatedText
-    {
-        get => _translatedText;
-        set => SetProperty(ref _translatedText, value);
-    }
-
-    private string _detectedLanguage = string.Empty;
-    public string DetectedLanguage
-    {
-        get => _detectedLanguage;
-        set => SetProperty(ref _detectedLanguage, value);
-    }
-
-    private bool _isTranslated;
-    public bool IsTranslated
-    {
-        get => _isTranslated;
-        set => SetProperty(ref _isTranslated, value);
-    }
-
     public string TimestampDisplay => Timestamp.ToString("HH:mm:ss");
-    public string DisplayText => IsTranslated ? TranslatedText : OriginalText;
-    public string LanguageTag => IsTranslated ? $"[{DetectedLanguage}→en]" : "";
 
     public string ChannelColor => Channel switch
     {

@@ -14,7 +14,6 @@ namespace StatisticsAnalysisTool.Network.PacketProviders;
 /// <summary>
 /// libpcap-based packet provider using SharpPcap.
 /// Captures Ethernet frames and extracts UDP payloads for Photon parsing.
-/// Same approach as the working Albion Online Translator.
 /// </summary>
 public class LibpcapPacketProvider : PacketProvider
 {
