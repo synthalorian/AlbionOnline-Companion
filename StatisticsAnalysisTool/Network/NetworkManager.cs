@@ -38,6 +38,10 @@ public class NetworkManager : IDisposable
     private ChatWhisperEventHandler? _chatWhisperHandler;
     private JoinedChatChannelEventHandler? _joinedChannelHandler;
     private LeftChatChannelEventHandler? _leftChannelHandler;
+    private PartyJoinedEventHandler? _partyJoinedHandler;
+    private PartyPlayerJoinedEventHandler? _partyPlayerJoinedHandler;
+    private PartyPlayerLeftEventHandler? _partyPlayerLeftHandler;
+    private PartyDisbandedEventHandler? _partyDisbandedHandler;
 
     public bool IsRunning => _isRunning;
     public event EventHandler<string>? StatusChanged;
@@ -111,6 +115,16 @@ public class NetworkManager : IDisposable
         _leftChannelHandler = new LeftChatChannelEventHandler();
         _receiverBuilder.AddEventHandler(_joinedChannelHandler);
         _receiverBuilder.AddEventHandler(_leftChannelHandler);
+
+        // Register party handlers (roster + ObjectId→Name for the damage meter)
+        _partyJoinedHandler = new PartyJoinedEventHandler();
+        _partyPlayerJoinedHandler = new PartyPlayerJoinedEventHandler();
+        _partyPlayerLeftHandler = new PartyPlayerLeftEventHandler();
+        _partyDisbandedHandler = new PartyDisbandedEventHandler();
+        _receiverBuilder.AddEventHandler(_partyJoinedHandler);
+        _receiverBuilder.AddEventHandler(_partyPlayerJoinedHandler);
+        _receiverBuilder.AddEventHandler(_partyPlayerLeftHandler);
+        _receiverBuilder.AddEventHandler(_partyDisbandedHandler);
 
         // Set static refs
 

@@ -161,11 +161,48 @@
 
             <!-- Your Stats Tab -->
             <TabItem Header="YOUR STATS">
-                <Border Background="{DynamicResource ThemeBackground}" CornerRadius="4" Padding="16">
-                    <TextBlock Text="Your stats will appear here after combat"
-                               Foreground="{DynamicResource ThemeForegroundDim}"
-                               HorizontalAlignment="Center"
-                               VerticalAlignment="Center"/>
+                <Border Background="{DynamicResource ThemeBackground}" CornerRadius="4" Padding="24">
+                    <Grid>
+                        <!-- Stats panel -->
+                        <StackPanel IsVisible="{Binding HasYourStats}" HorizontalAlignment="Center" VerticalAlignment="Center" Spacing="16">
+                            <StackPanel HorizontalAlignment="Center" Spacing="4">
+                                <TextBlock Text="{Binding YourName}"
+                                           Foreground="{DynamicResource ThemeForeground}"
+                                           FontSize="22" FontWeight="Bold"
+                                           HorizontalAlignment="Center"/>
+                                <TextBlock Text="{Binding YourRank}"
+                                           Foreground="{DynamicResource ThemeForegroundDim}"
+                                           FontSize="13"
+                                           HorizontalAlignment="Center"/>
+                            </StackPanel>
+
+                            <Grid ColumnDefinitions="Auto,Auto" RowDefinitions="Auto,Auto" ColumnSpacing="48" RowSpacing="16" HorizontalAlignment="Center">
+                                <StackPanel Grid.Row="0" Grid.Column="0" Spacing="2">
+                                    <TextBlock Text="DAMAGE" Foreground="{DynamicResource ThemeForegroundDim}" FontSize="11" FontWeight="Bold"/>
+                                    <TextBlock Text="{Binding YourDamage}" Foreground="{DynamicResource ThemeError}" FontSize="20" FontWeight="Bold"/>
+                                </StackPanel>
+                                <StackPanel Grid.Row="0" Grid.Column="1" Spacing="2">
+                                    <TextBlock Text="DPS" Foreground="{DynamicResource ThemeForegroundDim}" FontSize="11" FontWeight="Bold"/>
+                                    <TextBlock Text="{Binding YourDps}" Foreground="{DynamicResource ThemeError}" FontSize="20" FontWeight="Bold"/>
+                                </StackPanel>
+                                <StackPanel Grid.Row="1" Grid.Column="0" Spacing="2">
+                                    <TextBlock Text="HEALING" Foreground="{DynamicResource ThemeForegroundDim}" FontSize="11" FontWeight="Bold"/>
+                                    <TextBlock Text="{Binding YourHealing}" Foreground="{DynamicResource ThemeAccentSecondary}" FontSize="20" FontWeight="Bold"/>
+                                </StackPanel>
+                                <StackPanel Grid.Row="1" Grid.Column="1" Spacing="2">
+                                    <TextBlock Text="HPS" Foreground="{DynamicResource ThemeForegroundDim}" FontSize="11" FontWeight="Bold"/>
+                                    <TextBlock Text="{Binding YourHps}" Foreground="{DynamicResource ThemeAccentSecondary}" FontSize="20" FontWeight="Bold"/>
+                                </StackPanel>
+                            </Grid>
+                        </StackPanel>
+
+                        <!-- Empty state -->
+                        <TextBlock IsVisible="{Binding !HasYourStats}"
+                                   Text="Your stats will appear here after combat"
+                                   Foreground="{DynamicResource ThemeForegroundDim}"
+                                   HorizontalAlignment="Center"
+                                   VerticalAlignment="Center"/>
+                    </Grid>
                 </Border>
             </TabItem>
         </TabControl>

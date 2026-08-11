@@ -2,6 +2,7 @@ using Serilog;
 using StatisticsAnalysisTool.Network.Events;
 using StatisticsAnalysisTool.ViewModels;
 using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace StatisticsAnalysisTool.Network.Handlers;
@@ -25,7 +26,12 @@ public class DashboardEventHandler : EventPacketHandler<UpdateFameEvent>
     private double _combatFame;
     private double _gatheringFame;
     private double _craftingFame;
+    private double _farmingFame;
     private DateTime _sessionStart = DateTime.UtcNow;
+
+    // Dedupe: fame events arrive doubled (single + batch delivery)
+    private readonly HashSet<string> _recentFame = new();
+    private DateTime _lastFamePrune = DateTime.UtcNow;
 
     // Last known totals (for delta calculation)
     private double _lastTotalFame;
@@ -64,18 +70,46 @@ public class DashboardEventHandler : EventPacketHandler<UpdateFameEvent>
             // Use TotalGainedFame from the event (already calculated correctly)
             if (gainedFame > 0)
             {
+                // Dedupe doubled delivery (same event via two packet paths)
+                var dedupeKey = $"{value.ObjectId}:{totalFame}:{gainedFame}";
+                if (!_recentFame.Add(dedupeKey))
+                {
+                    _lastTotalFame = totalFame;
+                    return Task.CompletedTask;
+                }
+                if (_recentFame.Count > 200 || (DateTime.UtcNow - _lastFamePrune).TotalSeconds > 30)
+                {
+                    _recentFame.Clear();
+                    _recentFame.Add(dedupeKey);
+                    _lastFamePrune = DateTime.UtcNow;
+                }
+
                 _sessionFame += gainedFame;
 
-                // Categorize fame
-                // If SatchelFame > 0, it's crafting; if ZoneFame > 0, it's combat/gathering
-                if (value.SatchelFame.DoubleValue > 0)
+                // Ground-truth logging while we figure out how to distinguish
+                // combat vs gathering fame
+                var entityType = _entityTracker.GetEntity(value.ObjectId)?.Type.ToString() ?? "untracked";
+                Log.Information("UpdateFame: objectId={Id} ({Type}) gained={Gained} zoneFame={Zone} satchel={Satchel} premium={Premium}",
+                    value.ObjectId, entityType, gainedFame, value.ZoneFame.DoubleValue,
+                    value.SatchelFame.DoubleValue, value.IsPremiumBonus);
+
+                // Categorize fame (verified from live capture 2026-08):
+                // - Mob kills arrive with ZoneFame > 0 → combat
+                // - SatchelFame is the Satchel of Insight bonus riding along
+                //   with any fame type — NOT a category of its own
+                // - Island zones + no zone fame → crop/animal farming
+                // - Everything else with no zone fame → gathering/crafting ticks
+                if (value.ZoneFame.DoubleValue > 0)
                 {
-                    _craftingFame += gainedFame;
+                    _combatFame += gainedFame;
+                }
+                else if (ClusterTracker.Instance.CurrentCluster.StartsWith("@ISLAND@", StringComparison.OrdinalIgnoreCase))
+                {
+                    _farmingFame += gainedFame;
                 }
                 else
                 {
-                    // Default to combat for now — gathering events have different signatures
-                    _combatFame += gainedFame;
+                    _gatheringFame += gainedFame;
                 }
 
                 var hours = Math.Max(0.001, (DateTime.UtcNow - _sessionStart).TotalHours);
@@ -91,6 +125,8 @@ public class DashboardEventHandler : EventPacketHandler<UpdateFameEvent>
                     _viewModel.GatheringFamePerHour = FormatNumber(_gatheringFame / hours) + " /h";
                     _viewModel.CraftingFame = FormatNumber(_craftingFame);
                     _viewModel.CraftingFamePerHour = FormatNumber(_craftingFame / hours) + " /h";
+                    _viewModel.FarmingFame = FormatNumber(_farmingFame);
+                    _viewModel.FarmingFamePerHour = FormatNumber(_farmingFame / hours) + " /h";
                     _viewModel.PlayerName = _entityTracker.LocalPlayerName;
                     _viewModel.UpdateSessionDuration();
                 });
@@ -125,6 +161,14 @@ public class DashboardEventHandler : EventPacketHandler<UpdateFameEvent>
         Avalonia.Threading.Dispatcher.UIThread.Post(() =>
         {
             _viewModel.TotalSilver = FormatNumber(totalSilver);
+        });
+    }
+
+    public void OnReSpecTotalUpdated(double totalReSpec)
+    {
+        Avalonia.Threading.Dispatcher.UIThread.Post(() =>
+        {
+            _viewModel.TotalReSpecPoints = FormatNumber(totalReSpec);
         });
     }
 
@@ -211,7 +255,7 @@ public class DashboardEventHandler : EventPacketHandler<UpdateFameEvent>
     public void ResetSession()
     {
         _sessionFame = _sessionSilver = _sessionReSpec = _sessionMight = _sessionFavor = 0;
-        _combatFame = _gatheringFame = _craftingFame = 0;
+        _combatFame = _gatheringFame = _craftingFame = _farmingFame = 0;
         _sessionStart = DateTime.UtcNow;
         _hasBaseline = false;
     }

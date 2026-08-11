@@ -9,7 +9,7 @@ namespace StatisticsAnalysisTool.ViewModels;
 public partial class DamageMeterViewModel : ViewModelBase
 {
     [ObservableProperty]
-    private bool _isDamageMeterActive;
+    private bool _isDamageMeterActive = true;
 
     [ObservableProperty]
     private string _damageMeterActivationToggleIcon = "⏻";
@@ -50,12 +50,40 @@ public partial class DamageMeterViewModel : ViewModelBase
     [ObservableProperty]
     private bool _isInfoPopupVisible;
 
+    // YOUR STATS tab — local player's own combat numbers
+    [ObservableProperty]
+    private bool _hasYourStats;
+
+    [ObservableProperty]
+    private string _yourName = string.Empty;
+
+    [ObservableProperty]
+    private string _yourRank = string.Empty;
+
+    [ObservableProperty]
+    private string _yourDamage = "0";
+
+    [ObservableProperty]
+    private string _yourDps = "0";
+
+    [ObservableProperty]
+    private string _yourHealing = "0";
+
+    [ObservableProperty]
+    private string _yourHps = "0";
+
     public DamageMeterViewModel()
     {
         SortOptions.Add("Damage");
         SortOptions.Add("DPS");
         SortOptions.Add("Healing");
         SortOptions.Add("HPS");
+    }
+
+    // Sort dropdown changed: re-format and re-rank existing entries
+    partial void OnSelectedSortOptionChanged(string value)
+    {
+        Network.Handlers.DamageMeterEventHandler.RefreshView(this);
     }
 
     [RelayCommand]
@@ -108,6 +136,7 @@ public partial class DamageMeterViewModel : ViewModelBase
 public class DamageMeterEntry
 {
     public int Rank { get; set; }
+    public long CauserId { get; set; }
     public string PlayerName { get; set; } = string.Empty;
     public string ValueString { get; set; } = string.Empty;
     public double Damage { get; set; }

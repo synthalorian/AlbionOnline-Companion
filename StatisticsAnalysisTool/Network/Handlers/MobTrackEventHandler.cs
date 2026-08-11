@@ -1,6 +1,7 @@
 using Serilog;
 using StatisticsAnalysisTool.Network.Events;
 using System;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace StatisticsAnalysisTool.Network.Handlers;
@@ -22,10 +23,16 @@ public class MobTrackEventHandler : EventPacketHandler<NewMobEvent>
     {
         try
         {
+            // Param 2 sometimes contains a numeric field (e.g. 255) rather than
+            // a real name — discard purely numeric "names" so fallbacks kick in
+            var name = value.Name;
+            if (!string.IsNullOrEmpty(name) && name.All(char.IsDigit))
+                name = string.Empty;
+
             _entityTracker.AddMob(
                 value.ObjectId,
                 value.MobId,
-                value.Name,
+                name,
                 value.Tier,
                 value.Health,
                 value.MaxHealth);

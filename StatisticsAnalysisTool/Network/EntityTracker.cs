@@ -26,11 +26,21 @@ public class EntityTracker
 
     /// <summary>
     /// Explicitly set the local player (from JoinResponse).
+    /// Also registers them as a tracked entity so GetName resolves.
     /// </summary>
     public void SetLocalPlayer(long objectId, string name)
     {
         LocalPlayerId = objectId;
         LocalPlayerName = name;
+
+        var entity = _entities.GetOrAdd(objectId, _ => new TrackedEntity
+        {
+            ObjectId = objectId,
+            Type = EntityType.Player
+        });
+        entity.Name = name;
+        entity.LastSeen = DateTime.UtcNow;
+
         Log.Information("Local player set: {Name} (ID: {Id})", name, objectId);
     }
 
@@ -122,7 +132,12 @@ public class EntityTracker
     public string GetName(long objectId)
     {
         if (_entities.TryGetValue(objectId, out var entity))
-            return entity.Name;
+        {
+            if (!string.IsNullOrEmpty(entity.Name))
+                return entity.Name;
+
+            return entity.Type == EntityType.Mob ? $"Mob_{entity.MobId}" : $"Player_{objectId}";
+        }
         return $"Unknown_{objectId}";
     }
 
