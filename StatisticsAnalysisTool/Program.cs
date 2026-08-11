@@ -30,13 +30,8 @@ sealed class Program
 
         try
         {
-            var lifetime = new Avalonia.Controls.ApplicationLifetimes.ClassicDesktopStyleApplicationLifetime
-            {
-                Args = args,
-                ShutdownMode = Avalonia.Controls.ShutdownMode.OnLastWindowClose
-            };
-
-            BuildAvaloniaApp().Start(lifetime);
+            BuildAvaloniaApp().StartWithClassicDesktopLifetime(
+                args, Avalonia.Controls.ShutdownMode.OnLastWindowClose);
         }
         catch (Exception ex)
         {

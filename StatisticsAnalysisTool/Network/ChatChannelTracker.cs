@@ -66,6 +66,12 @@ public class ChatChannelTracker
     public void JoinChannel(long channelId, long chatIndex, string channelName = "")
     {
         var channelType = MapChatIndex(chatIndex);
+
+        // Fallback: if the chatIndex is unrecognized, derive the type from the
+        // channel name Albion sends (e.g. "LFG", "Trade", "Faction - Caerleon").
+        if (channelType == ChatChannelType.Unknown)
+            channelType = MapChannelName(channelName);
+
         var info = new ChatChannelInfo
         {
             ChannelId = channelId,
@@ -77,6 +83,41 @@ public class ChatChannelTracker
         _channels[channelId] = info;
         Log.Information("Chat channel joined: {Id} → {Type} ({Name}, index:{Index})",
             channelId, channelType, channelName, chatIndex);
+    }
+
+    /// <summary>
+    /// Map a channel name string to a type. Handles plain names ("LFG") and
+    /// composite names ("Faction - Caerleon") case-insensitively.
+    /// </summary>
+    private static ChatChannelType MapChannelName(string channelName)
+    {
+        if (string.IsNullOrWhiteSpace(channelName))
+            return ChatChannelType.Unknown;
+
+        var name = channelName.Trim().ToLowerInvariant();
+
+        if (name.Contains("lfg") || name.Contains("looking"))
+            return ChatChannelType.LFG;
+        if (name.Contains("recruit"))
+            return ChatChannelType.Recruitment;
+        if (name.Contains("trade"))
+            return ChatChannelType.Trade;
+        if (name.Contains("faction"))
+            return ChatChannelType.Faction;
+        if (name.Contains("guild"))
+            return ChatChannelType.Guild;
+        if (name.Contains("alliance"))
+            return ChatChannelType.Alliance;
+        if (name.Contains("party") || name.Contains("group"))
+            return ChatChannelType.Party;
+        if (name.Contains("global") || name.Contains("english") || name.Contains("international"))
+            return ChatChannelType.Global;
+        if (name.Contains("say") || name.Contains("local"))
+            return ChatChannelType.Say;
+        if (name.Contains("whisper"))
+            return ChatChannelType.Whisper;
+
+        return ChatChannelType.Unknown;
     }
 
     /// <summary>
