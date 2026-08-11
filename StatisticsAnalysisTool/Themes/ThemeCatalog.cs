@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -7,6 +8,53 @@ public static class ThemeCatalog
 {
     public static readonly List<ThemeDefinition> All = new()
     {
+        // ═══════════════════════════════════════
+        // CLASSIC — the defaults. Plain dark/light, no neon.
+        // First in the catalog so the settings dropdown leads with them.
+        // ═══════════════════════════════════════
+        new ThemeDefinition
+        {
+            Name = "dark",
+            DisplayName = "Dark (Mocha)",
+            Emoji = "🌑",
+            Description = "Catppuccin Mocha. The classic dark theme.",
+            IsDark = true,
+            // Uses all defaults from ThemeDefinition
+        },
+        new ThemeDefinition
+        {
+            Name = "light",
+            DisplayName = "Light",
+            Emoji = "☀️",
+            Description = "Clean and bright. For daylight warriors.",
+            IsDark = false,
+            Background = "#FFF5F5F5",
+            Surface = "#FFFFFFFF",
+            SurfaceAlt = "#FFE8E8E8",
+            Border = "#FFD0D0D0",
+            Foreground = "#FF1A1A2E",
+            ForegroundDim = "#FF6C7086",
+            Accent = "#FF8839EF",
+            AccentSecondary = "#FF1E66F5",
+            Success = "#FF40A02B",
+            Warning = "#FFDF8E1D",
+            Error = "#FFD20F39",
+            Info = "#FF04A5E5",
+            Orange = "#FFFE640B",
+            Purple = "#FF8839EF",
+            ButtonBackground = "#FFE0E0E0",
+            ButtonHover = "#FFD0D0D0",
+            ButtonForeground = "#FF1A1A2E",
+            InputBackground = "#FFFFFFFF",
+            InputBorder = "#FFD0D0D0",
+            InputForeground = "#FF1A1A2E",
+            ChartLine1 = "#FF8839EF",
+            ChartLine2 = "#FF1E66F5",
+            ChartLine3 = "#FF40A02B",
+            ChartLine4 = "#FFDF8E1D",
+            ChartLine5 = "#FFD20F39",
+        },
+
         // ═══════════════════════════════════════
         // SYNTHWAVE COLLECTION
         // ═══════════════════════════════════════
@@ -377,60 +425,20 @@ public static class ThemeCatalog
             ChartLine4 = "#FFFFA500",
             ChartLine5 = "#FF9370DB",
         },
-
-        // ═══════════════════════════════════════
-        // CLASSIC
-        // ═══════════════════════════════════════
-        new ThemeDefinition
-        {
-            Name = "dark",
-            DisplayName = "Dark (Mocha)",
-            Emoji = "🌑",
-            Description = "Catppuccin Mocha. The classic dark theme.",
-            IsDark = true,
-            // Uses all defaults from ThemeDefinition
-        },
-        new ThemeDefinition
-        {
-            Name = "light",
-            DisplayName = "Light",
-            Emoji = "☀️",
-            Description = "Clean and bright. For daylight warriors.",
-            IsDark = false,
-            Background = "#FFF5F5F5",
-            Surface = "#FFFFFFFF",
-            SurfaceAlt = "#FFE8E8E8",
-            Border = "#FFD0D0D0",
-            Foreground = "#FF1A1A2E",
-            ForegroundDim = "#FF6C7086",
-            Accent = "#FF8839EF",
-            AccentSecondary = "#FF1E66F5",
-            Success = "#FF40A02B",
-            Warning = "#FFDF8E1D",
-            Error = "#FFD20F39",
-            Info = "#FF04A5E5",
-            Orange = "#FFFE640B",
-            Purple = "#FF8839EF",
-            ButtonBackground = "#FFE0E0E0",
-            ButtonHover = "#FFD0D0D0",
-            ButtonForeground = "#FF1A1A2E",
-            InputBackground = "#FFFFFFFF",
-            InputBorder = "#FFD0D0D0",
-            InputForeground = "#FF1A1A2E",
-            ChartLine1 = "#FF8839EF",
-            ChartLine2 = "#FF1E66F5",
-            ChartLine3 = "#FF40A02B",
-            ChartLine4 = "#FFDF8E1D",
-            ChartLine5 = "#FFD20F39",
-        },
     };
 
     public static ThemeDefinition GetByName(string name)
     {
-        return All.FirstOrDefault(t => t.Name == name) ?? All.First(t => t.Name == "synthwave84");
+        // Case-insensitive: persisted settings pre-2026-08 used "Dark" (capital D)
+        return All.FirstOrDefault(t => string.Equals(t.Name, name, StringComparison.OrdinalIgnoreCase))
+               ?? All.First(t => t.Name == "dark");
     }
 
-    public static ThemeDefinition Default => GetByName("synthwave84");
+    /// <summary>
+    /// Default for new installs: plain Dark (Mocha). Synthwave is opt-in via
+    /// Settings — not everyone rides the neon grid.
+    /// </summary>
+    public static ThemeDefinition Default => GetByName("dark");
 
     public static List<string> Names => All.Select(t => t.FullDisplayName).ToList();
 }
