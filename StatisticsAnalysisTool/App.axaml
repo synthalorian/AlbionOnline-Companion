@@ -33,6 +33,8 @@
         <Style Selector="Window">
             <Setter Property="Background" Value="{DynamicResource ThemeBackground}" />
             <Setter Property="Foreground" Value="{DynamicResource ThemeForeground}" />
+            <!-- Orbitron as the app-wide default; Cinzel overrides on .header/.title -->
+            <Setter Property="FontFamily" Value="{StaticResource OrbitronFont}" />
         </Style>
 
         <Style Selector="TextBlock">

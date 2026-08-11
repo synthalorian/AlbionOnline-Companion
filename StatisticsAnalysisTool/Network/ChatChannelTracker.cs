@@ -32,8 +32,10 @@ public class ChatChannelTracker
             { 0, (ChatChannelType.Say, "Local") },
             { 1, (ChatChannelType.Global, "Global") },
             { 2, (ChatChannelType.Trade, "Trade") },
-            { 3, (ChatChannelType.LFG, "LFG") },
-            { 4, (ChatChannelType.Recruitment, "Recruitment") },
+            // Verified from live capture 2026-08: 18 = Recruitment ("RECLUTA" spam),
+            // 19 = LFG ("busco party/team"). Old guesses 3/4 were wrong.
+            { 18, (ChatChannelType.Recruitment, "Recruitment") },
+            { 19, (ChatChannelType.LFG, "LFG") },
             
             // Faction channels (city-specific)
             { 1856, (ChatChannelType.Faction, "Martlock") },

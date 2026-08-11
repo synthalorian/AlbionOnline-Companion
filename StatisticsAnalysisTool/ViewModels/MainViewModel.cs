@@ -69,6 +69,14 @@ public partial class MainViewModel : ViewModelBase
     {
         Log.Information("MainViewModel initialized");
         CurrentView = _dashboardViewModel;
+
+        // Honor the "Auto-start tracking" setting so the Translator etc.
+        // work immediately without a manual Start Tracking click.
+        if (Common.SettingsService.Instance.Settings.AutoStartTracking)
+        {
+            Log.Information("Auto-start tracking enabled — starting packet capture");
+            _ = StartTracking();
+        }
     }
 
     partial void OnSelectedTabChanged(string value)
