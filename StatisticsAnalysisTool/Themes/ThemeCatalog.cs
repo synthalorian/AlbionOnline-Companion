@@ -9,8 +9,45 @@ public static class ThemeCatalog
     public static readonly List<ThemeDefinition> All = new()
     {
         // ═══════════════════════════════════════
-        // CLASSIC — the defaults. Plain dark/light, no neon.
-        // First in the catalog so the settings dropdown leads with them.
+        // BLACKSHIELD — the default. Steel and blood.
+        // First in the catalog so the settings dropdown leads with it.
+        // ═══════════════════════════════════════
+        new ThemeDefinition
+        {
+            Name = "blackshield",
+            DisplayName = "Blackshield",
+            Emoji = "🛡️",
+            Description = "Steel and blood. Forged for the mercenary who answers to no crown.",
+            IsDark = true,
+            Background = "#FF101014",       // Iron
+            Surface = "#FF16161C",          // Steel
+            SurfaceAlt = "#FF0D0D11",       // Void
+            Border = "#FF1A1A20",           // Steel light
+            Foreground = "#FFD8D3C8",       // Bone
+            ForegroundDim = "#FF8A8F98",    // Ash
+            Accent = "#FFC1121F",           // Blood
+            AccentSecondary = "#FF7B9DC4",  // Steel blue
+            Success = "#FF6A994E",          // Field green
+            Warning = "#FFC9A227",          // War gold
+            Error = "#FFC1121F",            // Blood
+            Info = "#FF5B7FA6",             // Steel blue
+            Orange = "#FFC9A227",           // War gold
+            Purple = "#FFA4508B",           // Royal purple
+            ButtonBackground = "#FF16161C",
+            ButtonHover = "#FF1A1A20",
+            ButtonForeground = "#FFD8D3C8",
+            InputBackground = "#FF0D0D11",
+            InputBorder = "#FF1A1A20",
+            InputForeground = "#FFD8D3C8",
+            ChartLine1 = "#FFC1121F",
+            ChartLine2 = "#FF7B9DC4",
+            ChartLine3 = "#FF6A994E",
+            ChartLine4 = "#FFC9A227",
+            ChartLine5 = "#FFA4508B",
+        },
+
+        // ═══════════════════════════════════════
+        // CLASSIC — plain dark/light, no neon.
         // ═══════════════════════════════════════
         new ThemeDefinition
         {
@@ -431,14 +468,14 @@ public static class ThemeCatalog
     {
         // Case-insensitive: persisted settings pre-2026-08 used "Dark" (capital D)
         return All.FirstOrDefault(t => string.Equals(t.Name, name, StringComparison.OrdinalIgnoreCase))
-               ?? All.First(t => t.Name == "dark");
+               ?? All.First(t => t.Name == "blackshield");
     }
 
     /// <summary>
-    /// Default for new installs: plain Dark (Mocha). Synthwave is opt-in via
-    /// Settings — not everyone rides the neon grid.
+    /// Default for new installs: Blackshield. Steel and blood flies the banner;
+    /// every other theme stays selectable in Settings.
     /// </summary>
-    public static ThemeDefinition Default => GetByName("dark");
+    public static ThemeDefinition Default => GetByName("blackshield");
 
     public static List<string> Names => All.Select(t => t.FullDisplayName).ToList();
 }
