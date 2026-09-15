@@ -135,7 +135,7 @@ See [LICENSE](LICENSE) for details.
 
 ---
 
-*"Stay retro, stay futuristic."* 🎹🦞
+*"Stay retro, stay futuristic."* ⚫🦞
 
 ---
 
