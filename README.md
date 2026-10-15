@@ -1,3 +1,5 @@
+![AlbionOnline-Companion](.github/preview.png)
+
 # ⚔️ Albion Online Companion
 
 <p align="center">
